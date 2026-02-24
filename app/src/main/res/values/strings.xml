@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DNSphere</string>
+    <string name="widget_description">Contrôle rapide de DNSphere</string>
+
+    <!-- Main Activity -->
+    <string name="protection_enabled">🛡️ Protection activée</string>
+    <string name="protection_disabled">Protection désactivée</string>
+
+    <!-- Stats -->
+    <string name="ads_blocked">Pubs bloquées</string>
+    <string name="trackers_blocked">Trackers bloqués</string>
+
+    <!-- Options -->
+    <string name="block_ads">Bloquer les publicités</string>
+    <string name="block_trackers">Bloquer les trackers</string>
+    <string name="block_malware">Protection malware</string>
+
+    <!-- Actions -->
+    <string name="logs">Logs</string>
+    <string name="whitelist">Whitelist</string>
+    <string name="settings">Paramètres</string>
+
+    <!-- Lists -->
+    <string name="import_from_url">Importer depuis URL</string>
+    <string name="import_from_file">Importer un fichier</string>
+    <string name="popular_lists">Listes populaires</string>
+
+    <!-- Messages -->
+    <string name="vpn_permission_denied">Permission VPN refusée</string>
+    <string name="list_imported">Liste importée avec succès</string>
+    <string name="import_error">Erreur lors de l\'import</string>
+    <string name="logs_cleared">Logs effacés</string>
+</resources>

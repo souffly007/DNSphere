@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="doh_providers">
+        <item>Cloudflare (rapide, recommandé)</item>
+        <item>Google</item>
+        <item>Quad9 (sécurité renforcée)</item>
+        <item>AdGuard (bloque les pubs)</item>
+    </string-array>
+
+    <string-array name="doh_provider_values">
+        <item>cloudflare</item>
+        <item>google</item>
+        <item>quad9</item>
+        <item>adguard</item>
+    </string-array>
+
+    <string-array name="list_types">
+        <item>Publicités</item>
+        <item>Trackers</item>
+        <item>Malware</item>
+        <item>Personnalisé</item>
+    </string-array>
+</resources>

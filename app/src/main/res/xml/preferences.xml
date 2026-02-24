@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- DNS sécurisé -->
+    <PreferenceCategory
+        android:title="🔐 DNS sécurisé"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:key="use_doh"
+            android:title="DNS over HTTPS (DoH)"
+            android:summary="Chiffrer les requêtes DNS pour plus de confidentialité"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false"/>
+
+        <ListPreference
+            android:key="doh_provider"
+            android:title="Serveur DoH"
+            android:summary="Cloudflare (recommandé)"
+            android:entries="@array/doh_providers"
+            android:entryValues="@array/doh_provider_values"
+            android:defaultValue="cloudflare"
+            android:dependency="use_doh"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Listes de blocage -->
+    <PreferenceCategory
+        android:title="📋 Listes de blocage"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="manage_lists"
+            android:title="Gérer les listes"
+            android:summary="Ajouter, supprimer ou mettre à jour les listes"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Applications -->
+    <PreferenceCategory
+        android:title="📱 Applications"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="excluded_apps"
+            android:title="Applications exclues"
+            android:summary="Ces apps ne seront pas filtrées"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Données -->
+    <PreferenceCategory
+        android:title="💾 Données"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="clear_logs"
+            android:title="Effacer les logs"
+            android:summary="Supprimer l'historique des blocages"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- À propos -->
+    <PreferenceCategory
+        android:title="ℹ️ À propos"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="version"
+            android:title="Version"
+            android:summary="DNSphere v1.0"
+            android:selectable="false"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="github"
+            android:title="Code source"
+            android:summary="Voir sur GitHub"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
