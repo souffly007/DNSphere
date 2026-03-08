@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Aucun domaine en whitelist"
+            android:text="@string/whitelist_empty"
             android:textColor="@color/gray"
             android:textSize="16sp"
             android:visibility="gone"/>
@@ -36,6 +36,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
+        android:contentDescription="@string/whitelist_add_title"
         app:tint="@android:color/white"
         app:backgroundTint="@color/green"/>
 

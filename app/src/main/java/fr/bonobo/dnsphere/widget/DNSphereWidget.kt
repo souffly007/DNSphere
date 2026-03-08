@@ -8,9 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import fr.bonobo.dnsphere.LocalVpnService
-import fr.bonobo.dnsphere.MainActivity
+import fr.bonobo.dnsphere.MainActivity  // ← Ajoute cet import
 import fr.bonobo.dnsphere.R
-
 class DnsphereWidget : AppWidgetProvider() {
 
     companion object {

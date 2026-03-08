@@ -4,20 +4,20 @@
 
     <!-- DNS sécurisé -->
     <PreferenceCategory
-        android:title="🔐 DNS sécurisé"
+        android:title="@string/pref_category_secure_dns"
         app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             android:key="use_doh"
-            android:title="DNS over HTTPS (DoH)"
-            android:summary="Chiffrer les requêtes DNS pour plus de confidentialité"
+            android:title="@string/pref_use_doh_title"
+            android:summary="@string/pref_use_doh_summary"
             android:defaultValue="false"
             app:iconSpaceReserved="false"/>
 
         <ListPreference
             android:key="doh_provider"
-            android:title="Serveur DoH"
-            android:summary="Cloudflare (recommandé)"
+            android:title="@string/pref_doh_provider_title"
+            android:summary="@string/doh_provider_cloudflare"
             android:entries="@array/doh_providers"
             android:entryValues="@array/doh_provider_values"
             android:defaultValue="cloudflare"
@@ -26,61 +26,119 @@
 
     </PreferenceCategory>
 
-    <!-- Listes de blocage -->
+    <!-- Mode planifié -->
     <PreferenceCategory
-        android:title="📋 Listes de blocage"
+        android:title="@string/pref_category_schedule"
         app:iconSpaceReserved="false">
 
         <Preference
+            android:key="schedule"
+            android:title="@string/schedule_title"
+            android:summary="@string/pref_schedule_summary"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Profils -->
+    <PreferenceCategory
+        android:title="@string/pref_category_profiles"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="profiles"
+            android:title="@string/profiles_title"
+            android:summary="@string/pref_profiles_summary"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Sécurité -->
+    <PreferenceCategory
+        android:title="@string/pref_category_security"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="security"
+            android:title="@string/security_title"
+            android:summary="@string/pref_security_summary"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
+    <!-- Listes de blocage -->
+    <PreferenceCategory
+        android:title="@string/pref_category_blocklists"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="external_lists"
+            android:title="@string/pref_external_lists_title"
+            android:summary="@string/pref_external_lists_summary"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
             android:key="manage_lists"
-            android:title="Gérer les listes"
-            android:summary="Ajouter, supprimer ou mettre à jour les listes"
+            android:title="@string/pref_manage_lists_title"
+            android:summary="@string/pref_manage_lists_summary"
             app:iconSpaceReserved="false"/>
 
     </PreferenceCategory>
 
     <!-- Applications -->
     <PreferenceCategory
-        android:title="📱 Applications"
+        android:title="@string/pref_category_apps"
         app:iconSpaceReserved="false">
 
         <Preference
             android:key="excluded_apps"
-            android:title="Applications exclues"
-            android:summary="Ces apps ne seront pas filtrées"
+            android:title="@string/pref_excluded_apps_title"
+            android:summary="@string/pref_excluded_apps_summary"
             app:iconSpaceReserved="false"/>
 
     </PreferenceCategory>
 
     <!-- Données -->
     <PreferenceCategory
-        android:title="💾 Données"
+        android:title="@string/pref_category_data"
         app:iconSpaceReserved="false">
 
         <Preference
             android:key="clear_logs"
-            android:title="Effacer les logs"
-            android:summary="Supprimer l'historique des blocages"
+            android:title="@string/pref_clear_logs_title"
+            android:summary="@string/pref_clear_logs_summary"
             app:iconSpaceReserved="false"/>
 
     </PreferenceCategory>
 
     <!-- À propos -->
     <PreferenceCategory
-        android:title="ℹ️ À propos"
+        android:title="@string/pref_category_about"
         app:iconSpaceReserved="false">
 
         <Preference
             android:key="version"
-            android:title="Version"
-            android:summary="DNSphere v1.0"
+            android:title="@string/pref_version_title"
+            android:summary="@string/pref_version_summary"
             android:selectable="false"
             app:iconSpaceReserved="false"/>
 
         <Preference
+            android:key="developer"
+            android:title="@string/pref_developer_title"
+            android:summary="@string/pref_developer_summary"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
             android:key="github"
-            android:title="Code source"
-            android:summary="Voir sur GitHub"
+            android:title="@string/pref_github_title"
+            android:summary="@string/pref_github_summary"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            android:key="license"
+            android:title="@string/pref_license_title"
+            android:summary="SPDX-License-Identifier: GPL-3.0-or-later"
+            android:selectable="false"
             app:iconSpaceReserved="false"/>
 
     </PreferenceCategory>

@@ -1,7 +1,5 @@
 package fr.bonobo.dnsphere.ui
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +18,7 @@ import fr.bonobo.dnsphere.R
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.CustomList
 import fr.bonobo.dnsphere.utils.ListImporter
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -66,9 +65,6 @@ class ListManagerActivity : AppCompatActivity() {
                     database.customListDao().setListEnabled(list.id, enabled)
                 }
             },
-            onUpdate = { list ->
-                updateList(list)
-            },
             onDelete = { list ->
                 confirmDelete(list)
             }
@@ -83,9 +79,11 @@ class ListManagerActivity : AppCompatActivity() {
     }
 
     private fun observeLists() {
-        database.customListDao().getAllLists().observe(this) { lists ->
-            adapter.submitList(lists)
-            emptyView.visibility = if (lists.isEmpty()) View.VISIBLE else View.GONE
+        lifecycleScope.launch {
+            database.customListDao().getAllLists().collectLatest { lists ->
+                adapter.submitList(lists)
+                emptyView.visibility = if (lists.isEmpty()) View.VISIBLE else View.GONE
+            }
         }
     }
 
@@ -114,7 +112,6 @@ class ListManagerActivity : AppCompatActivity() {
         val etUrl = dialogView.findViewById<EditText>(R.id.etUrl)
         val spinnerType = dialogView.findViewById<Spinner>(R.id.spinnerType)
 
-        // Setup spinner
         val types = arrayOf("Publicités", "Trackers", "Malware", "Personnalisé")
         spinnerType.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, types)
 
@@ -158,11 +155,7 @@ class ListManagerActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val result = listImporter.importFromUrl(name, url, type) { lines, domains ->
-                runOnUiThread {
-                    // Optionnel: afficher la progression
-                }
-            }
+            val result = listImporter.importFromUrl(name, url, type) { _, _ -> }
 
             progressBar.visibility = View.GONE
 
@@ -238,32 +231,6 @@ class ListManagerActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun updateList(list: CustomList) {
-        progressBar.visibility = View.VISIBLE
-
-        lifecycleScope.launch {
-            val result = listImporter.updateList(list)
-            progressBar.visibility = View.GONE
-
-            when (result) {
-                is ListImporter.ImportResult.Success -> {
-                    Toast.makeText(
-                        this@ListManagerActivity,
-                        "✅ Liste mise à jour (${result.domainCount} domaines)",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                is ListImporter.ImportResult.Error -> {
-                    Toast.makeText(
-                        this@ListManagerActivity,
-                        "❌ Erreur: ${result.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
     private fun confirmDelete(list: CustomList) {
         AlertDialog.Builder(this)
             .setTitle("Supprimer la liste")
@@ -284,10 +251,8 @@ class ListManagerActivity : AppCompatActivity() {
         return true
     }
 
-    // Adapter
     inner class ListAdapter(
         private val onToggle: (CustomList, Boolean) -> Unit,
-        private val onUpdate: (CustomList) -> Unit,
         private val onDelete: (CustomList) -> Unit
     ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
@@ -314,29 +279,18 @@ class ListManagerActivity : AppCompatActivity() {
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             private val tvName: TextView = view.findViewById(R.id.tvName)
             private val tvInfo: TextView = view.findViewById(R.id.tvInfo)
-            private val tvType: TextView = view.findViewById(R.id.tvType)
             private val switchEnabled: SwitchMaterial = view.findViewById(R.id.switchEnabled)
-            private val btnUpdate: ImageButton = view.findViewById(R.id.btnUpdate)
             private val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
 
             fun bind(list: CustomList) {
                 tvName.text = list.name
-                tvInfo.text = "${list.domainCount} domaines • ${dateFormat.format(Date(list.lastUpdated))}"
+                tvInfo.text = "${list.domainCount} domaines • ${dateFormat.format(Date(list.createdAt))}"
 
-                tvType.text = when (list.type) {
-                    "ADS" -> "🚫 Pubs"
-                    "TRACKERS" -> "🔒 Trackers"
-                    "MALWARE" -> "☠️ Malware"
-                    else -> "📋 Custom"
-                }
-
+                switchEnabled.setOnCheckedChangeListener(null)
                 switchEnabled.isChecked = list.enabled
                 switchEnabled.setOnCheckedChangeListener { _, isChecked ->
                     onToggle(list, isChecked)
                 }
-
-                btnUpdate.visibility = if (list.url != null) View.VISIBLE else View.GONE
-                btnUpdate.setOnClickListener { onUpdate(list) }
 
                 btnDelete.setOnClickListener { onDelete(list) }
             }

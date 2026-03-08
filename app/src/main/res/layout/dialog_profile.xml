@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Nom -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_name"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/etProfileName"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/profile_name_hint"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/gray"
+            android:inputType="text"
+            android:maxLines="1"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"
+            android:background="@android:drawable/editbox_background"/>
+
+        <!-- Icône -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_icon"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnIcon1"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="🛡️"
+                android:textSize="20sp"
+                android:layout_margin="4dp"/>
+
+            <Button
+                android:id="@+id/btnIcon2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="💼"
+                android:textSize="20sp"
+                android:layout_margin="4dp"/>
+
+            <Button
+                android:id="@+id/btnIcon3"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="🏠"
+                android:textSize="20sp"
+                android:layout_margin="4dp"/>
+
+            <Button
+                android:id="@+id/btnIcon4"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="🎮"
+                android:textSize="20sp"
+                android:layout_margin="4dp"/>
+
+            <Button
+                android:id="@+id/btnIcon5"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="🔒"
+                android:textSize="20sp"
+                android:layout_margin="4dp"/>
+
+        </LinearLayout>
+
+        <!-- Options de blocage -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_blocking_options"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbAds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🚫 Publicités"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:checked="true"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbTrackers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔒 Trackers"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:checked="true"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbMalware"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="☠️ Malware"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:checked="true"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbSocial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📱 Réseaux sociaux"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbAdult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔞 Contenu adulte"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbGambling"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎰 Paris / Jeux d\'argent"
+            android:textColor="@android:color/white"
+            android:buttonTint="@color/green"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+</ScrollView>

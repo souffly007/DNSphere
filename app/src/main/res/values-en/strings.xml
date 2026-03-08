@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">DNSphere</string>
+    <string name="widget_description">Quick DNSphere control</string>
+
+    <!-- ==================== MAIN ACTIVITY ==================== -->
+    <string name="protection_enabled">🛡️ Protection enabled</string>
+    <string name="protection_disabled">Protection disabled</string>
+    <string name="status_on">ON</string>
+    <string name="status_off">OFF</string>
+
+    <string name="stats_title">📊 Statistics (tap to view logs)</string>
+    <string name="ads_blocked">Ads blocked</string>
+    <string name="trackers_blocked">Trackers blocked</string>
+    <string name="malware_blocked">Malware blocked</string>
+
+    <string name="protection_options_title">🛡️ Protection options</string>
+    <string name="block_ads">🚫 Block ads</string>
+    <string name="block_trackers">🔒 Block trackers</string>
+    <string name="block_malware">☠️ Malware protection</string>
+
+    <string name="quick_actions_title">⚡ Quick actions</string>
+    <string name="logs">📋 Logs</string>
+    <string name="whitelist">✅ Whitelist</string>
+    <string name="settings">⚙️ Settings</string>
+
+    <string name="created_by">Created by %s</string>
+    <string name="source_code_github">🔗 Source code on GitHub</string>
+
+    <!-- ==================== TOASTS / MESSAGES ==================== -->
+    <string name="vpn_permission_denied">VPN permission denied</string>
+    <string name="protection_started">🛡️ Protection enabled</string>
+    <string name="protection_stopped">Protection disabled</string>
+    <string name="cannot_open_link">Cannot open link</string>
+    <string name="doh_enabled">DoH enabled</string>
+    <string name="doh_disabled">DoH disabled</string>
+    <string name="dns_changed">DNS: %s</string>
+    <string name="logs_cleared">Logs cleared</string>
+
+    <!-- ==================== LOGS ACTIVITY ==================== -->
+    <string name="logs_toolbar_title">📋 Block logs</string>
+    <string name="logs_empty">No blocks recorded</string>
+    <string name="type_ad">Ad</string>
+    <string name="type_tracker">Tracker</string>
+    <string name="type_malware">Malware</string>
+
+    <!-- ==================== WHITELIST ACTIVITY ==================== -->
+    <string name="whitelist_toolbar_title">✅ Whitelist</string>
+    <string name="whitelist_empty">No whitelisted domains</string>
+    <string name="whitelist_add_title">Add domain</string>
+    <string name="whitelist_add_message">This domain will never be blocked</string>
+    <string name="whitelist_add_hint">example.com</string>
+
+    <!-- ==================== SETTINGS ACTIVITY ==================== -->
+    <string name="settings_toolbar_title">⚙️ Settings</string>
+
+    <!-- ==================== DIALOGS ==================== -->
+    <string name="dialog_add">Add</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_clear">Clear</string>
+    <string name="clear_logs_title">Clear logs</string>
+    <string name="clear_logs_message">Do you want to delete all block logs?</string>
+
+    <!-- ==================== PREFERENCES ==================== -->
+    <string name="pref_category_secure_dns">🔐 Secure DNS</string>
+    <string name="pref_category_blocklists">📋 Block lists</string>
+    <string name="pref_category_apps">📱 Applications</string>
+    <string name="pref_category_data">💾 Data</string>
+    <string name="pref_category_about">ℹ️ About</string>
+
+    <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="pref_use_doh_summary">Encrypt DNS requests for more privacy</string>
+    <string name="pref_doh_provider_title">DoH Server</string>
+
+    <string name="doh_provider_cloudflare">Cloudflare (recommended)</string>
+    <string name="doh_provider_google">Google</string>
+    <string name="doh_provider_quad9">Quad9 (security)</string>
+    <string name="doh_provider_adguard">AdGuard (ad-blocking)</string>
+
+    <string name="pref_external_lists_title">📥 External lists</string>
+    <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K domains)</string>
+    <string name="pref_manage_lists_title">📝 Custom lists</string>
+    <string name="pref_manage_lists_summary">Add your own domains to block</string>
+    <string name="lists_summary">%1$d active lists • %2$s domains</string>
+
+    <string name="pref_excluded_apps_title">🚫 Excluded apps</string>
+    <string name="pref_excluded_apps_summary">These apps won\'t be filtered</string>
+
+    <string name="pref_clear_logs_title">🗑️ Clear logs</string>
+    <string name="pref_clear_logs_summary">Delete blocking history</string>
+
+    <string name="pref_version_title">Version</string>
+    <string name="pref_version_summary">DNSphere v1.3</string>
+    <string name="pref_developer_title">👨‍💻 Created by</string>
+    <string name="pref_developer_summary">souffly007</string>
+    <string name="pref_github_title">🔗 Source code (GitHub)</string>
+    <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+    <string name="pref_license_title">📄 License</string>
+    <string name="pref_license_summary">MIT License - Open Source</string>
+
+    <!-- ==================== STATS ACTIVITY ==================== -->
+    <string name="stats_toolbar_title">📊 Statistics</string>
+    <string name="stats_today">Today</string>
+    <string name="stats_this_week">Week</string>
+    <string name="stats_this_month">Month</string>
+    <string name="stats_all_time">All</string>
+    <string name="stats_blocked_requests">blocked requests</string>
+    <string name="stats_by_category">📈 By category</string>
+    <string name="stats_chart_daily">📅 Daily</string>
+    <string name="stats_by_hour">🕐 By hour (today)</string>
+    <string name="stats_top_blocked">🏆 Top blocked domains</string>
+    <string name="stats_no_data">No data for this period</string>
+
+    <!-- ==================== SCHEDULE ==================== -->
+    <string name="schedule_title">⏰ Scheduled mode</string>
+    <string name="schedule_empty">No schedules</string>
+    <string name="schedule_empty_hint">Tap + to create an automatic schedule</string>
+    <string name="schedule_add">Add schedule</string>
+    <string name="schedule_edit">Edit schedule</string>
+    <string name="schedule_name">Name (optional)</string>
+    <string name="schedule_default_name">My schedule</string>
+    <string name="schedule_time_range">Time range</string>
+    <string name="schedule_days">Days</string>
+    <string name="schedule_action">Action</string>
+    <string name="schedule_action_enable">🛡️ Enable protection</string>
+    <string name="schedule_action_disable">⏸️ Disable protection</string>
+    <string name="schedule_select_day">Select at least one day</string>
+    <string name="schedule_added">Schedule added</string>
+    <string name="schedule_updated">Schedule updated</string>
+    <string name="schedule_deleted">Schedule deleted</string>
+    <string name="schedule_delete_title">Delete schedule?</string>
+    <string name="schedule_delete_message">This action cannot be undone.</string>
+
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
+
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_edit">Edit</string>
+
+    <string name="pref_schedule_summary">Activer/désactiver automatiquement</string>
+
+    <!-- ==================== PROFILES ==================== -->
+    <string name="profiles_title">📁 Blocking profiles</string>
+    <string name="profiles_all">All profiles</string>
+    <string name="profile_active">Active profile</string>
+    <string name="profile_active_badge">ACTIVE</string>
+    <string name="profile_add">New profile</string>
+    <string name="profile_edit">Edit profile</string>
+    <string name="profile_name">Profile name</string>
+    <string name="profile_name_hint">My profile</string>
+    <string name="profile_icon">Icon</string>
+    <string name="profile_blocking_options">Blocking options</string>
+    <string name="profile_activate">Activate this profile</string>
+    <string name="profile_duplicate">Duplicate</string>
+    <string name="profile_activated">Profile "%s" activated</string>
+    <string name="profile_added">Profile created</string>
+    <string name="profile_updated">Profile updated</string>
+    <string name="profile_deleted">Profile deleted</string>
+    <string name="profile_duplicated">Profile duplicated</string>
+    <string name="profile_name_required">Name is required</string>
+    <string name="profile_cannot_delete_preset">Cannot delete preset profile</string>
+    <string name="profile_cannot_delete_active">Cannot delete active profile</string>
+    <string name="profile_delete_title">Delete profile?</string>
+    <string name="profile_delete_message">Do you want to delete profile "%s"?</string>
+
+    <!-- Preferences profiles -->
+    <string name="pref_category_profiles">📁 Profiles</string>
+    <string name="pref_profiles_summary">Manage blocking profiles</string>
+
+    <!-- ==================== BIOMETRIC / SECURITY ==================== -->
+    <string name="security_title">🔐 Security</string>
+    <string name="pref_category_security">🔐 Security</string>
+    <string name="pref_security_summary">Biometric protection</string>
+
+    <string name="bio_info_title">Biometric protection</string>
+    <string name="bio_info_desc">Use your fingerprint or Face ID to protect the app</string>
+
+    <string name="bio_enable_protection">Enable protection</string>
+    <string name="bio_enable_protection_desc">Require authentication for sensitive actions</string>
+
+    <string name="bio_protection_options">Protection options</string>
+
+    <string name="bio_protect_disable">VPN deactivation</string>
+    <string name="bio_protect_disable_desc">Authentication required to disable protection</string>
+
+    <string name="bio_protect_settings">Settings access</string>
+    <string name="bio_protect_settings_desc">Authentication required to modify settings</string>
+
+    <string name="bio_protect_profiles">Profile modification</string>
+    <string name="bio_protect_profiles_desc">Authentication required to change profile</string>
+
+    <string name="bio_enable_title">Enable protection</string>
+    <string name="bio_enable_subtitle">Confirm your identity</string>
+    <string name="bio_disable_title">Disable protection</string>
+    <string name="bio_disable_subtitle">Confirm your identity</string>
+
+    <string name="bio_auth_disable_title">Disable VPN</string>
+    <string name="bio_auth_settings_title">Access settings</string>
+    <string name="bio_auth_profiles_title">Modify profiles</string>
+    <string name="bio_auth_subtitle">Authentication required</string>
+
+    <string name="bio_enabled">Biometric protection enabled</string>
+    <string name="bio_disabled">Biometric protection disabled</string>
+
+    <string name="bio_no_hardware">Your device does not support biometrics</string>
+    <string name="bio_hardware_unavailable">Biometric sensor is not available</string>
+    <string name="bio_not_enrolled">No fingerprint or Face ID configured. Set it up in phone settings.</string>
+
+    
+
+</resources>

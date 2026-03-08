@@ -1,5 +1,8 @@
+// DohResolver.kt - CORRECTION
 package fr.bonobo.dnsphere.dns
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -7,32 +10,69 @@ import java.io.ByteArrayOutputStream
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class DohResolver {
+class DohResolver private constructor() {
 
     companion object {
         const val TAG = "DohResolver"
 
-        // Serveurs DoH
+        // ✅ CORRECTION : Utiliser les MÊMES prefs que MainActivity
+        private const val PREFS_NAME = "vpn_prefs"  // <-- Changé !
+        private const val KEY_PROVIDER = "doh_provider"
+        private const val DEFAULT_PROVIDER = "cloudflare"
+
         val PROVIDERS = mapOf(
             "cloudflare" to "https://cloudflare-dns.com/dns-query",
             "google" to "https://dns.google/dns-query",
             "quad9" to "https://dns.quad9.net:5053/dns-query",
             "adguard" to "https://dns.adguard.com/dns-query"
         )
+
+        @Volatile
+        private var instance: DohResolver? = null
+        private var prefs: SharedPreferences? = null
+
+        fun getInstance(context: Context): DohResolver {
+            if (prefs == null) {
+                // ✅ Utiliser MODE_PRIVATE et le même nom de prefs
+                prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            }
+            return instance ?: synchronized(this) {
+                instance ?: DohResolver().also { instance = it }
+            }
+        }
+
+        fun getInstance(): DohResolver {
+            return instance ?: DohResolver().also { instance = it }
+        }
     }
 
-    var currentProvider = "cloudflare"
     var enabled = true
 
-    /**
-     * Résoudre une requête DNS via DoH (POST avec wire format)
-     */
+    var currentProvider: String
+        get() {
+            val provider = prefs?.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER
+            Log.d(TAG, "📖 Reading provider from prefs: $provider")
+            return provider
+        }
+        set(value) {
+            if (PROVIDERS.containsKey(value)) {
+                prefs?.edit()?.putString(KEY_PROVIDER, value)?.commit()
+                Log.d(TAG, "💾 Saved provider to prefs: $value")
+            } else {
+                Log.w(TAG, "⚠️ Unknown provider ignored: $value")
+            }
+        }
+
     suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
         if (!enabled) return null
 
         return withContext(Dispatchers.IO) {
             try {
-                val url = PROVIDERS[currentProvider] ?: PROVIDERS["cloudflare"]!!
+                val providerKey = currentProvider
+                val url = PROVIDERS[providerKey] ?: PROVIDERS[DEFAULT_PROVIDER]!!
+
+                Log.d(TAG, "🌐 DoH Request: $providerKey -> $url")
+
                 val connection = URL(url).openConnection() as HttpsURLConnection
 
                 connection.apply {
@@ -44,13 +84,11 @@ class DohResolver {
                     readTimeout = 5000
                 }
 
-                // Envoyer la requête
                 connection.outputStream.use { output ->
                     output.write(dnsQuery)
                     output.flush()
                 }
 
-                // Lire la réponse
                 if (connection.responseCode == HttpsURLConnection.HTTP_OK) {
                     val response = connection.inputStream.use { input ->
                         val buffer = ByteArrayOutputStream()
@@ -62,49 +100,33 @@ class DohResolver {
                         buffer.toByteArray()
                     }
                     connection.disconnect()
+                    Log.d(TAG, "✅ DoH Response OK from $providerKey")
                     return@withContext response
                 }
 
                 connection.disconnect()
                 null
             } catch (e: Exception) {
-                Log.e(TAG, "DoH resolution failed", e)
+                Log.e(TAG, "❌ DoH failed", e)
                 null
             }
         }
     }
 
-    /**
-     * Créer une réponse NXDOMAIN pour bloquer un domaine
-     */
     fun createBlockedResponse(originalQuery: ByteArray): ByteArray {
         val response = originalQuery.copyOf()
-
-        // Set QR bit = 1 (response)
         response[2] = (response[2].toInt() or 0x80).toByte()
-
-        // Set AA bit = 1 (authoritative)
         response[2] = (response[2].toInt() or 0x04).toByte()
-
-        // Set RCODE = 3 (NXDOMAIN)
         response[3] = (response[3].toInt() and 0xF0 or 0x03).toByte()
-
         return response
     }
 
-    /**
-     * Créer une réponse avec IP 0.0.0.0 (null routing)
-     */
     fun createNullRouteResponse(originalQuery: ByteArray): ByteArray {
-        // Pour simplifier, on utilise NXDOMAIN
         return createBlockedResponse(originalQuery)
     }
 
     fun setProvider(provider: String) {
-        if (PROVIDERS.containsKey(provider)) {
-            currentProvider = provider
-            Log.d(TAG, "DoH provider set to: $provider")
-        }
+        currentProvider = provider
     }
 
     fun getProviderName(): String {
@@ -113,7 +135,11 @@ class DohResolver {
             "google" -> "Google"
             "quad9" -> "Quad9"
             "adguard" -> "AdGuard"
-            else -> currentProvider
+            else -> currentProvider.replaceFirstChar { it.uppercase() }
         }
+    }
+
+    fun getProviderUrl(): String {
+        return PROVIDERS[currentProvider] ?: PROVIDERS[DEFAULT_PROVIDER]!!
     }
 }

@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Aucun blocage enregistré"
+            android:text="@string/logs_empty"
             android:textColor="@color/gray"
             android:textSize="16sp"
             android:visibility="gone"/>
@@ -36,6 +36,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@drawable/ic_delete"
+        android:contentDescription="@string/clear_logs_title"
         app:tint="@android:color/white"
         app:backgroundTint="@color/red"/>
 

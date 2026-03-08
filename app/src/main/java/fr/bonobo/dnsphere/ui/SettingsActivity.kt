@@ -1,6 +1,7 @@
 package fr.bonobo.dnsphere.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -10,6 +11,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import fr.bonobo.dnsphere.LocalVpnService
 import fr.bonobo.dnsphere.R
 import fr.bonobo.dnsphere.data.AppDatabase
 import kotlinx.coroutines.launch
@@ -25,7 +27,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(container)
 
         supportActionBar?.apply {
-            title = "⚙️ Paramètres"
+            title = getString(R.string.settings_toolbar_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
@@ -47,77 +49,255 @@ class SettingsActivity : AppCompatActivity() {
         private lateinit var database: AppDatabase
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            preferenceManager.sharedPreferencesName = "vpn_prefs"
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
             database = AppDatabase.getInstance(requireContext())
 
-            // DoH Switch
+            updateDohProviderSummary()
+
+            // ==================== DNS ====================
+
             findPreference<SwitchPreferenceCompat>("use_doh")?.setOnPreferenceChangeListener { _, newValue ->
                 val enabled = newValue as Boolean
                 Toast.makeText(
                     requireContext(),
-                    if (enabled) "DoH activé - Redémarrez la protection" else "DoH désactivé",
+                    if (enabled) getString(R.string.doh_enabled) else getString(R.string.doh_disabled),
                     Toast.LENGTH_SHORT
                 ).show()
+                updateVpnServiceIfRunning()
                 true
             }
 
-            // DoH Provider
-            findPreference<ListPreference>("doh_provider")?.setOnPreferenceChangeListener { pref, newValue ->
-                val provider = newValue as String
-                (pref as ListPreference).summary = when (provider) {
-                    "cloudflare" -> "Cloudflare (recommandé)"
-                    "google" -> "Google"
-                    "quad9" -> "Quad9 (sécurité)"
-                    "adguard" -> "AdGuard (anti-pub)"
-                    else -> provider
+            findPreference<ListPreference>("doh_provider")?.apply {
+                summary = getProviderDisplayName(value ?: "cloudflare")
+
+                setOnPreferenceChangeListener { pref, newValue ->
+                    val provider = newValue as String
+                    (pref as ListPreference).summary = getProviderDisplayName(provider)
+                    updateVpnServiceIfRunning()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.dns_changed, getProviderDisplayName(provider)),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    true
+                }
+            }
+
+            // ==================== MODE PLANIFIÉ ====================
+
+            findPreference<Preference>("schedule")?.setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), ScheduleActivity::class.java))
+                true
+            }
+
+            // ==================== PROFILS ====================
+
+            findPreference<Preference>("profiles")?.setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), ProfilesActivity::class.java))
+                true
+            }
+
+            // ==================== SÉCURITÉ ====================
+
+            findPreference<Preference>("security")?.setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), SecurityActivity::class.java))
+                true
+            }
+
+            // ==================== LISTES ====================
+
+            findPreference<Preference>("external_lists")?.setOnPreferenceClickListener {
+                try {
+                    startActivity(Intent(requireContext(), ExternalListsActivity::class.java))
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Fonctionnalité non disponible", Toast.LENGTH_SHORT).show()
                 }
                 true
             }
 
-            // Gérer les listes
             findPreference<Preference>("manage_lists")?.setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), ListManagerActivity::class.java))
+                try {
+                    startActivity(Intent(requireContext(), ListManagerActivity::class.java))
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Fonctionnalité non disponible", Toast.LENGTH_SHORT).show()
+                }
                 true
             }
 
-            // Exclure des apps
+            // ==================== APPLICATIONS ====================
+
             findPreference<Preference>("excluded_apps")?.setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), AppExcluderActivity::class.java))
+                try {
+                    startActivity(Intent(requireContext(), AppExcluderActivity::class.java))
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Fonctionnalité non disponible", Toast.LENGTH_SHORT).show()
+                }
                 true
             }
 
-            // Effacer les logs
+            // ==================== DONNÉES ====================
+
             findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Effacer les logs")
-                    .setMessage("Voulez-vous supprimer tous les logs de blocage ?")
-                    .setPositiveButton("Effacer") { _, _ ->
+                    .setTitle(R.string.clear_logs_title)
+                    .setMessage(R.string.clear_logs_message)
+                    .setPositiveButton(R.string.dialog_clear) { _, _ ->
                         lifecycleScope.launch {
                             database.blockLogDao().clearAll()
-                            Toast.makeText(requireContext(), "Logs effacés", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.logs_cleared), Toast.LENGTH_SHORT).show()
                         }
                     }
-                    .setNegativeButton("Annuler", null)
+                    .setNegativeButton(R.string.dialog_cancel, null)
                     .show()
                 true
             }
 
-            // Statistiques des listes
+            // ==================== À PROPOS ====================
+
+            findPreference<Preference>("developer")?.setOnPreferenceClickListener {
+                openUrl("https://github.com/souffly007")
+                true
+            }
+
+            findPreference<Preference>("github")?.setOnPreferenceClickListener {
+                openUrl("https://github.com/souffly007/DNSphere")
+                true
+            }
+
             updateListStats()
+            updateScheduleSummary()
+            updateProfileSummary()
+            updateSecuritySummary()
+        }
+
+        private fun openUrl(url: String) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), R.string.cannot_open_link, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        private fun getProviderDisplayName(provider: String): String {
+            return when (provider) {
+                "cloudflare" -> getString(R.string.doh_provider_cloudflare)
+                "google" -> getString(R.string.doh_provider_google)
+                "quad9" -> getString(R.string.doh_provider_quad9)
+                "adguard" -> getString(R.string.doh_provider_adguard)
+                else -> provider
+            }
+        }
+
+        private fun updateDohProviderSummary() {
+            findPreference<ListPreference>("doh_provider")?.let { pref ->
+                val currentValue = pref.value ?: "cloudflare"
+                pref.summary = getProviderDisplayName(currentValue)
+            }
+        }
+
+        private fun updateVpnServiceIfRunning() {
+            if (LocalVpnService.isRunning) {
+                val prefs = preferenceManager.sharedPreferences ?: return
+
+                val intent = Intent(requireContext(), LocalVpnService::class.java).apply {
+                    action = LocalVpnService.ACTION_UPDATE_CONFIG
+                    putExtra("block_ads", prefs.getBoolean("block_ads", true))
+                    putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
+                    putExtra("block_malware", prefs.getBoolean("block_malware", true))
+                    putExtra("block_social", prefs.getBoolean("block_social", false))
+                    putExtra("block_adult", prefs.getBoolean("block_adult", false))
+                    putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
+                    putExtra("use_doh", prefs.getBoolean("use_doh", false))
+                    putExtra("doh_provider", prefs.getString("doh_provider", "cloudflare"))
+                }
+                requireContext().startService(intent)
+            }
+        }
+
+        override fun onResume() {
+            super.onResume()
+            updateListStats()
+            updateDohProviderSummary()
+            updateScheduleSummary()
+            updateProfileSummary()
+            updateSecuritySummary()
+        }
+
+        private fun updateScheduleSummary() {
+            lifecycleScope.launch {
+                try {
+                    database.scheduleDao().getAllSchedules().observe(viewLifecycleOwner) { schedules ->
+                        val enabledCount = schedules.count { it.isEnabled }
+                        findPreference<Preference>("schedule")?.summary = when {
+                            schedules.isEmpty() -> getString(R.string.pref_schedule_summary)
+                            enabledCount == 0 -> getString(R.string.schedule_all_disabled)
+                            else -> getString(R.string.schedule_active_count, enabledCount)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Ignorer
+                }
+            }
+        }
+
+        private fun updateProfileSummary() {
+            lifecycleScope.launch {
+                try {
+                    database.profileDao().getActiveProfile().observe(viewLifecycleOwner) { profile ->
+                        findPreference<Preference>("profiles")?.summary = if (profile != null) {
+                            "${profile.icon} ${profile.name}"
+                        } else {
+                            getString(R.string.pref_profiles_summary)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Ignorer
+                }
+            }
+        }
+
+        private fun updateSecuritySummary() {
+            try {
+                val biometricHelper = fr.bonobo.dnsphere.security.BiometricHelper.getInstance(requireContext())
+                findPreference<Preference>("security")?.summary = if (biometricHelper.isBiometricEnabled) {
+                    getString(R.string.bio_enabled)
+                } else {
+                    getString(R.string.pref_security_summary)
+                }
+            } catch (e: Exception) {
+                // Ignorer
+            }
         }
 
         private fun updateListStats() {
             lifecycleScope.launch {
                 try {
-                    val lists = database.customListDao().getEnabledLists()
-                    val totalDomains = lists.sumOf { it.domainCount }
+                    val customLists = database.customListDao().getEnabledLists()
+                    val customDomains = customLists.sumOf { it.domainCount }
 
                     findPreference<Preference>("manage_lists")?.summary =
-                        "${lists.size} listes actives • $totalDomains domaines"
+                        getString(R.string.lists_summary, customLists.size, customDomains.toString())
+
+                    val externalListCount = database.externalListDao().getEnabledListCount()
+                    val externalDomains = database.externalListDao().getTotalEnabledDomains() ?: 0
+
+                    findPreference<Preference>("external_lists")?.summary =
+                        getString(R.string.lists_summary, externalListCount, formatNumber(externalDomains))
+
                 } catch (e: Exception) {
                     // Ignorer
                 }
+            }
+        }
+
+        private fun formatNumber(number: Int): String {
+            return when {
+                number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
+                number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
+                else -> number.toString()
             }
         }
     }
