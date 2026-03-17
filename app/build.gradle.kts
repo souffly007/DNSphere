@@ -13,7 +13,15 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.3"
+        versionName = "1.4"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // ON REGROUPE TOUT ICI
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true // <--- C'est CETTE ligne qui manquait !
     }
 
     buildTypes {
@@ -33,10 +41,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-    }
-
-    buildFeatures {
-        viewBinding = true
     }
 }
 

@@ -9,5 +9,5 @@ data class WhitelistItem(
     val id: Long = 0,
     val domain: String,
     val addedAt: Long = System.currentTimeMillis(),
-    val note: String? = null
+    val forceBlock: Boolean = false   // ← NOUVEAU : true = blocage forcé, écrase neverBlockDomains
 )

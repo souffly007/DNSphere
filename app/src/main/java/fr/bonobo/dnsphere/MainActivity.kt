@@ -1,21 +1,19 @@
 package fr.bonobo.dnsphere
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import fr.bonobo.dnsphere.data.AppDatabase
@@ -23,7 +21,6 @@ import fr.bonobo.dnsphere.security.BiometricHelper
 import fr.bonobo.dnsphere.security.ProtectedAction
 import fr.bonobo.dnsphere.ui.LogsActivity
 import fr.bonobo.dnsphere.ui.SettingsActivity
-import fr.bonobo.dnsphere.ui.StatsActivity
 import fr.bonobo.dnsphere.ui.WhitelistActivity
 import fr.bonobo.dnsphere.widget.DnsphereWidget
 
@@ -48,20 +45,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var biometricHelper: BiometricHelper
     private var isVpnRunning = false
 
-    private val statsReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.let {
-                val adsBlocked = it.getIntExtra("ads_blocked", 0)
-                val trackersBlocked = it.getIntExtra("trackers_blocked", 0)
-                runOnUiThread {
-                    tvAdsBlocked.text = adsBlocked.toString()
-                    tvTrackersBlocked.text = trackersBlocked.toString()
-                    saveStatsForWidget(adsBlocked, trackersBlocked)
-                }
-            }
-        }
-    }
-
     private val vpnPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -84,6 +67,8 @@ class MainActivity : AppCompatActivity() {
         initViews()
         setupListeners()
         loadPreferences()
+        loadCurrentStats()
+        observeStats() // ✅ NOUVEAU
 
         if (intent.getBooleanExtra("auto_start", false) && !LocalVpnService.isRunning) {
             requestVpnPermission()
@@ -105,6 +90,17 @@ class MainActivity : AppCompatActivity() {
         switchMalware = findViewById(R.id.switchMalware)
 
         tvCreatedBy.text = getString(R.string.created_by, DEVELOPER_NAME)
+    }
+
+    // ✅ NOUVEAU : Observer les stats via LiveData
+    private fun observeStats() {
+        StatsLiveData.stats.observe(this) { stats ->
+            tvAdsBlocked.text = stats.adsBlocked.toString()
+            tvTrackersBlocked.text = stats.trackersBlocked.toString()
+            saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)
+
+            Log.d("MainActivity", "📊 Stats reçues: Pubs=${stats.adsBlocked}, Trackers=${stats.trackersBlocked}")
+        }
     }
 
     private fun setupListeners() {
@@ -131,32 +127,26 @@ class MainActivity : AppCompatActivity() {
             updateServiceConfig()
         }
 
-        // Card Stats -> Stats Activity
         findViewById<View>(R.id.cardStats).setOnClickListener {
-            startActivity(Intent(this, StatsActivity::class.java))
+            startActivity(Intent(this, LogsActivity::class.java))
         }
 
-        // Bouton Logs
         findViewById<MaterialButton>(R.id.btnLogs).setOnClickListener {
             startActivity(Intent(this, LogsActivity::class.java))
         }
 
-        // Bouton Whitelist
         findViewById<MaterialButton>(R.id.btnWhitelist).setOnClickListener {
             startActivity(Intent(this, WhitelistActivity::class.java))
         }
 
-        // Bouton Paramètres
         findViewById<MaterialButton>(R.id.btnSettings).setOnClickListener {
             openSettings()
         }
 
-        // Lien GitHub
         findViewById<TextView>(R.id.tvGitHub)?.setOnClickListener {
             openUrl(GITHUB_URL)
         }
 
-        // Lien développeur
         tvCreatedBy.setOnClickListener {
             openUrl(DEVELOPER_URL)
         }
@@ -170,9 +160,7 @@ class MainActivity : AppCompatActivity() {
                 onSuccess = {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 },
-                onCancel = {
-                    // L'utilisateur a annulé
-                }
+                onCancel = { }
             )
         } else {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -226,9 +214,7 @@ class MainActivity : AppCompatActivity() {
                 onSuccess = {
                     doStopVpnService()
                 },
-                onCancel = {
-                    // L'utilisateur a annulé, ne rien faire
-                }
+                onCancel = { }
             )
         } else {
             doStopVpnService()
@@ -294,6 +280,17 @@ class MainActivity : AppCompatActivity() {
         switchMalware.isChecked = prefs.getBoolean("block_malware", true)
     }
 
+    private fun loadCurrentStats() {
+        val prefs = getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
+        val adsBlocked = prefs.getInt("ads_blocked", 0)
+        val trackersBlocked = prefs.getInt("trackers_blocked", 0)
+
+        tvAdsBlocked.text = adsBlocked.toString()
+        tvTrackersBlocked.text = trackersBlocked.toString()
+
+        Log.d("MainActivity", "📊 Stats chargées: Pubs=$adsBlocked, Trackers=$trackersBlocked")
+    }
+
     private fun saveStatsForWidget(ads: Int, trackers: Int) {
         getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
             .edit()
@@ -304,17 +301,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(statsReceiver, IntentFilter("vpn_stats"))
+        loadCurrentStats()
         isVpnRunning = LocalVpnService.isRunning
         updateUI(isVpnRunning)
         loadPreferences()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(statsReceiver)
     }
 
     override fun onNewIntent(intent: Intent?) {

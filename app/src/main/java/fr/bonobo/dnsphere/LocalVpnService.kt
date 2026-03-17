@@ -10,10 +10,10 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.BlockLog
 import fr.bonobo.dnsphere.dns.DohResolver
+import fr.bonobo.dnsphere.network.DotResolver
 import kotlinx.coroutines.*
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -24,97 +24,147 @@ import java.net.InetAddress
 class LocalVpnService : VpnService() {
 
     companion object {
-        const val ACTION_START = "fr.bonobo.dnsphere.START"
-        const val ACTION_STOP = "fr.bonobo.dnsphere.STOP"
+        const val ACTION_START         = "fr.bonobo.dnsphere.START"
+        const val ACTION_STOP          = "fr.bonobo.dnsphere.STOP"
         const val ACTION_UPDATE_CONFIG = "fr.bonobo.dnsphere.UPDATE_CONFIG"
+        const val ACTION_PAUSE         = "fr.bonobo.dnsphere.PAUSE"
+        const val ACTION_RESUME        = "fr.bonobo.dnsphere.RESUME"
+
+        const val EXTRA_PAUSE_DURATION = "pause_duration_ms"
+
         const val NOTIFICATION_ID = 1
-        const val CHANNEL_ID = "vpn_channel"
+        const val CHANNEL_ID      = "vpn_channel"
+        const val DNS_SERVER_1    = "1.1.1.1"
+        const val DNS_SERVER_2    = "8.8.8.8"
 
-        const val DNS_SERVER_1 = "1.1.1.1"
-        const val DNS_SERVER_2 = "8.8.8.8"
-
-        @Volatile
-        var isRunning = false
+        @Volatile var isRunning = false
+        @Volatile var isPaused  = false
     }
 
     private var vpnInterface: ParcelFileDescriptor? = null
-    private var blockAds = true
+
+    // Config de blocage
+    private var blockAds      = true
     private var blockTrackers = true
-    private var blockMalware = true
+    private var blockMalware  = true
     private var blockShopping = true
-    private var useDoH = false
+    private var useDoH        = false
+    private var useDot        = false
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private lateinit var blockListManager: BlockListManager
+    private lateinit var parentalManager: ParentalManager
     private lateinit var database: AppDatabase
-
-    // ✅ CORRECTION : Initialisation tardive avec Context
     private lateinit var dohResolver: DohResolver
+    private lateinit var dotResolver: DotResolver
 
-    private var adsBlocked = 0
+    private var pauseJob: Job? = null
+
+    // Compteurs
+    private var adsBlocked      = 0
     private var trackersBlocked = 0
-    private var malwareBlocked = 0
+    private var malwareBlocked  = 0
     private var shoppingBlocked = 0
+
+    // =========================================================================
+    // LIFECYCLE
+    // =========================================================================
 
     override fun onCreate() {
         super.onCreate()
         blockListManager = BlockListManager(this)
-        database = AppDatabase.getInstance(this)
-
-        // ✅ CORRECTION : Initialiser DohResolver avec le Context
-        dohResolver = DohResolver.getInstance(this)
-
+        parentalManager  = ParentalManager(this)
+        database         = AppDatabase.getInstance(this)
+        dohResolver      = DohResolver.getInstance(this)
+        dotResolver      = DotResolver()
         createNotificationChannel()
-
-        // ✅ Debug : Afficher le provider actuel au démarrage
-        Log.d("DNSphere", "🚀 Service created - Current DoH provider: ${dohResolver.getProviderName()}")
+        Log.d("DNSphere", "🚀 Service created - DoH: ${dohResolver.getProviderName()}")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
+
             ACTION_START -> {
-                blockAds = intent.getBooleanExtra("block_ads", true)
-                blockTrackers = intent.getBooleanExtra("block_trackers", true)
-                blockMalware = intent.getBooleanExtra("block_malware", true)
-                blockShopping = intent.getBooleanExtra("block_shopping", true)
-                useDoH = intent.getBooleanExtra("use_doh", false)
-
-                dohResolver.enabled = useDoH
-
-                // ✅ CORRECTION : Sauvegarder le provider reçu
-                val provider = intent.getStringExtra("doh_provider")
-                if (provider != null) {
-                    dohResolver.setProvider(provider)
-                    Log.d("DNSphere", "📡 DoH provider set from intent: $provider")
-                } else {
-                    // Si pas de provider dans l'intent, on utilise celui sauvegardé
-                    Log.d("DNSphere", "📡 Using saved DoH provider: ${dohResolver.currentProvider}")
-                }
-
+                loadConfigFromIntent(intent)
                 startVpn()
             }
+
             ACTION_STOP -> {
+                cancelPause()
                 stopVpn()
             }
+
             ACTION_UPDATE_CONFIG -> {
-                blockAds = intent.getBooleanExtra("block_ads", true)
-                blockTrackers = intent.getBooleanExtra("block_trackers", true)
-                blockMalware = intent.getBooleanExtra("block_malware", true)
-                blockShopping = intent.getBooleanExtra("block_shopping", true)
-                useDoH = intent.getBooleanExtra("use_doh", false)
-                dohResolver.enabled = useDoH
-
-                // ✅ CORRECTION : Aussi mettre à jour le provider si présent
-                val provider = intent.getStringExtra("doh_provider")
-                if (provider != null) {
-                    dohResolver.setProvider(provider)
-                }
-
+                loadConfigFromIntent(intent)
                 blockListManager.refresh()
+                parentalManager.reload()
+                updateNotification()
+                Log.d("DNSphere", "🔄 Config rechargée à chaud")
+            }
+
+            ACTION_PAUSE -> {
+                val duration = intent.getLongExtra(EXTRA_PAUSE_DURATION, 5 * 60 * 1000L)
+                pauseVpn(duration)
+            }
+
+            ACTION_RESUME -> {
+                resumeVpn()
             }
         }
         return START_STICKY
     }
+
+    private fun loadConfigFromIntent(intent: Intent) {
+        blockAds      = intent.getBooleanExtra("block_ads",      true)
+        blockTrackers = intent.getBooleanExtra("block_trackers", true)
+        blockMalware  = intent.getBooleanExtra("block_malware",  true)
+        blockShopping = intent.getBooleanExtra("block_shopping", true)
+        useDoH        = intent.getBooleanExtra("use_doh",        false)
+        useDot        = intent.getBooleanExtra("use_dot",        false)
+
+        dohResolver.enabled = useDoH
+
+        intent.getStringExtra("doh_provider")?.let { provider ->
+            dohResolver.setProvider(provider)
+            dotResolver.setServer(provider)
+            Log.d("DNSphere", "📡 Provider: $provider (DoH=$useDoH, DoT=$useDot)")
+        }
+    }
+
+    // =========================================================================
+    // MODE PAUSE
+    // =========================================================================
+
+    private fun pauseVpn(durationMs: Long) {
+        if (!isRunning) return
+        isPaused = true
+        updateNotification()
+
+        Log.d("DNSphere", "⏸️ VPN en pause pour ${durationMs / 1000}s")
+
+        cancelPause()
+        pauseJob = serviceScope.launch {
+            delay(durationMs)
+            resumeVpn()
+        }
+    }
+
+    private fun resumeVpn() {
+        if (!isRunning) return
+        isPaused = false
+        cancelPause()
+        updateNotification()
+        Log.d("DNSphere", "▶️ VPN repris")
+    }
+
+    private fun cancelPause() {
+        pauseJob?.cancel()
+        pauseJob = null
+    }
+
+    // =========================================================================
+    // DÉMARRAGE VPN
+    // =========================================================================
 
     private fun startVpn() {
         if (isRunning) return
@@ -123,11 +173,8 @@ class LocalVpnService : VpnService() {
 
         try {
             val excludedApps = runBlocking {
-                try {
-                    database.excludedAppDao().getAllPackageNames()
-                } catch (e: Exception) {
-                    emptyList()
-                }
+                try { database.excludedAppDao().getAllPackageNames() }
+                catch (e: Exception) { emptyList() }
             }
 
             val builder = Builder()
@@ -144,19 +191,15 @@ class LocalVpnService : VpnService() {
                 .setMtu(1500)
                 .setBlocking(false)
 
-            try {
-                builder.addDisallowedApplication(packageName)
-                Log.d("DNSphere", "Excluded own package: $packageName")
-            } catch (e: Exception) {
-                Log.w("DNSphere", "Could not exclude own package: ${e.message}")
-            }
+            try { builder.addDisallowedApplication(packageName) }
+            catch (e: Exception) { Log.w("DNSphere", "Cannot exclude own package") }
 
             excludedApps.forEach { pkg ->
                 try {
                     builder.addDisallowedApplication(pkg)
-                    Log.d("DNSphere", "Excluded app: $pkg")
+                    Log.d("DNSphere", "✅ App exclue: $pkg")
                 } catch (e: Exception) {
-                    Log.w("DNSphere", "Could not exclude $pkg: ${e.message}")
+                    Log.w("DNSphere", "Cannot exclude $pkg: ${e.message}")
                 }
             }
 
@@ -164,34 +207,30 @@ class LocalVpnService : VpnService() {
 
             if (vpnInterface != null) {
                 isRunning = true
+                Log.d("DNSphere", "✅ VPN démarré - Apps exclues: ${excludedApps.size}")
 
-                // ✅ Log amélioré avec le vrai provider
-                Log.d("DNSphere", "✅ VPN started - DoH: $useDoH, Provider: ${dohResolver.getProviderName()}, Excluded apps: ${excludedApps.size}")
-
-                serviceScope.launch {
-                    handleDnsRequests()
-                }
-
-                serviceScope.launch {
-                    sendStatsUpdates()
-                }
+                serviceScope.launch { handleDnsRequests() }
+                serviceScope.launch { sendStatsUpdates() }
             } else {
-                Log.e("DNSphere", "VPN interface is null")
+                Log.e("DNSphere", "VPN interface null")
                 stopVpn()
             }
 
         } catch (e: Exception) {
-            Log.e("DNSphere", "Error starting VPN", e)
+            Log.e("DNSphere", "Erreur démarrage VPN", e)
             stopVpn()
         }
     }
 
-    private suspend fun handleDnsRequests() {
-        val vpnFileDescriptor = vpnInterface?.fileDescriptor ?: return
-        val inputStream = FileInputStream(vpnFileDescriptor)
-        val outputStream = FileOutputStream(vpnFileDescriptor)
+    // =========================================================================
+    // BOUCLE DNS
+    // =========================================================================
 
-        val packet = ByteArray(32767)
+    private suspend fun handleDnsRequests() {
+        val vpnFd      = vpnInterface?.fileDescriptor ?: return
+        val inputStream  = FileInputStream(vpnFd)
+        val outputStream = FileOutputStream(vpnFd)
+        val packet       = ByteArray(32767)
 
         while (isRunning) {
             try {
@@ -203,29 +242,29 @@ class LocalVpnService : VpnService() {
                         val dnsQuery = extractDnsQuery(ipPacket)
 
                         if (dnsQuery != null) {
-                            Log.d("DNSphere", "DNS Query: $dnsQuery")
+
+                            if (isPaused) {
+                                val response = forwardDnsQuery(ipPacket)
+                                if (response != null) outputStream.write(response)
+                                delay(1)
+                                continue
+                            }
 
                             val blockType = getBlockType(dnsQuery)
 
                             if (blockType != null) {
-                                Log.d("DNSphere", "BLOCKED [$blockType]: $dnsQuery")
+                                Log.d("DNSphere", "🚫 [$blockType] $dnsQuery")
                                 incrementBlockCounter(blockType)
                                 logBlock(dnsQuery, blockType)
-
-                                val blockedResponse = createBlockedDnsResponse(ipPacket)
-                                if (blockedResponse != null) {
-                                    outputStream.write(blockedResponse)
-                                }
+                                val blocked = createBlockedDnsResponse(ipPacket)
+                                if (blocked != null) outputStream.write(blocked)
                             } else {
-                                val response = if (useDoH) {
-                                    forwardDnsQueryWithDoH(ipPacket)
-                                } else {
-                                    forwardDnsQuery(ipPacket)
+                                val response = when {
+                                    useDot  -> forwardDnsQueryWithDoT(ipPacket)
+                                    useDoH  -> forwardDnsQueryWithDoH(ipPacket)
+                                    else    -> forwardDnsQuery(ipPacket)
                                 }
-
-                                if (response != null) {
-                                    outputStream.write(response)
-                                }
+                                if (response != null) outputStream.write(response)
                             }
                         }
                     }
@@ -234,43 +273,105 @@ class LocalVpnService : VpnService() {
                 delay(1)
 
             } catch (e: Exception) {
-                if (isRunning) {
-                    Log.e("DNSphere", "Error handling packet", e)
-                }
+                if (isRunning) Log.e("DNSphere", "Erreur paquet", e)
             }
+        }
+    }
+
+    private suspend fun forwardDnsQueryWithDoT(originalPacket: ByteArray): ByteArray? {
+        return try {
+            val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
+            val dnsStart       = ipHeaderLength + 8
+            val dnsQuery       = originalPacket.copyOfRange(dnsStart, originalPacket.size)
+
+            Log.d("DNSphere", "🔐 DoT forward: ${dotResolver.dotServer}")
+            val dnsResponse = dotResolver.resolve(dnsQuery)
+
+            if (dnsResponse != null) buildResponsePacket(originalPacket, dnsResponse)
+            else forwardDnsQuery(originalPacket)
+        } catch (e: Exception) {
+            Log.e("DNSphere", "DoT failed, fallback UDP", e)
+            forwardDnsQuery(originalPacket)
         }
     }
 
     private suspend fun forwardDnsQueryWithDoH(originalPacket: ByteArray): ByteArray? {
-        try {
+        return try {
             val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-            val dnsStart = ipHeaderLength + 8
-            val dnsQuery = originalPacket.copyOfRange(dnsStart, originalPacket.size)
+            val dnsStart       = ipHeaderLength + 8
+            val dnsQuery       = originalPacket.copyOfRange(dnsStart, originalPacket.size)
 
-            // ✅ Log pour debug
-            Log.d("DNSphere", "🌐 Forwarding via DoH: ${dohResolver.getProviderName()}")
-
+            Log.d("DNSphere", "🌐 DoH forward: ${dohResolver.getProviderName()}")
             val dnsResponse = dohResolver.resolve(dnsQuery)
 
-            return if (dnsResponse != null) {
-                buildResponsePacket(originalPacket, dnsResponse)
-            } else {
-                forwardDnsQuery(originalPacket)
-            }
+            if (dnsResponse != null) buildResponsePacket(originalPacket, dnsResponse)
+            else forwardDnsQuery(originalPacket)
         } catch (e: Exception) {
-            Log.e("DNSphere", "DoH forward failed", e)
-            return forwardDnsQuery(originalPacket)
+            Log.e("DNSphere", "DoH failed, fallback UDP", e)
+            forwardDnsQuery(originalPacket)
         }
     }
 
-    // ... Reste du code identique ...
+    private fun forwardDnsQuery(originalPacket: ByteArray): ByteArray? {
+        return try {
+            val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
+            val dnsStart       = ipHeaderLength + 8
+            val dnsQuery       = originalPacket.copyOfRange(dnsStart, originalPacket.size)
+
+            val socket = DatagramSocket()
+            protect(socket)
+            socket.soTimeout = 5000
+
+            val dnsServer = InetAddress.getByName(DNS_SERVER_1)
+            socket.send(DatagramPacket(dnsQuery, dnsQuery.size, dnsServer, 53))
+
+            val responseBuffer = ByteArray(512)
+            val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
+            socket.receive(responsePacket)
+            socket.close()
+
+            buildResponsePacket(originalPacket, responseBuffer.copyOf(responsePacket.length))
+        } catch (e: Exception) {
+            Log.e("DNSphere", "UDP DNS failed", e)
+            null
+        }
+    }
+
+    private fun getBlockType(hostname: String): String? {
+        if (blockListManager.isWhitelisted(hostname)) return null
+
+        if (parentalManager.shouldBlockNow(hostname)) return "PARENTAL"
+
+        return when {
+            blockAds      && blockListManager.isAd(hostname)             -> "AD"
+            blockTrackers && blockListManager.isTracker(hostname)        -> "TRACKER"
+            blockMalware  && blockListManager.isMalware(hostname)        -> "MALWARE"
+            blockShopping && blockListManager.isShopping(hostname)       -> "SHOPPING"
+            blockListManager.isExternalBlocked(hostname)                  -> "EXTERNAL"
+            else -> null
+        }
+    }
+
+    private fun incrementBlockCounter(blockType: String) {
+        when (blockType) {
+            "AD"       -> adsBlocked++
+            "TRACKER"  -> trackersBlocked++
+            "MALWARE"  -> malwareBlocked++
+            "SHOPPING", "EXTERNAL", "PARENTAL" -> adsBlocked++
+        }
+    }
+
+    private fun logBlock(hostname: String, type: String) {
+        serviceScope.launch {
+            try { database.blockLogDao().insert(BlockLog(domain = hostname, type = type)) }
+            catch (e: Exception) { Log.e("DNSphere", "Erreur log", e) }
+        }
+    }
 
     private fun isDnsPacket(packet: ByteArray): Boolean {
         if (packet.size < 28) return false
-        val version = (packet[0].toInt() shr 4) and 0x0F
-        if (version != 4) return false
-        val protocol = packet[9].toInt() and 0xFF
-        if (protocol != 17) return false
+        if ((packet[0].toInt() shr 4) and 0x0F != 4) return false
+        if (packet[9].toInt() and 0xFF != 17) return false
         val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
         val destPort = ((packet[ipHeaderLength + 2].toInt() and 0xFF) shl 8) or
                 (packet[ipHeaderLength + 3].toInt() and 0xFF)
@@ -278,91 +379,61 @@ class LocalVpnService : VpnService() {
     }
 
     private fun extractDnsQuery(packet: ByteArray): String? {
-        try {
+        return try {
             val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-            val udpHeaderLength = 8
-            val dnsStart = ipHeaderLength + udpHeaderLength
-            if (packet.size < dnsStart + 12) return null
-            var position = dnsStart + 12
-            val domainParts = mutableListOf<String>()
+            var position = ipHeaderLength + 8 + 12
+            val parts = mutableListOf<String>()
             while (position < packet.size) {
-                val labelLength = packet[position].toInt() and 0xFF
-                if (labelLength == 0) break
+                val len = packet[position].toInt() and 0xFF
+                if (len == 0) break
                 position++
-                if (position + labelLength > packet.size) break
-                val label = String(packet, position, labelLength, Charsets.UTF_8)
-                domainParts.add(label)
-                position += labelLength
+                if (position + len > packet.size) break
+                parts.add(String(packet, position, len, Charsets.UTF_8))
+                position += len
             }
-            return if (domainParts.isNotEmpty()) {
-                domainParts.joinToString(".").lowercase()
-            } else null
-        } catch (e: Exception) {
-            Log.e("DNSphere", "Error extracting DNS query", e)
-            return null
-        }
-    }
-
-    private fun forwardDnsQuery(originalPacket: ByteArray): ByteArray? {
-        try {
-            val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-            val dnsStart = ipHeaderLength + 8
-            val dnsQuery = originalPacket.copyOfRange(dnsStart, originalPacket.size)
-            val socket = DatagramSocket()
-            protect(socket)
-            socket.soTimeout = 5000
-            val dnsServer = InetAddress.getByName(DNS_SERVER_1)
-            val requestPacket = DatagramPacket(dnsQuery, dnsQuery.size, dnsServer, 53)
-            socket.send(requestPacket)
-            val responseBuffer = ByteArray(512)
-            val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
-            socket.receive(responsePacket)
-            socket.close()
-            val dnsResponse = responseBuffer.copyOf(responsePacket.length)
-            return buildResponsePacket(originalPacket, dnsResponse)
-        } catch (e: Exception) {
-            Log.e("DNSphere", "Error forwarding DNS", e)
-            return null
-        }
+            if (parts.isNotEmpty()) parts.joinToString(".").lowercase() else null
+        } catch (e: Exception) { null }
     }
 
     private fun createBlockedDnsResponse(originalPacket: ByteArray): ByteArray? {
-        try {
+        return try {
             val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-            val dnsStart = ipHeaderLength + 8
-            val dnsQuery = originalPacket.copyOfRange(dnsStart, originalPacket.size)
-            val dnsResponse = dnsQuery.copyOf()
+            val dnsStart       = ipHeaderLength + 8
+            val dnsResponse    = originalPacket.copyOfRange(dnsStart, originalPacket.size)
             dnsResponse[2] = (dnsResponse[2].toInt() or 0x80).toByte()
             dnsResponse[3] = (dnsResponse[3].toInt() or 0x03).toByte()
-            return buildResponsePacket(originalPacket, dnsResponse)
-        } catch (e: Exception) {
-            Log.e("DNSphere", "Error creating blocked response", e)
-            return null
-        }
+            buildResponsePacket(originalPacket, dnsResponse)
+        } catch (e: Exception) { null }
     }
 
     private fun buildResponsePacket(originalPacket: ByteArray, dnsResponse: ByteArray): ByteArray {
         val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-        val totalLength = ipHeaderLength + 8 + dnsResponse.size
+        val totalLength    = ipHeaderLength + 8 + dnsResponse.size
         val responsePacket = ByteArray(totalLength)
+
         System.arraycopy(originalPacket, 0, responsePacket, 0, ipHeaderLength)
         System.arraycopy(originalPacket, 12, responsePacket, 16, 4)
         System.arraycopy(originalPacket, 16, responsePacket, 12, 4)
+
         responsePacket[2] = ((totalLength shr 8) and 0xFF).toByte()
         responsePacket[3] = (totalLength and 0xFF).toByte()
+
         val srcPort = ((originalPacket[ipHeaderLength].toInt() and 0xFF) shl 8) or
                 (originalPacket[ipHeaderLength + 1].toInt() and 0xFF)
         val dstPort = ((originalPacket[ipHeaderLength + 2].toInt() and 0xFF) shl 8) or
                 (originalPacket[ipHeaderLength + 3].toInt() and 0xFF)
-        responsePacket[ipHeaderLength] = ((dstPort shr 8) and 0xFF).toByte()
+
+        responsePacket[ipHeaderLength]     = ((dstPort shr 8) and 0xFF).toByte()
         responsePacket[ipHeaderLength + 1] = (dstPort and 0xFF).toByte()
         responsePacket[ipHeaderLength + 2] = ((srcPort shr 8) and 0xFF).toByte()
         responsePacket[ipHeaderLength + 3] = (srcPort and 0xFF).toByte()
+
         val udpLength = 8 + dnsResponse.size
         responsePacket[ipHeaderLength + 4] = ((udpLength shr 8) and 0xFF).toByte()
         responsePacket[ipHeaderLength + 5] = (udpLength and 0xFF).toByte()
         responsePacket[ipHeaderLength + 6] = 0
         responsePacket[ipHeaderLength + 7] = 0
+
         System.arraycopy(dnsResponse, 0, responsePacket, ipHeaderLength + 8, dnsResponse.size)
         updateIpChecksum(responsePacket)
         return responsePacket
@@ -370,66 +441,33 @@ class LocalVpnService : VpnService() {
 
     private fun updateIpChecksum(packet: ByteArray) {
         val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-        packet[10] = 0
-        packet[11] = 0
+        packet[10] = 0; packet[11] = 0
         var sum = 0
         for (i in 0 until ipHeaderLength step 2) {
-            val word = ((packet[i].toInt() and 0xFF) shl 8) or (packet[i + 1].toInt() and 0xFF)
-            sum += word
+            sum += ((packet[i].toInt() and 0xFF) shl 8) or (packet[i + 1].toInt() and 0xFF)
         }
-        while (sum shr 16 != 0) {
-            sum = (sum and 0xFFFF) + (sum shr 16)
-        }
+        while (sum shr 16 != 0) sum = (sum and 0xFFFF) + (sum shr 16)
         val checksum = sum.inv() and 0xFFFF
         packet[10] = ((checksum shr 8) and 0xFF).toByte()
         packet[11] = (checksum and 0xFF).toByte()
     }
 
-    private fun getBlockType(hostname: String): String? {
-        if (blockListManager.isWhitelisted(hostname)) {
-            return null
-        }
-        return when {
-            blockAds && blockListManager.isAd(hostname) -> "AD"
-            blockTrackers && blockListManager.isTracker(hostname) -> "TRACKER"
-            blockMalware && blockListManager.isMalware(hostname) -> "MALWARE"
-            blockShopping && blockListManager.isShopping(hostname) -> "SHOPPING"
-            blockListManager.isExternalBlocked(hostname) -> "EXTERNAL"
-            else -> null
-        }
-    }
-
-    private fun incrementBlockCounter(blockType: String) {
-        when (blockType) {
-            "AD" -> adsBlocked++
-            "TRACKER" -> trackersBlocked++
-            "MALWARE" -> malwareBlocked++
-            "SHOPPING" -> shoppingBlocked++
-            "EXTERNAL" -> adsBlocked++
-        }
-    }
-
-    private fun logBlock(hostname: String, type: String) {
-        serviceScope.launch {
-            try {
-                database.blockLogDao().insert(
-                    BlockLog(domain = hostname, type = type)
-                )
-            } catch (e: Exception) {
-                Log.e("DNSphere", "Error logging block", e)
-            }
-        }
-    }
+    // =========================================================================
+    // STATS + NOTIFICATIONS - ✅ MODIFIÉ : LiveData au lieu de LocalBroadcastManager
+    // =========================================================================
 
     private suspend fun sendStatsUpdates() {
         while (isRunning) {
-            val intent = Intent("vpn_stats").apply {
-                putExtra("ads_blocked", adsBlocked)
-                putExtra("trackers_blocked", trackersBlocked)
-                putExtra("malware_blocked", malwareBlocked)
-                putExtra("shopping_blocked", shoppingBlocked)
-            }
-            LocalBroadcastManager.getInstance(this@LocalVpnService).sendBroadcast(intent)
+            // ✅ NOUVEAU : Utiliser LiveData
+            StatsLiveData.updateStats(
+                VpnStats(
+                    adsBlocked = adsBlocked,
+                    trackersBlocked = trackersBlocked,
+                    malwareBlocked = malwareBlocked,
+                    shoppingBlocked = shoppingBlocked,
+                    isPaused = isPaused
+                )
+            )
             updateNotification()
             delay(1000)
         }
@@ -437,48 +475,78 @@ class LocalVpnService : VpnService() {
 
     private fun stopVpn() {
         isRunning = false
+        isPaused  = false
+        cancelPause()
         serviceScope.cancel()
-        try {
-            vpnInterface?.close()
-        } catch (e: Exception) {
-            Log.e("DNSphere", "Error closing VPN", e)
-        }
+        try { vpnInterface?.close() } catch (e: Exception) { }
         vpnInterface = null
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
+    // =========================================================================
+    // NOTIFICATIONS
+    // =========================================================================
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID,
-                "DNSphere Protection",
+                CHANNEL_ID, "DNSphere Protection",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Protection DNS active"
                 setShowBadge(false)
             }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
     private fun createNotification(): Notification {
-        val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
+            this, 0, Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // ✅ Afficher le vrai provider DoH dans la notification
-        val dohStatus = if (useDoH) " | DoH: ${dohResolver.getProviderName()}" else ""
+        val pauseResumeIntent = if (isPaused) {
+            PendingIntent.getService(
+                this, 1,
+                Intent(this, LocalVpnService::class.java).apply { action = ACTION_RESUME },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getService(
+                this, 2,
+                Intent(this, LocalVpnService::class.java).apply {
+                    action = ACTION_PAUSE
+                    putExtra(EXTRA_PAUSE_DURATION, 5 * 60 * 1000L)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
         val totalBlocked = adsBlocked + trackersBlocked + malwareBlocked + shoppingBlocked
+        val dnsMode = when {
+            useDot -> "DoT"
+            useDoH -> "DoH: ${dohResolver.getProviderName()}"
+            else   -> "DNS standard"
+        }
+
+        val title = if (isPaused) "⏸️ DNSphere en pause" else "🛡️ DNSphere actif"
+        val text  = if (isPaused)
+            "Protection suspendue temporairement"
+        else
+            "$totalBlocked bloqués (${adsBlocked} pubs, ${trackersBlocked} trackers) | $dnsMode"
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("🛡️ DNSphere actif")
-            .setContentText("$totalBlocked bloqués (${adsBlocked} pubs, ${trackersBlocked} trackers)$dohStatus")
+            .setContentTitle(title)
+            .setContentText(text)
             .setSmallIcon(R.drawable.ic_shield)
             .setContentIntent(pendingIntent)
+            .addAction(
+                R.drawable.ic_pause,
+                if (isPaused) "▶️ Reprendre" else "⏸️ Pause 5min",
+                pauseResumeIntent
+            )
             .setOngoing(true)
             .setSilent(true)
             .build()
@@ -486,8 +554,7 @@ class LocalVpnService : VpnService() {
 
     private fun updateNotification() {
         val notification = createNotification()
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.notify(NOTIFICATION_ID, notification)
+        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
     }
 
     override fun onDestroy() {

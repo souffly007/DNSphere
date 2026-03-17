@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- TITRE -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contrôle parental"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Protégez l'accès avec un code PIN"
+            android:textSize="13sp"
+            android:textColor="@color/gray"
+            android:layout_marginBottom="16dp" />
+
+        <!-- CARTE ACTIVATION -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activer le contrôle parental"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Protégé par un code PIN"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray" />
+
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/switchParentalEnabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- CONFIG (masquée si désactivé) -->
+        <LinearLayout
+            android:id="@+id/layoutParentalConfig"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- SECTION CATÉGORIES -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CATÉGORIES À BLOQUER"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="@color/green"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="🔞  Contenu adulte" android:textSize="15sp" android:textColor="@android:color/white" />
+                        <Switch android:id="@+id/switchBlockAdult" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray" android:alpha="0.3" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="🎮  Jeux vidéo" android:textSize="15sp" android:textColor="@android:color/white" />
+                        <Switch android:id="@+id/switchBlockGaming" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray" android:alpha="0.3" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="📱  Réseaux sociaux" android:textSize="15sp" android:textColor="@android:color/white" />
+                        <Switch android:id="@+id/switchBlockSocial" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray" android:alpha="0.3" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="🎬  Streaming vidéo" android:textSize="15sp" android:textColor="@android:color/white" />
+                        <Switch android:id="@+id/switchBlockStreaming" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray" android:alpha="0.3" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="8dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="💬  Forums" android:textSize="15sp" android:textColor="@android:color/white" />
+                        <Switch android:id="@+id/switchBlockForums" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECTION PLAGE HORAIRE -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PLAGE HORAIRE"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="@color/green"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Restreindre les horaires"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white" />
+                        <Switch
+                            android:id="@+id/switchScheduleEnabled"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutSchedule"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Internet autorisé entre :"
+                            android:textSize="13sp"
+                            android:textColor="@color/gray"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- Début -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp">
+                            <TextView android:layout_width="60dp" android:layout_height="wrap_content" android:text="Début :" android:textSize="14sp" android:textColor="@android:color/white" />
+                            <NumberPicker android:id="@+id/npStartHour" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" h " android:textSize="16sp" android:textStyle="bold" android:textColor="@android:color/white" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" />
+                            <NumberPicker android:id="@+id/npStartMinute" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <!-- Fin -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="16dp">
+                            <TextView android:layout_width="60dp" android:layout_height="wrap_content" android:text="Fin :" android:textSize="14sp" android:textColor="@android:color/white" />
+                            <NumberPicker android:id="@+id/npEndHour" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" h " android:textSize="16sp" android:textStyle="bold" android:textColor="@android:color/white" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" />
+                            <NumberPicker android:id="@+id/npEndMinute" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <!-- Jours -->
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Jours contrôlés :" android:textSize="13sp" android:textColor="@color/gray" android:layout_marginBottom="8dp" />
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                            <CheckBox android:id="@+id/cbMonday"    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Lun" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbTuesday"   android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mar" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbWednesday" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mer" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbThursday"  android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Jeu" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbFriday"    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Ven" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbSaturday"  android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sam" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                            <CheckBox android:id="@+id/cbSunday"    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Dim" android:textColor="@android:color/white" android:textSize="11sp" android:checked="true" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- BOUTON SAUVEGARDER -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveParental"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Enregistrer"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

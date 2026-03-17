@@ -27,6 +27,10 @@ interface BlockLogDao {
     @Query("DELETE FROM block_logs")
     suspend fun clearAll()
 
+    // ==================== AJOUTÉ : Pour StatsActivity ====================
+    @Query("SELECT * FROM block_logs WHERE timestamp >= :startTime ORDER BY timestamp DESC")
+    suspend fun getLogsSince(startTime: Long): List<BlockLog>
+
     // ==================== NOUVELLES REQUÊTES STATS ====================
 
     // Total bloqués
@@ -116,6 +120,10 @@ interface BlockLogDao {
         GROUP BY type
     """)
     suspend fun getStatsByTypeAllTime(): List<TypeCount>
+
+    // CORRECTION ICI : "block_logs" au lieu de "block_log"
+    @Query("DELETE FROM block_logs WHERE timestamp < :threshold")
+    suspend fun deleteOldLogs(threshold: Long)
 }
 
 // Classes pour les résultats des requêtes

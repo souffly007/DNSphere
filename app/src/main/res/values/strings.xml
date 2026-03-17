@@ -3,7 +3,7 @@
 
     <!-- ==================== APP INFO ==================== -->
     <string name="app_name">DNSphere</string>
-    <string name="app_version">1.3</string>
+    <string name="app_version">1.4</string>
     <string name="widget_description">Contrôle rapide de DNSphere</string>
 
     <!-- Infos développeur -->
@@ -107,15 +107,38 @@
     <string name="pref_clear_logs_title">🗑️ Effacer les logs</string>
     <string name="pref_clear_logs_summary">Supprimer l\'historique des blocages</string>
 
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 Sauvegarde et restauration</string>
+    <string name="pref_backup_title">💾 Sauvegarder les listes</string>
+    <string name="pref_backup_summary">Exporter toutes les listes de blocage dans un fichier</string>
+    <string name="pref_restore_title">📂 Restaurer les listes</string>
+    <string name="pref_restore_summary">Importer des listes de blocage depuis un fichier</string>
+
+    <string name="backup_success">✅ Sauvegarde exportée avec succès</string>
+    <string name="backup_failure">❌ Échec de la sauvegarde</string>
+    <string name="restore_success">✅ Listes restaurées avec succès</string>
+    <string name="restore_failure">❌ Échec de la restauration</string>
+    <string name="restore_invalid_file">❌ Fichier invalide ou corrompu</string>
+
+    <string name="backup_dialog_title">Sauvegarder les listes</string>
+    <string name="backup_dialog_message">Les listes personnalisées et la whitelist seront exportées dans un fichier .json</string>
+    <string name="restore_dialog_title">Restaurer les listes</string>
+    <string name="restore_dialog_message">Attention : les listes actuelles seront remplacées par celles du fichier sélectionné.</string>
+    <string name="restore_dialog_confirm">Restaurer</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">%d domaine(s) sauvegardé(s)</string>
+    <string name="restore_domains_count">%d domaine(s) restauré(s)</string>
+
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Version</string>
-    <string name="pref_version_summary">DNSphere v1.3</string>
+    <string name="pref_version_summary">DNSphere v1.4</string>
     <string name="pref_developer_title">👨‍💻 Créé par</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Code source (GitHub)</string>
     <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
     <string name="pref_license_title">📄 Licence</string>
-    <string name="pref_license_summary">MIT License - Open Source</string>
+    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
 
     <!-- ==================== STATS ACTIVITY ==================== -->
     <string name="stats_toolbar_title">📊 Statistiques</string>

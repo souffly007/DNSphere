@@ -3,7 +3,13 @@
 
     <!-- ==================== APP INFO ==================== -->
     <string name="app_name">DNSphere</string>
-    <string name="widget_description">Quick DNSphere control</string>
+    <string name="app_version">1.4</string>
+    <string name="widget_description">Quick control for DNSphere</string>
+
+    <!-- Developer info -->
+    <string name="developer_name">souffly007</string>
+    <string name="github_url">https://github.com/souffly007/DNSphere</string>
+    <string name="developer_website">https://bonobo.fr</string>
 
     <!-- ==================== MAIN ACTIVITY ==================== -->
     <string name="protection_enabled">🛡️ Protection enabled</string>
@@ -48,8 +54,8 @@
 
     <!-- ==================== WHITELIST ACTIVITY ==================== -->
     <string name="whitelist_toolbar_title">✅ Whitelist</string>
-    <string name="whitelist_empty">No whitelisted domains</string>
-    <string name="whitelist_add_title">Add domain</string>
+    <string name="whitelist_empty">No domains in whitelist</string>
+    <string name="whitelist_add_title">Add a domain</string>
     <string name="whitelist_add_message">This domain will never be blocked</string>
     <string name="whitelist_add_hint">example.com</string>
 
@@ -63,42 +69,76 @@
     <string name="clear_logs_title">Clear logs</string>
     <string name="clear_logs_message">Do you want to delete all block logs?</string>
 
-    <!-- ==================== PREFERENCES ==================== -->
+    <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Secure DNS</string>
+    <string name="pref_category_schedule">⏰ Automation</string>
     <string name="pref_category_blocklists">📋 Block lists</string>
     <string name="pref_category_apps">📱 Applications</string>
     <string name="pref_category_data">💾 Data</string>
     <string name="pref_category_about">ℹ️ About</string>
 
+    <!-- ==================== PREFERENCES - DNS ==================== -->
     <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
     <string name="pref_use_doh_summary">Encrypt DNS requests for more privacy</string>
-    <string name="pref_doh_provider_title">DoH Server</string>
+    <string name="pref_doh_provider_title">DoH server</string>
 
     <string name="doh_provider_cloudflare">Cloudflare (recommended)</string>
     <string name="doh_provider_google">Google</string>
     <string name="doh_provider_quad9">Quad9 (security)</string>
     <string name="doh_provider_adguard">AdGuard (ad-blocking)</string>
 
+    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <string name="pref_schedule_summary">Enable/disable automatically</string>
+    <string name="schedule_all_disabled">All schedules disabled</string>
+    <string name="schedule_active_count">%d active schedule(s)</string>
+
+    <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 External lists</string>
     <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K domains)</string>
     <string name="pref_manage_lists_title">📝 Custom lists</string>
     <string name="pref_manage_lists_summary">Add your own domains to block</string>
     <string name="lists_summary">%1$d active lists • %2$s domains</string>
 
+    <!-- ==================== PREFERENCES - APPS ==================== -->
     <string name="pref_excluded_apps_title">🚫 Excluded apps</string>
-    <string name="pref_excluded_apps_summary">These apps won\'t be filtered</string>
+    <string name="pref_excluded_apps_summary">These apps will not be filtered</string>
 
+    <!-- ==================== PREFERENCES - DATA ==================== -->
     <string name="pref_clear_logs_title">🗑️ Clear logs</string>
-    <string name="pref_clear_logs_summary">Delete blocking history</string>
+    <string name="pref_clear_logs_summary">Delete block history</string>
 
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 Backup and Restore</string>
+    <string name="pref_backup_title">💾 Back up lists</string>
+    <string name="pref_backup_summary">Export all block lists to a file</string>
+    <string name="pref_restore_title">📂 Restore lists</string>
+    <string name="pref_restore_summary">Import block lists from a file</string>
+
+    <string name="backup_success">✅ Backup exported successfully</string>
+    <string name="backup_failure">❌ Backup failed</string>
+    <string name="restore_success">✅ Lists restored successfully</string>
+    <string name="restore_failure">❌ Restore failed</string>
+    <string name="restore_invalid_file">❌ Invalid or corrupted file</string>
+
+    <string name="backup_dialog_title">Back up lists</string>
+    <string name="backup_dialog_message">Custom lists and whitelist will be exported to a .json file</string>
+    <string name="restore_dialog_title">Restore lists</string>
+    <string name="restore_dialog_message">Warning: current lists will be replaced by those in the selected file.</string>
+    <string name="restore_dialog_confirm">Restore</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">%d domain(s) backed up</string>
+    <string name="restore_domains_count">%d domain(s) restored</string>
+
+    <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Version</string>
-    <string name="pref_version_summary">DNSphere v1.3</string>
+    <string name="pref_version_summary">DNSphere v1.4</string>
     <string name="pref_developer_title">👨‍💻 Created by</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Source code (GitHub)</string>
     <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
     <string name="pref_license_title">📄 License</string>
-    <string name="pref_license_summary">MIT License - Open Source</string>
+    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
 
     <!-- ==================== STATS ACTIVITY ==================== -->
     <string name="stats_toolbar_title">📊 Statistics</string>
@@ -108,16 +148,16 @@
     <string name="stats_all_time">All</string>
     <string name="stats_blocked_requests">blocked requests</string>
     <string name="stats_by_category">📈 By category</string>
-    <string name="stats_chart_daily">📅 Daily</string>
+    <string name="stats_chart_daily">📅 By day</string>
     <string name="stats_by_hour">🕐 By hour (today)</string>
     <string name="stats_top_blocked">🏆 Top blocked domains</string>
     <string name="stats_no_data">No data for this period</string>
 
-    <!-- ==================== SCHEDULE ==================== -->
+    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
     <string name="schedule_title">⏰ Scheduled mode</string>
-    <string name="schedule_empty">No schedules</string>
-    <string name="schedule_empty_hint">Tap + to create an automatic schedule</string>
-    <string name="schedule_add">Add schedule</string>
+    <string name="schedule_empty">No schedule</string>
+    <string name="schedule_empty_hint">Press + to create an automatic schedule</string>
+    <string name="schedule_add">Add a schedule</string>
     <string name="schedule_edit">Edit schedule</string>
     <string name="schedule_name">Name (optional)</string>
     <string name="schedule_default_name">My schedule</string>
@@ -131,8 +171,9 @@
     <string name="schedule_updated">Schedule updated</string>
     <string name="schedule_deleted">Schedule deleted</string>
     <string name="schedule_delete_title">Delete schedule?</string>
-    <string name="schedule_delete_message">This action cannot be undone.</string>
+    <string name="schedule_delete_message">This action is irreversible.</string>
 
+    <!-- Days -->
     <string name="day_mon">Mon</string>
     <string name="day_tue">Tue</string>
     <string name="day_wed">Wed</string>
@@ -141,15 +182,14 @@
     <string name="day_sat">Sat</string>
     <string name="day_sun">Sun</string>
 
+    <!-- Common -->
     <string name="common_save">Save</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_delete">Delete</string>
     <string name="common_edit">Edit</string>
 
-    <string name="pref_schedule_summary">Activer/désactiver automatiquement</string>
-
     <!-- ==================== PROFILES ==================== -->
-    <string name="profiles_title">📁 Blocking profiles</string>
+    <string name="profiles_title">📁 Block profiles</string>
     <string name="profiles_all">All profiles</string>
     <string name="profile_active">Active profile</string>
     <string name="profile_active_badge">ACTIVE</string>
@@ -167,14 +207,13 @@
     <string name="profile_deleted">Profile deleted</string>
     <string name="profile_duplicated">Profile duplicated</string>
     <string name="profile_name_required">Name is required</string>
-    <string name="profile_cannot_delete_preset">Cannot delete preset profile</string>
-    <string name="profile_cannot_delete_active">Cannot delete active profile</string>
+    <string name="profile_cannot_delete_preset">Cannot delete a preset profile</string>
+    <string name="profile_cannot_delete_active">Cannot delete the active profile</string>
     <string name="profile_delete_title">Delete profile?</string>
-    <string name="profile_delete_message">Do you want to delete profile "%s"?</string>
+    <string name="profile_delete_message">Do you want to delete the profile "%s"?</string>
 
-    <!-- Preferences profiles -->
     <string name="pref_category_profiles">📁 Profiles</string>
-    <string name="pref_profiles_summary">Manage blocking profiles</string>
+    <string name="pref_profiles_summary">Manage block profiles</string>
 
     <!-- ==================== BIOMETRIC / SECURITY ==================== -->
     <string name="security_title">🔐 Security</string>
@@ -192,7 +231,7 @@
     <string name="bio_protect_disable">VPN deactivation</string>
     <string name="bio_protect_disable_desc">Authentication required to disable protection</string>
 
-    <string name="bio_protect_settings">Settings access</string>
+    <string name="bio_protect_settings">Access to settings</string>
     <string name="bio_protect_settings_desc">Authentication required to modify settings</string>
 
     <string name="bio_protect_profiles">Profile modification</string>
@@ -205,16 +244,14 @@
 
     <string name="bio_auth_disable_title">Disable VPN</string>
     <string name="bio_auth_settings_title">Access settings</string>
-    <string name="bio_auth_profiles_title">Modify profiles</string>
+    <string name="bio_auth_profiles_title">Edit profiles</string>
     <string name="bio_auth_subtitle">Authentication required</string>
 
     <string name="bio_enabled">Biometric protection enabled</string>
     <string name="bio_disabled">Biometric protection disabled</string>
 
     <string name="bio_no_hardware">Your device does not support biometrics</string>
-    <string name="bio_hardware_unavailable">Biometric sensor is not available</string>
-    <string name="bio_not_enrolled">No fingerprint or Face ID configured. Set it up in phone settings.</string>
-
-    
+    <string name="bio_hardware_unavailable">The biometric sensor is not available</string>
+    <string name="bio_not_enrolled">No fingerprint or Face ID configured. Set it up in your phone settings.</string>
 
 </resources>

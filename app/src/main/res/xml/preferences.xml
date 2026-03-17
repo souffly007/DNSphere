@@ -65,6 +65,21 @@
 
     </PreferenceCategory>
 
+    <!-- ================================================================ -->
+    <!-- CONTRÔLE PARENTAL — AJOUT                                         -->
+    <!-- ================================================================ -->
+    <PreferenceCategory
+        android:title="👨‍👧 Contrôle parental"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="parental_control"
+            android:title="Contrôle parental"
+            android:summary="Bloquer des catégories et restreindre les horaires"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
     <!-- Listes de blocage -->
     <PreferenceCategory
         android:title="@string/pref_category_blocklists"
@@ -83,6 +98,18 @@
             app:iconSpaceReserved="false"/>
 
     </PreferenceCategory>
+
+    <!-- SAUVEGARDE & RESTAURATION -->
+    <PreferenceCategory
+        android:title="Données"> <Preference
+        android:key="backup"
+        android:title="Sauvegarde &amp; Restauration"
+        android:summary="Exporter ou importer vos listes et paramètres"
+        android:icon="@drawable/ic_backup" />
+
+    </PreferenceCategory>
+
+
 
     <!-- Applications -->
     <PreferenceCategory
@@ -118,9 +145,8 @@
         <Preference
             android:key="version"
             android:title="@string/pref_version_title"
-            android:summary="@string/pref_version_summary"
-            android:selectable="false"
-            app:iconSpaceReserved="false"/>
+            android:summary="..."
+            android:selectable="false" />
 
         <Preference
             android:key="developer"
@@ -137,7 +163,7 @@
         <Preference
             android:key="license"
             android:title="@string/pref_license_title"
-            android:summary="SPDX-License-Identifier: GPL-3.0-or-later"
+            android:summary="GPL-3.0-or-later"
             android:selectable="false"
             app:iconSpaceReserved="false"/>
 

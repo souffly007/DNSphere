@@ -13,6 +13,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import fr.bonobo.dnsphere.LocalVpnService
 import fr.bonobo.dnsphere.R
+import fr.bonobo.dnsphere.BuildConfig
 import fr.bonobo.dnsphere.data.AppDatabase
 import kotlinx.coroutines.launch
 
@@ -54,6 +55,8 @@ class SettingsActivity : AppCompatActivity() {
 
             database = AppDatabase.getInstance(requireContext())
 
+            findPreference<Preference>("version")?.summary = BuildConfig.VERSION_NAME
+
             updateDohProviderSummary()
 
             // ==================== DNS ====================
@@ -75,12 +78,14 @@ class SettingsActivity : AppCompatActivity() {
                 setOnPreferenceChangeListener { pref, newValue ->
                     val provider = newValue as String
                     (pref as ListPreference).summary = getProviderDisplayName(provider)
-                    updateVpnServiceIfRunning()
+
                     Toast.makeText(
                         requireContext(),
                         getString(R.string.dns_changed, getProviderDisplayName(provider)),
                         Toast.LENGTH_SHORT
                     ).show()
+
+                    updateVpnServiceIfRunning(overrideDohProvider = provider)
                     true
                 }
             }
@@ -103,6 +108,24 @@ class SettingsActivity : AppCompatActivity() {
 
             findPreference<Preference>("security")?.setOnPreferenceClickListener {
                 startActivity(Intent(requireContext(), SecurityActivity::class.java))
+                true
+            }
+
+            // ==================== CONTRÔLE PARENTAL ====================
+
+            findPreference<Preference>("parental_control")?.setOnPreferenceClickListener {
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(android.R.id.content, ParentalControlFragment())
+                    .addToBackStack(null)
+                    .commit()
+                true
+            }
+
+            // ==================== SAUVEGARDE (AJOUTÉ) ====================
+
+            findPreference<Preference>("backup")?.setOnPreferenceClickListener {
+                startActivity(Intent(requireContext(), BackupActivity::class.java))
                 true
             }
 
@@ -170,12 +193,44 @@ class SettingsActivity : AppCompatActivity() {
             updateScheduleSummary()
             updateProfileSummary()
             updateSecuritySummary()
+            updateParentalSummary()
+        }
+
+        private fun updateVpnServiceIfRunning(overrideDohProvider: String? = null) {
+            if (!LocalVpnService.isRunning) return
+
+            val prefs = preferenceManager.sharedPreferences ?: return
+
+            val intent = Intent(requireContext(), LocalVpnService::class.java).apply {
+                action = LocalVpnService.ACTION_UPDATE_CONFIG
+                putExtra("block_ads",      prefs.getBoolean("block_ads",      true))
+                putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
+                putExtra("block_malware",  prefs.getBoolean("block_malware",  true))
+                putExtra("block_social",   prefs.getBoolean("block_social",   false))
+                putExtra("block_adult",    prefs.getBoolean("block_adult",    false))
+                putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
+                putExtra("use_doh",        prefs.getBoolean("use_doh",        false))
+                putExtra("doh_provider", overrideDohProvider
+                    ?: prefs.getString("doh_provider", "cloudflare")
+                    ?: "cloudflare")
+            }
+            requireContext().startService(intent)
+        }
+
+        private fun updateParentalSummary() {
+            try {
+                val parentalManager = fr.bonobo.dnsphere.ParentalManager(requireContext())
+                findPreference<Preference>("parental_control")?.summary = if (parentalManager.isPinEnabled()) {
+                    "🔒 Activé"
+                } else {
+                    "Bloquer des catégories et restreindre les horaires"
+                }
+            } catch (e: Exception) { }
         }
 
         private fun openUrl(url: String) {
             try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(intent)
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), R.string.cannot_open_link, Toast.LENGTH_SHORT).show()
             }
@@ -184,36 +239,16 @@ class SettingsActivity : AppCompatActivity() {
         private fun getProviderDisplayName(provider: String): String {
             return when (provider) {
                 "cloudflare" -> getString(R.string.doh_provider_cloudflare)
-                "google" -> getString(R.string.doh_provider_google)
-                "quad9" -> getString(R.string.doh_provider_quad9)
-                "adguard" -> getString(R.string.doh_provider_adguard)
-                else -> provider
+                "google"     -> getString(R.string.doh_provider_google)
+                "quad9"      -> getString(R.string.doh_provider_quad9)
+                "adguard"    -> getString(R.string.doh_provider_adguard)
+                else         -> provider
             }
         }
 
         private fun updateDohProviderSummary() {
             findPreference<ListPreference>("doh_provider")?.let { pref ->
-                val currentValue = pref.value ?: "cloudflare"
-                pref.summary = getProviderDisplayName(currentValue)
-            }
-        }
-
-        private fun updateVpnServiceIfRunning() {
-            if (LocalVpnService.isRunning) {
-                val prefs = preferenceManager.sharedPreferences ?: return
-
-                val intent = Intent(requireContext(), LocalVpnService::class.java).apply {
-                    action = LocalVpnService.ACTION_UPDATE_CONFIG
-                    putExtra("block_ads", prefs.getBoolean("block_ads", true))
-                    putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
-                    putExtra("block_malware", prefs.getBoolean("block_malware", true))
-                    putExtra("block_social", prefs.getBoolean("block_social", false))
-                    putExtra("block_adult", prefs.getBoolean("block_adult", false))
-                    putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
-                    putExtra("use_doh", prefs.getBoolean("use_doh", false))
-                    putExtra("doh_provider", prefs.getString("doh_provider", "cloudflare"))
-                }
-                requireContext().startService(intent)
+                pref.summary = getProviderDisplayName(pref.value ?: "cloudflare")
             }
         }
 
@@ -224,6 +259,7 @@ class SettingsActivity : AppCompatActivity() {
             updateScheduleSummary()
             updateProfileSummary()
             updateSecuritySummary()
+            updateParentalSummary()
         }
 
         private fun updateScheduleSummary() {
@@ -233,13 +269,11 @@ class SettingsActivity : AppCompatActivity() {
                         val enabledCount = schedules.count { it.isEnabled }
                         findPreference<Preference>("schedule")?.summary = when {
                             schedules.isEmpty() -> getString(R.string.pref_schedule_summary)
-                            enabledCount == 0 -> getString(R.string.schedule_all_disabled)
-                            else -> getString(R.string.schedule_active_count, enabledCount)
+                            enabledCount == 0   -> getString(R.string.schedule_all_disabled)
+                            else                -> getString(R.string.schedule_active_count, enabledCount)
                         }
                     }
-                } catch (e: Exception) {
-                    // Ignorer
-                }
+                } catch (e: Exception) { }
             }
         }
 
@@ -253,9 +287,7 @@ class SettingsActivity : AppCompatActivity() {
                             getString(R.string.pref_profiles_summary)
                         }
                     }
-                } catch (e: Exception) {
-                    // Ignorer
-                }
+                } catch (e: Exception) { }
             }
         }
 
@@ -267,37 +299,30 @@ class SettingsActivity : AppCompatActivity() {
                 } else {
                     getString(R.string.pref_security_summary)
                 }
-            } catch (e: Exception) {
-                // Ignorer
-            }
+            } catch (e: Exception) { }
         }
 
         private fun updateListStats() {
             lifecycleScope.launch {
                 try {
-                    val customLists = database.customListDao().getEnabledLists()
+                    val customLists   = database.customListDao().getEnabledLists()
                     val customDomains = customLists.sumOf { it.domainCount }
-
                     findPreference<Preference>("manage_lists")?.summary =
                         getString(R.string.lists_summary, customLists.size, customDomains.toString())
 
                     val externalListCount = database.externalListDao().getEnabledListCount()
-                    val externalDomains = database.externalListDao().getTotalEnabledDomains() ?: 0
-
+                    val externalDomains   = database.externalListDao().getTotalEnabledDomains() ?: 0
                     findPreference<Preference>("external_lists")?.summary =
                         getString(R.string.lists_summary, externalListCount, formatNumber(externalDomains))
-
-                } catch (e: Exception) {
-                    // Ignorer
-                }
+                } catch (e: Exception) { }
             }
         }
 
         private fun formatNumber(number: Int): String {
             return when {
                 number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
-                number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
-                else -> number.toString()
+                number >= 1_000     -> String.format("%.1fK", number / 1_000.0)
+                else                -> number.toString()
             }
         }
     }
