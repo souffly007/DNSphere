@@ -12,52 +12,52 @@
     <string name="developer_website">https://bonobo.fr</string>
 
     <!-- ==================== MAIN ACTIVITY ==================== -->
-    <string name="protection_enabled">🛡️ 保护已启用</string>
-    <string name="protection_disabled">保护已禁用</string>
+    <string name="protection_enabled">🛡️ 防护已开启</string>
+    <string name="protection_disabled">防护已关闭</string>
     <string name="status_on">开启</string>
     <string name="status_off">关闭</string>
 
-    <string name="stats_title">📊 统计（点击查看日志）</string>
-    <string name="ads_blocked">已拦截广告</string>
-    <string name="trackers_blocked">已拦截追踪器</string>
-    <string name="malware_blocked">已拦截恶意软件</string>
+    <string name="stats_title">📊 数据统计（点击查看记录）</string>
+    <string name="ads_blocked">广告拦截</string>
+    <string name="trackers_blocked">追踪拦截</string>
+    <string name="malware_blocked">恶意拦截</string>
 
-    <string name="protection_options_title">🛡️ 保护选项</string>
-    <string name="block_ads">🚫 拦截广告</string>
-    <string name="block_trackers">🔒 拦截追踪器</string>
-    <string name="block_malware">☠️ 恶意软件防护</string>
+    <string name="protection_options_title">🛡️ 防护选项</string>
+    <string name="block_ads">🚫 广告拦截</string>
+    <string name="block_trackers">🔒 追踪拦截</string>
+    <string name="block_malware">☠️ 恶意防护</string>
 
     <string name="quick_actions_title">⚡ 快捷操作</string>
-    <string name="logs">📋 日志</string>
+    <string name="logs">📋 记录</string>
     <string name="whitelist">✅ 白名单</string>
     <string name="settings">⚙️ 设置</string>
 
-    <string name="created_by">由 %s 创建</string>
-    <string name="source_code_github">🔗 GitHub 上的源代码</string>
+    <string name="created_by">由 %s 提供</string>
+    <string name="source_code_github">🔗 GitHub 源代码</string>
 
     <!-- ==================== TOASTS / MESSAGES ==================== -->
     <string name="vpn_permission_denied">VPN 权限被拒绝</string>
-    <string name="protection_started">🛡️ 保护已启用</string>
-    <string name="protection_stopped">保护已禁用</string>
+    <string name="protection_started">🛡️ 防护已开启</string>
+    <string name="protection_stopped">防护已关闭</string>
     <string name="cannot_open_link">无法打开链接</string>
-    <string name="doh_enabled">DoH 已启用</string>
-    <string name="doh_disabled">DoH 已禁用</string>
-    <string name="dns_changed">DNS: %s</string>
-    <string name="logs_cleared">日志已清除</string>
+    <string name="doh_enabled">DoH 已开启</string>
+    <string name="doh_disabled">DoH 已关闭</string>
+    <string name="dns_changed">DNS：%s</string>
+    <string name="logs_cleared">记录已清除</string>
 
     <!-- ==================== LOGS ACTIVITY ==================== -->
-    <string name="logs_toolbar_title">📋 拦截日志</string>
-    <string name="logs_empty">无拦截记录</string>
+    <string name="logs_toolbar_title">📋 拦截记录</string>
+    <string name="logs_empty">暂无记录</string>
     <string name="type_ad">广告</string>
-    <string name="type_tracker">追踪器</string>
-    <string name="type_malware">恶意软件</string>
+    <string name="type_tracker">追踪</string>
+    <string name="type_malware">恶意</string>
 
     <!-- ==================== WHITELIST ACTIVITY ==================== -->
     <string name="whitelist_toolbar_title">✅ 白名单</string>
-    <string name="whitelist_empty">白名单中无域名</string>
+    <string name="whitelist_empty">暂无白名单域名</string>
     <string name="whitelist_add_title">添加域名</string>
-    <string name="whitelist_add_message">此域名将永不被拦截</string>
-    <string name="whitelist_add_hint">示例.com</string>
+    <string name="whitelist_add_message">该域名将始终放行</string>
+    <string name="whitelist_add_hint">example.com</string>
 
     <!-- ==================== SETTINGS ACTIVITY ==================== -->
     <string name="settings_toolbar_title">⚙️ 设置</string>
@@ -66,20 +66,20 @@
     <string name="dialog_add">添加</string>
     <string name="dialog_cancel">取消</string>
     <string name="dialog_clear">清除</string>
-    <string name="clear_logs_title">清除日志</string>
-    <string name="clear_logs_message">是否删除所有拦截日志？</string>
+    <string name="clear_logs_title">清除记录</string>
+    <string name="clear_logs_message">确定要删除所有拦截记录吗？</string>
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 安全 DNS</string>
     <string name="pref_category_schedule">⏰ 自动化</string>
     <string name="pref_category_blocklists">📋 拦截列表</string>
-    <string name="pref_category_apps">📱 应用程序</string>
+    <string name="pref_category_apps">📱 应用</string>
     <string name="pref_category_data">💾 数据</string>
     <string name="pref_category_about">ℹ️ 关于</string>
 
     <!-- ==================== PREFERENCES - DNS ==================== -->
     <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
-    <string name="pref_use_doh_summary">加密 DNS 请求以增强隐私保护</string>
+    <string name="pref_use_doh_summary">加密 DNS 请求，提升隐私保护</string>
     <string name="pref_doh_provider_title">DoH 服务器</string>
 
     <string name="doh_provider_cloudflare">Cloudflare（推荐）</string>
@@ -88,67 +88,90 @@
     <string name="doh_provider_adguard">AdGuard（广告拦截）</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">自动启用/禁用</string>
-    <string name="schedule_all_disabled">所有计划已禁用</string>
-    <string name="schedule_active_count">%d 个计划处于活动状态</string>
+    <string name="pref_schedule_summary">自动开启或关闭</string>
+    <string name="schedule_all_disabled">所有计划已关闭</string>
+    <string name="schedule_active_count">%d 个计划正在运行</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 外部列表</string>
-    <string name="pref_external_lists_summary">StevenBlack、AdAway、EasyPrivacy…（+15万域名）</string>
+    <string name="pref_external_lists_summary">StevenBlack、AdAway、EasyPrivacy…（+150K 域名）</string>
     <string name="pref_manage_lists_title">📝 自定义列表</string>
-    <string name="pref_manage_lists_summary">添加您自己的域名以进行拦截</string>
-    <string name="lists_summary">%1$d 个活动列表 • %2$s 个域名</string>
+    <string name="pref_manage_lists_summary">添加自定义拦截域名</string>
+    <string name="lists_summary">%1$d 个列表 • %2$s 个域名</string>
 
     <!-- ==================== PREFERENCES - APPS ==================== -->
-    <string name="pref_excluded_apps_title">🚫 排除的应用</string>
-    <string name="pref_excluded_apps_summary">这些应用将不会被过滤</string>
+    <string name="pref_excluded_apps_title">🚫 排除应用</string>
+    <string name="pref_excluded_apps_summary">这些应用不会被过滤</string>
 
     <!-- ==================== PREFERENCES - DATA ==================== -->
-    <string name="pref_clear_logs_title">🗑️ 清除日志</string>
-    <string name="pref_clear_logs_summary">删除拦截历史记录</string>
+    <string name="pref_clear_logs_title">🗑️ 清除记录</string>
+    <string name="pref_clear_logs_summary">删除拦截历史</string>
+
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 备份与恢复</string>
+    <string name="pref_backup_title">💾 备份列表</string>
+    <string name="pref_backup_summary">导出所有拦截列表</string>
+    <string name="pref_restore_title">📂 恢复列表</string>
+    <string name="pref_restore_summary">从文件导入列表</string>
+
+    <string name="backup_success">✅ 备份成功</string>
+    <string name="backup_failure">❌ 备份失败</string>
+    <string name="restore_success">✅ 恢复成功</string>
+    <string name="restore_failure">❌ 恢复失败</string>
+    <string name="restore_invalid_file">❌ 文件无效或损坏</string>
+
+    <string name="backup_dialog_title">备份列表</string>
+    <string name="backup_dialog_message">自定义列表和白名单将导出为 .json 文件</string>
+    <string name="restore_dialog_title">恢复列表</string>
+    <string name="restore_dialog_message">注意：当前列表将被替换</string>
+    <string name="restore_dialog_confirm">恢复</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">已备份 %d 个域名</string>
+    <string name="restore_domains_count">已恢复 %d 个域名</string>
 
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">版本</string>
     <string name="pref_version_summary">DNSphere v1.4</string>
-    <string name="pref_developer_title">👨‍💻 创建者</string>
+    <string name="pref_developer_title">👨‍💻 开发者</string>
     <string name="pref_developer_summary">souffly007</string>
-    <string name="pref_github_title">🔗 源代码（GitHub）</string>
+    <string name="pref_github_title">🔗 GitHub 源码</string>
     <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
     <string name="pref_license_title">📄 许可证</string>
     <string name="pref_license_summary">GNU GPL v3 - 开源</string>
 
     <!-- ==================== STATS ACTIVITY ==================== -->
-    <string name="stats_toolbar_title">📊 统计</string>
-    <string name="stats_today">今天</string>
+    <string name="stats_toolbar_title">📊 数据统计</string>
+    <string name="stats_today">今日</string>
     <string name="stats_this_week">本周</string>
     <string name="stats_this_month">本月</string>
     <string name="stats_all_time">全部</string>
-    <string name="stats_blocked_requests">次请求被拦截</string>
-    <string name="stats_by_category">📈 按类别</string>
-    <string name="stats_chart_daily">📅 按天</string>
-    <string name="stats_by_hour">🕐 按小时（今天）</string>
-    <string name="stats_top_blocked">🏆 最常拦截的域名</string>
-    <string name="stats_no_data">此时间段无数据</string>
+    <string name="stats_blocked_requests">次请求已拦截</string>
+    <string name="stats_by_category">📈 分类统计</string>
+    <string name="stats_chart_daily">📅 每日统计</string>
+    <string name="stats_by_hour">🕐 今日小时分布</string>
+    <string name="stats_top_blocked">🏆 拦截最多的域名</string>
+    <string name="stats_no_data">暂无数据</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ 计划模式</string>
-    <string name="schedule_empty">无计划</string>
-    <string name="schedule_empty_hint">按 + 创建自动计划</string>
+    <string name="schedule_title">⏰ 定时模式</string>
+    <string name="schedule_empty">暂无计划</string>
+    <string name="schedule_empty_hint">点击 + 创建自动计划</string>
     <string name="schedule_add">添加计划</string>
     <string name="schedule_edit">编辑计划</string>
     <string name="schedule_name">名称（可选）</string>
     <string name="schedule_default_name">我的计划</string>
     <string name="schedule_time_range">时间范围</string>
-    <string name="schedule_days">天数</string>
+    <string name="schedule_days">日期</string>
     <string name="schedule_action">操作</string>
-    <string name="schedule_action_enable">🛡️ 启用保护</string>
-    <string name="schedule_action_disable">⏸️ 禁用保护</string>
+    <string name="schedule_action_enable">🛡️ 启用防护</string>
+    <string name="schedule_action_disable">⏸️ 关闭防护</string>
     <string name="schedule_select_day">请至少选择一天</string>
     <string name="schedule_added">计划已添加</string>
     <string name="schedule_updated">计划已更新</string>
     <string name="schedule_deleted">计划已删除</string>
     <string name="schedule_delete_title">删除计划？</string>
-    <string name="schedule_delete_message">此操作不可撤销。</string>
+    <string name="schedule_delete_message">此操作不可撤销</string>
 
     <!-- Jours -->
     <string name="day_mon">周一</string>
@@ -166,98 +189,70 @@
     <string name="common_edit">编辑</string>
 
     <!-- ==================== PROFILES ==================== -->
-    <string name="profiles_title">📁 拦截配置文件</string>
-    <string name="profiles_all">所有配置文件</string>
-    <string name="profile_active">活动配置文件</string>
-    <string name="profile_active_badge">活动</string>
-    <string name="profile_add">新建配置文件</string>
-    <string name="profile_edit">编辑配置文件</string>
-    <string name="profile_name">配置文件名称</string>
-    <string name="profile_name_hint">我的配置文件</string>
+    <string name="profiles_title">📁 拦截配置</string>
+    <string name="profiles_all">全部配置</string>
+    <string name="profile_active">当前配置</string>
+    <string name="profile_active_badge">已启用</string>
+    <string name="profile_add">新建配置</string>
+    <string name="profile_edit">编辑配置</string>
+    <string name="profile_name">配置名称</string>
+    <string name="profile_name_hint">我的配置</string>
     <string name="profile_icon">图标</string>
     <string name="profile_blocking_options">拦截选项</string>
-    <string name="profile_activate">激活此配置文件</string>
+    <string name="profile_activate">启用此配置</string>
     <string name="profile_duplicate">复制</string>
-    <string name="profile_activated">配置文件"%s"已激活</string>
-    <string name="profile_added">配置文件已创建</string>
-    <string name="profile_updated">配置文件已更新</string>
-    <string name="profile_deleted">配置文件已删除</string>
-    <string name="profile_duplicated">配置文件已复制</string>
-    <string name="profile_name_required">名称为必填项</string>
-    <string name="profile_cannot_delete_preset">无法删除预设配置文件</string>
-    <string name="profile_cannot_delete_active">无法删除活动配置文件</string>
-    <string name="profile_delete_title">删除配置文件？</string>
-    <string name="profile_delete_message">是否删除配置文件"%s"？</string>
+    <string name="profile_activated">配置“%s”已启用</string>
+    <string name="profile_added">配置已创建</string>
+    <string name="profile_updated">配置已更新</string>
+    <string name="profile_deleted">配置已删除</string>
+    <string name="profile_duplicated">配置已复制</string>
+    <string name="profile_name_required">请输入名称</string>
+    <string name="profile_cannot_delete_preset">无法删除预设配置</string>
+    <string name="profile_cannot_delete_active">无法删除当前配置</string>
+    <string name="profile_delete_title">删除配置？</string>
+    <string name="profile_delete_message">确定删除配置“%s”？</string>
 
     <!-- Préférences profils -->
-    <string name="pref_category_profiles">📁 配置文件</string>
-    <string name="pref_profiles_summary">管理拦截配置文件</string>
+    <string name="pref_category_profiles">📁 配置</string>
+    <string name="pref_profiles_summary">管理拦截配置</string>
 
     <!-- ==================== BIOMETRIC / SECURITY ==================== -->
     <string name="security_title">🔐 安全</string>
     <string name="pref_category_security">🔐 安全</string>
-    <string name="pref_security_summary">生物特征保护</string>
+    <string name="pref_security_summary">生物识别保护</string>
 
-    <string name="bio_info_title">生物特征保护</string>
-    <string name="bio_info_desc">使用指纹或面容 ID 保护应用程序</string>
+    <string name="bio_info_title">生物识别保护</string>
+    <string name="bio_info_desc">使用指纹或面容 ID 保护应用</string>
 
     <string name="bio_enable_protection">启用保护</string>
-    <string name="bio_enable_protection_desc">对敏感操作要求身份验证</string>
+    <string name="bio_enable_protection_desc">敏感操作需验证身份</string>
 
     <string name="bio_protection_options">保护选项</string>
 
-    <string name="bio_protect_disable">禁用 VPN</string>
-    <string name="bio_protect_disable_desc">禁用保护需要身份验证</string>
+    <string name="bio_protect_disable">关闭 VPN</string>
+    <string name="bio_protect_disable_desc">关闭防护需验证身份</string>
 
     <string name="bio_protect_settings">访问设置</string>
-    <string name="bio_protect_settings_desc">修改设置需要身份验证</string>
+    <string name="bio_protect_settings_desc">修改设置需验证身份</string>
 
-    <string name="bio_protect_profiles">修改配置文件</string>
-    <string name="bio_protect_profiles_desc">切换配置文件需要身份验证</string>
+    <string name="bio_protect_profiles">修改配置</string>
+    <string name="bio_protect_profiles_desc">切换配置需验证身份</string>
 
     <string name="bio_enable_title">启用保护</string>
-    <string name="bio_enable_subtitle">请确认您的身份</string>
-    <string name="bio_disable_title">禁用保护</string>
-    <string name="bio_disable_subtitle">请确认您的身份</string>
+    <string name="bio_enable_subtitle">请验证身份</string>
+    <string name="bio_disable_title">关闭保护</string>
+    <string name="bio_disable_subtitle">请验证身份</string>
 
-    <string name="bio_auth_disable_title">禁用 VPN</string>
+    <string name="bio_auth_disable_title">关闭 VPN</string>
     <string name="bio_auth_settings_title">访问设置</string>
-    <string name="bio_auth_profiles_title">修改配置文件</string>
+    <string name="bio_auth_profiles_title">修改配置</string>
     <string name="bio_auth_subtitle">需要身份验证</string>
 
-    <string name="bio_enabled">生物特征保护已启用</string>
-    <string name="bio_disabled">生物特征保护已禁用</string>
+    <string name="bio_enabled">生物识别已开启</string>
+    <string name="bio_disabled">生物识别已关闭</string>
 
-    <string name="bio_no_hardware">您的设备不支持生物特征识别</string>
-    <string name="bio_hardware_unavailable">生物特征传感器不可用</string>
-    <string name="bio_not_enrolled">未配置指纹或面容 ID。请在手机设置中进行配置。</string>
-
-
-
-
-
-
-    <!-- ==================== BACKUP / RESTORE ==================== -->
-    <string name="pref_category_backup">📦 备份与恢复</string>
-    <string name="pref_backup_title">💾 备份列表</string>
-    <string name="pref_backup_summary">将所有拦截列表导出到文件</string>
-    <string name="pref_restore_title">📂 恢复列表</string>
-    <string name="pref_restore_summary">从文件导入拦截列表</string>
-
-    <string name="backup_success">✅ 备份导出成功</string>
-    <string name="backup_failure">❌ 备份失败</string>
-    <string name="restore_success">✅ 列表恢复成功</string>
-    <string name="restore_failure">❌ 恢复失败</string>
-    <string name="restore_invalid_file">❌ 文件无效或已损坏</string>
-
-    <string name="backup_dialog_title">备份列表</string>
-    <string name="backup_dialog_message">自定义列表和白名单将导出为 .json 文件</string>
-    <string name="restore_dialog_title">恢复列表</string>
-    <string name="restore_dialog_message">警告：当前列表将被所选文件中的列表替换。</string>
-    <string name="restore_dialog_confirm">恢复</string>
-
-    <string name="backup_file_name">dnsphere_backup_%s.json</string>
-    <string name="backup_domains_count">已备份 %d 个域名</string>
-    <string name="restore_domains_count">已恢复 %d 个域名</string>
+    <string name="bio_no_hardware">设备不支持生物识别</string>
+    <string name="bio_hardware_unavailable">生物识别不可用</string>
+    <string name="bio_not_enrolled">未设置指纹或面容 ID，请前往系统设置</string>
 
 </resources>
