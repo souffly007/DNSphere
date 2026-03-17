@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">DNSphere</string>
+    <string name="app_version">1.4</string>
+    <string name="widget_description">Controlo rápido do DNSphere</string>
+
+    <!-- Infos développeur -->
+    <string name="developer_name">souffly007</string>
+    <string name="github_url">https://github.com/souffly007/DNSphere</string>
+    <string name="developer_website">https://bonobo.fr</string>
+
+    <!-- ==================== MAIN ACTIVITY ==================== -->
+    <string name="protection_enabled">🛡️ Proteção ativada</string>
+    <string name="protection_disabled">Proteção desativada</string>
+    <string name="status_on">LIGADO</string>
+    <string name="status_off">DESLIGADO</string>
+
+    <string name="stats_title">📊 Estatísticas (toque para ver os registos)</string>
+    <string name="ads_blocked">Anúncios bloqueados</string>
+    <string name="trackers_blocked">Rastreadores bloqueados</string>
+    <string name="malware_blocked">Malwares bloqueados</string>
+
+    <string name="protection_options_title">🛡️ Opções de proteção</string>
+    <string name="block_ads">🚫 Bloquear publicidade</string>
+    <string name="block_trackers">🔒 Bloquear rastreadores</string>
+    <string name="block_malware">☠️ Proteção contra malware</string>
+
+    <string name="quick_actions_title">⚡ Ações rápidas</string>
+    <string name="logs">📋 Registos</string>
+    <string name="whitelist">✅ Lista branca</string>
+    <string name="settings">⚙️ Definições</string>
+
+    <string name="created_by">Criado por %s</string>
+    <string name="source_code_github">🔗 Código fonte no GitHub</string>
+
+    <!-- ==================== TOASTS / MESSAGES ==================== -->
+    <string name="vpn_permission_denied">Permissão VPN negada</string>
+    <string name="protection_started">🛡️ Proteção ativada</string>
+    <string name="protection_stopped">Proteção desativada</string>
+    <string name="cannot_open_link">Impossível abrir o link</string>
+    <string name="doh_enabled">DoH ativado</string>
+    <string name="doh_disabled">DoH desativado</string>
+    <string name="dns_changed">DNS: %s</string>
+    <string name="logs_cleared">Registos apagados</string>
+
+    <!-- ==================== LOGS ACTIVITY ==================== -->
+    <string name="logs_toolbar_title">📋 Registos de bloqueio</string>
+    <string name="logs_empty">Nenhum bloqueio registado</string>
+    <string name="type_ad">Publicidade</string>
+    <string name="type_tracker">Rastreador</string>
+    <string name="type_malware">Malware</string>
+
+    <!-- ==================== WHITELIST ACTIVITY ==================== -->
+    <string name="whitelist_toolbar_title">✅ Lista branca</string>
+    <string name="whitelist_empty">Nenhum domínio na lista branca</string>
+    <string name="whitelist_add_title">Adicionar um domínio</string>
+    <string name="whitelist_add_message">Este domínio nunca será bloqueado</string>
+    <string name="whitelist_add_hint">exemplo.com</string>
+
+    <!-- ==================== SETTINGS ACTIVITY ==================== -->
+    <string name="settings_toolbar_title">⚙️ Definições</string>
+
+    <!-- ==================== DIALOGS ==================== -->
+    <string name="dialog_add">Adicionar</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_clear">Limpar</string>
+    <string name="clear_logs_title">Limpar os registos</string>
+    <string name="clear_logs_message">Deseja eliminar todos os registos de bloqueio?</string>
+
+    <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
+    <string name="pref_category_secure_dns">🔐 DNS seguro</string>
+    <string name="pref_category_schedule">⏰ Automatização</string>
+    <string name="pref_category_blocklists">📋 Listas de bloqueio</string>
+    <string name="pref_category_apps">📱 Aplicações</string>
+    <string name="pref_category_data">💾 Dados</string>
+    <string name="pref_category_about">ℹ️ Acerca de</string>
+
+    <!-- ==================== PREFERENCES - DNS ==================== -->
+    <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="pref_use_doh_summary">Encriptar pedidos DNS para maior privacidade</string>
+    <string name="pref_doh_provider_title">Servidor DoH</string>
+
+    <string name="doh_provider_cloudflare">Cloudflare (recomendado)</string>
+    <string name="doh_provider_google">Google</string>
+    <string name="doh_provider_quad9">Quad9 (segurança)</string>
+    <string name="doh_provider_adguard">AdGuard (anti-publicidade)</string>
+
+    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <string name="pref_schedule_summary">Ativar/desativar automaticamente</string>
+    <string name="schedule_all_disabled">Todas as agendas desativadas</string>
+    <string name="schedule_active_count">%d agenda(s) ativa(s)</string>
+
+    <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
+    <string name="pref_external_lists_title">📥 Listas externas</string>
+    <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K domínios)</string>
+    <string name="pref_manage_lists_title">📝 Listas personalizadas</string>
+    <string name="pref_manage_lists_summary">Adicionar os seus próprios domínios a bloquear</string>
+    <string name="lists_summary">%1$d listas ativas • %2$s domínios</string>
+
+    <!-- ==================== PREFERENCES - APPS ==================== -->
+    <string name="pref_excluded_apps_title">🚫 Aplicações excluídas</string>
+    <string name="pref_excluded_apps_summary">Estas aplicações não serão filtradas</string>
+
+    <!-- ==================== PREFERENCES - DATA ==================== -->
+    <string name="pref_clear_logs_title">🗑️ Limpar os registos</string>
+    <string name="pref_clear_logs_summary">Eliminar o histórico de bloqueios</string>
+
+    <!-- ==================== PREFERENCES - ABOUT ==================== -->
+    <string name="pref_version_title">Versão</string>
+    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_developer_title">👨‍💻 Criado por</string>
+    <string name="pref_developer_summary">souffly007</string>
+    <string name="pref_github_title">🔗 Código fonte (GitHub)</string>
+    <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+    <string name="pref_license_title">📄 Licença</string>
+    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
+
+    <!-- ==================== STATS ACTIVITY ==================== -->
+    <string name="stats_toolbar_title">📊 Estatísticas</string>
+    <string name="stats_today">Hoje</string>
+    <string name="stats_this_week">Semana</string>
+    <string name="stats_this_month">Mês</string>
+    <string name="stats_all_time">Tudo</string>
+    <string name="stats_blocked_requests">pedidos bloqueados</string>
+    <string name="stats_by_category">📈 Por categoria</string>
+    <string name="stats_chart_daily">📅 Por dia</string>
+    <string name="stats_by_hour">🕐 Por hora (hoje)</string>
+    <string name="stats_top_blocked">🏆 Top domínios bloqueados</string>
+    <string name="stats_no_data">Sem dados para este período</string>
+
+    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
+    <string name="schedule_title">⏰ Modo agendado</string>
+    <string name="schedule_empty">Nenhuma agenda</string>
+    <string name="schedule_empty_hint">Prima + para criar uma agenda automática</string>
+    <string name="schedule_add">Adicionar uma agenda</string>
+    <string name="schedule_edit">Editar a agenda</string>
+    <string name="schedule_name">Nome (opcional)</string>
+    <string name="schedule_default_name">A minha agenda</string>
+    <string name="schedule_time_range">Intervalo de tempo</string>
+    <string name="schedule_days">Dias</string>
+    <string name="schedule_action">Ação</string>
+    <string name="schedule_action_enable">🛡️ Ativar a proteção</string>
+    <string name="schedule_action_disable">⏸️ Desativar a proteção</string>
+    <string name="schedule_select_day">Selecione pelo menos um dia</string>
+    <string name="schedule_added">Agenda adicionada</string>
+    <string name="schedule_updated">Agenda atualizada</string>
+    <string name="schedule_deleted">Agenda eliminada</string>
+    <string name="schedule_delete_title">Eliminar a agenda?</string>
+    <string name="schedule_delete_message">Esta ação é irreversível.</string>
+
+    <!-- Jours -->
+    <string name="day_mon">Seg</string>
+    <string name="day_tue">Ter</string>
+    <string name="day_wed">Qua</string>
+    <string name="day_thu">Qui</string>
+    <string name="day_fri">Sex</string>
+    <string name="day_sat">Sáb</string>
+    <string name="day_sun">Dom</string>
+
+    <!-- Commun -->
+    <string name="common_save">Guardar</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_edit">Editar</string>
+
+    <!-- ==================== PROFILES ==================== -->
+    <string name="profiles_title">📁 Perfis de bloqueio</string>
+    <string name="profiles_all">Todos os perfis</string>
+    <string name="profile_active">Perfil ativo</string>
+    <string name="profile_active_badge">ATIVO</string>
+    <string name="profile_add">Novo perfil</string>
+    <string name="profile_edit">Editar o perfil</string>
+    <string name="profile_name">Nome do perfil</string>
+    <string name="profile_name_hint">O meu perfil</string>
+    <string name="profile_icon">Ícone</string>
+    <string name="profile_blocking_options">Opções de bloqueio</string>
+    <string name="profile_activate">Ativar este perfil</string>
+    <string name="profile_duplicate">Duplicar</string>
+    <string name="profile_activated">Perfil "%s" ativado</string>
+    <string name="profile_added">Perfil criado</string>
+    <string name="profile_updated">Perfil atualizado</string>
+    <string name="profile_deleted">Perfil eliminado</string>
+    <string name="profile_duplicated">Perfil duplicado</string>
+    <string name="profile_name_required">O nome é obrigatório</string>
+    <string name="profile_cannot_delete_preset">Impossível eliminar um perfil predefinido</string>
+    <string name="profile_cannot_delete_active">Impossível eliminar o perfil ativo</string>
+    <string name="profile_delete_title">Eliminar o perfil?</string>
+    <string name="profile_delete_message">Deseja eliminar o perfil "%s"?</string>
+
+    <!-- Préférences profils -->
+    <string name="pref_category_profiles">📁 Perfis</string>
+    <string name="pref_profiles_summary">Gerir os perfis de bloqueio</string>
+
+    <!-- ==================== BIOMETRIC / SECURITY ==================== -->
+    <string name="security_title">🔐 Segurança</string>
+    <string name="pref_category_security">🔐 Segurança</string>
+    <string name="pref_security_summary">Proteção biométrica</string>
+
+    <string name="bio_info_title">Proteção biométrica</string>
+    <string name="bio_info_desc">Use a sua impressão digital ou Face ID para proteger a aplicação</string>
+
+    <string name="bio_enable_protection">Ativar a proteção</string>
+    <string name="bio_enable_protection_desc">Solicitar autenticação para ações sensíveis</string>
+
+    <string name="bio_protection_options">Opções de proteção</string>
+
+    <string name="bio_protect_disable">Desativação do VPN</string>
+    <string name="bio_protect_disable_desc">Autenticação necessária para desativar a proteção</string>
+
+    <string name="bio_protect_settings">Acesso às definições</string>
+    <string name="bio_protect_settings_desc">Autenticação necessária para modificar as definições</string>
+
+    <string name="bio_protect_profiles">Modificação dos perfis</string>
+    <string name="bio_protect_profiles_desc">Autenticação necessária para mudar de perfil</string>
+
+    <string name="bio_enable_title">Ativar a proteção</string>
+    <string name="bio_enable_subtitle">Confirme a sua identidade</string>
+    <string name="bio_disable_title">Desativar a proteção</string>
+    <string name="bio_disable_subtitle">Confirme a sua identidade</string>
+
+    <string name="bio_auth_disable_title">Desativar o VPN</string>
+    <string name="bio_auth_settings_title">Aceder às definições</string>
+    <string name="bio_auth_profiles_title">Modificar os perfis</string>
+    <string name="bio_auth_subtitle">Autenticação necessária</string>
+
+    <string name="bio_enabled">Proteção biométrica ativada</string>
+    <string name="bio_disabled">Proteção biométrica desativada</string>
+
+    <string name="bio_no_hardware">O seu dispositivo não suporta biometria</string>
+    <string name="bio_hardware_unavailable">O sensor biométrico não está disponível</string>
+    <string name="bio_not_enrolled">Nenhuma impressão digital ou Face ID configurado. Configure nas definições do telemóvel.</string>
+
+
+
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 Cópia de segurança e restauro</string>
+    <string name="pref_backup_title">💾 Fazer cópia de segurança das listas</string>
+    <string name="pref_backup_summary">Exportar todas as listas de bloqueio para um ficheiro</string>
+    <string name="pref_restore_title">📂 Restaurar as listas</string>
+    <string name="pref_restore_summary">Importar listas de bloqueio a partir de um ficheiro</string>
+
+    <string name="backup_success">✅ Cópia de segurança exportada com sucesso</string>
+    <string name="backup_failure">❌ Falha na cópia de segurança</string>
+    <string name="restore_success">✅ Listas restauradas com sucesso</string>
+    <string name="restore_failure">❌ Falha no restauro</string>
+    <string name="restore_invalid_file">❌ Ficheiro inválido ou corrompido</string>
+
+    <string name="backup_dialog_title">Fazer cópia de segurança das listas</string>
+    <string name="backup_dialog_message">As listas personalizadas e a lista branca serão exportadas para um ficheiro .json</string>
+    <string name="restore_dialog_title">Restaurar as listas</string>
+    <string name="restore_dialog_message">Atenção: as listas atuais serão substituídas pelas do ficheiro selecionado.</string>
+    <string name="restore_dialog_confirm">Restaurar</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">%d domínio(s) guardado(s)</string>
+    <string name="restore_domains_count">%d domínio(s) restaurado(s)</string>
+
+</resources>

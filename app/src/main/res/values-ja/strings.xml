@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">DNSphere</string>
+    <string name="app_version">1.4</string>
+    <string name="widget_description">DNSphereのクイックコントロール</string>
+
+    <!-- Infos développeur -->
+    <string name="developer_name">souffly007</string>
+    <string name="github_url">https://github.com/souffly007/DNSphere</string>
+    <string name="developer_website">https://bonobo.fr</string>
+
+    <!-- ==================== MAIN ACTIVITY ==================== -->
+    <string name="protection_enabled">🛡️ 保護が有効</string>
+    <string name="protection_disabled">保護が無効</string>
+    <string name="status_on">オン</string>
+    <string name="status_off">オフ</string>
+
+    <string name="stats_title">📊 統計（ログを見るにはタップ）</string>
+    <string name="ads_blocked">ブロックされた広告</string>
+    <string name="trackers_blocked">ブロックされたトラッカー</string>
+    <string name="malware_blocked">ブロックされたマルウェア</string>
+
+    <string name="protection_options_title">🛡️ 保護オプション</string>
+    <string name="block_ads">🚫 広告をブロック</string>
+    <string name="block_trackers">🔒 トラッカーをブロック</string>
+    <string name="block_malware">☠️ マルウェア対策</string>
+
+    <string name="quick_actions_title">⚡ クイックアクション</string>
+    <string name="logs">📋 ログ</string>
+    <string name="whitelist">✅ ホワイトリスト</string>
+    <string name="settings">⚙️ 設定</string>
+
+    <string name="created_by">%s 作成</string>
+    <string name="source_code_github">🔗 GitHubのソースコード</string>
+
+    <!-- ==================== TOASTS / MESSAGES ==================== -->
+    <string name="vpn_permission_denied">VPN許可が拒否されました</string>
+    <string name="protection_started">🛡️ 保護が有効になりました</string>
+    <string name="protection_stopped">保護が無効になりました</string>
+    <string name="cannot_open_link">リンクを開けません</string>
+    <string name="doh_enabled">DoHが有効</string>
+    <string name="doh_disabled">DoHが無効</string>
+    <string name="dns_changed">DNS: %s</string>
+    <string name="logs_cleared">ログを消去しました</string>
+
+    <!-- ==================== LOGS ACTIVITY ==================== -->
+    <string name="logs_toolbar_title">📋 ブロックログ</string>
+    <string name="logs_empty">ブロック記録なし</string>
+    <string name="type_ad">広告</string>
+    <string name="type_tracker">トラッカー</string>
+    <string name="type_malware">マルウェア</string>
+
+    <!-- ==================== WHITELIST ACTIVITY ==================== -->
+    <string name="whitelist_toolbar_title">✅ ホワイトリスト</string>
+    <string name="whitelist_empty">ホワイトリストにドメインなし</string>
+    <string name="whitelist_add_title">ドメインを追加</string>
+    <string name="whitelist_add_message">このドメインはブロックされません</string>
+    <string name="whitelist_add_hint">example.com</string>
+
+    <!-- ==================== SETTINGS ACTIVITY ==================== -->
+    <string name="settings_toolbar_title">⚙️ 設定</string>
+
+    <!-- ==================== DIALOGS ==================== -->
+    <string name="dialog_add">追加</string>
+    <string name="dialog_cancel">キャンセル</string>
+    <string name="dialog_clear">消去</string>
+    <string name="clear_logs_title">ログを消去</string>
+    <string name="clear_logs_message">すべてのブロックログを削除しますか？</string>
+
+    <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
+    <string name="pref_category_secure_dns">🔐 セキュアDNS</string>
+    <string name="pref_category_schedule">⏰ 自動化</string>
+    <string name="pref_category_blocklists">📋 ブロックリスト</string>
+    <string name="pref_category_apps">📱 アプリ</string>
+    <string name="pref_category_data">💾 データ</string>
+    <string name="pref_category_about">ℹ️ アプリについて</string>
+
+    <!-- ==================== PREFERENCES - DNS ==================== -->
+    <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="pref_use_doh_summary">プライバシー強化のためDNSリクエストを暗号化</string>
+    <string name="pref_doh_provider_title">DoHサーバー</string>
+
+    <string name="doh_provider_cloudflare">Cloudflare（推奨）</string>
+    <string name="doh_provider_google">Google</string>
+    <string name="doh_provider_quad9">Quad9（セキュリティ）</string>
+    <string name="doh_provider_adguard">AdGuard（広告ブロック）</string>
+
+    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <string name="pref_schedule_summary">自動的に有効/無効を切り替え</string>
+    <string name="schedule_all_disabled">すべてのスケジュールが無効</string>
+    <string name="schedule_active_count">%d 件のスケジュールが有効</string>
+
+    <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
+    <string name="pref_external_lists_title">📥 外部リスト</string>
+    <string name="pref_external_lists_summary">StevenBlack、AdAway、EasyPrivacy…（+150Kドメイン）</string>
+    <string name="pref_manage_lists_title">📝 カスタムリスト</string>
+    <string name="pref_manage_lists_summary">独自のブロックドメインを追加</string>
+    <string name="lists_summary">%1$d 件の有効なリスト • %2$s ドメイン</string>
+
+    <!-- ==================== PREFERENCES - APPS ==================== -->
+    <string name="pref_excluded_apps_title">🚫 除外されたアプリ</string>
+    <string name="pref_excluded_apps_summary">これらのアプリはフィルタリングされません</string>
+
+    <!-- ==================== PREFERENCES - DATA ==================== -->
+    <string name="pref_clear_logs_title">🗑️ ログを消去</string>
+    <string name="pref_clear_logs_summary">ブロック履歴を削除</string>
+
+    <!-- ==================== PREFERENCES - ABOUT ==================== -->
+    <string name="pref_version_title">バージョン</string>
+    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_developer_title">👨‍💻 作成者</string>
+    <string name="pref_developer_summary">souffly007</string>
+    <string name="pref_github_title">🔗 ソースコード（GitHub）</string>
+    <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+    <string name="pref_license_title">📄 ライセンス</string>
+    <string name="pref_license_summary">GNU GPL v3 - オープンソース</string>
+
+    <!-- ==================== STATS ACTIVITY ==================== -->
+    <string name="stats_toolbar_title">📊 統計</string>
+    <string name="stats_today">今日</string>
+    <string name="stats_this_week">週間</string>
+    <string name="stats_this_month">月間</string>
+    <string name="stats_all_time">全期間</string>
+    <string name="stats_blocked_requests">件のリクエストをブロック</string>
+    <string name="stats_by_category">📈 カテゴリ別</string>
+    <string name="stats_chart_daily">📅 日別</string>
+    <string name="stats_by_hour">🕐 時間別（今日）</string>
+    <string name="stats_top_blocked">🏆 よくブロックされるドメイン</string>
+    <string name="stats_no_data">この期間のデータなし</string>
+
+    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
+    <string name="schedule_title">⏰ スケジュールモード</string>
+    <string name="schedule_empty">スケジュールなし</string>
+    <string name="schedule_empty_hint">+を押して自動スケジュールを作成</string>
+    <string name="schedule_add">スケジュールを追加</string>
+    <string name="schedule_edit">スケジュールを編集</string>
+    <string name="schedule_name">名前（任意）</string>
+    <string name="schedule_default_name">マイスケジュール</string>
+    <string name="schedule_time_range">時間帯</string>
+    <string name="schedule_days">曜日</string>
+    <string name="schedule_action">アクション</string>
+    <string name="schedule_action_enable">🛡️ 保護を有効にする</string>
+    <string name="schedule_action_disable">⏸️ 保護を無効にする</string>
+    <string name="schedule_select_day">少なくとも1日選択してください</string>
+    <string name="schedule_added">スケジュールを追加しました</string>
+    <string name="schedule_updated">スケジュールを更新しました</string>
+    <string name="schedule_deleted">スケジュールを削除しました</string>
+    <string name="schedule_delete_title">スケジュールを削除しますか？</string>
+    <string name="schedule_delete_message">この操作は元に戻せません。</string>
+
+    <!-- Jours -->
+    <string name="day_mon">月</string>
+    <string name="day_tue">火</string>
+    <string name="day_wed">水</string>
+    <string name="day_thu">木</string>
+    <string name="day_fri">金</string>
+    <string name="day_sat">土</string>
+    <string name="day_sun">日</string>
+
+    <!-- Commun -->
+    <string name="common_save">保存</string>
+    <string name="common_cancel">キャンセル</string>
+    <string name="common_delete">削除</string>
+    <string name="common_edit">編集</string>
+
+    <!-- ==================== PROFILES ==================== -->
+    <string name="profiles_title">📁 ブロックプロファイル</string>
+    <string name="profiles_all">すべてのプロファイル</string>
+    <string name="profile_active">有効なプロファイル</string>
+    <string name="profile_active_badge">有効</string>
+    <string name="profile_add">新しいプロファイル</string>
+    <string name="profile_edit">プロファイルを編集</string>
+    <string name="profile_name">プロファイル名</string>
+    <string name="profile_name_hint">マイプロファイル</string>
+    <string name="profile_icon">アイコン</string>
+    <string name="profile_blocking_options">ブロックオプション</string>
+    <string name="profile_activate">このプロファイルを有効にする</string>
+    <string name="profile_duplicate">複製</string>
+    <string name="profile_activated">プロファイル「%s」が有効になりました</string>
+    <string name="profile_added">プロファイルを作成しました</string>
+    <string name="profile_updated">プロファイルを更新しました</string>
+    <string name="profile_deleted">プロファイルを削除しました</string>
+    <string name="profile_duplicated">プロファイルを複製しました</string>
+    <string name="profile_name_required">名前は必須です</string>
+    <string name="profile_cannot_delete_preset">プリセットプロファイルは削除できません</string>
+    <string name="profile_cannot_delete_active">有効なプロファイルは削除できません</string>
+    <string name="profile_delete_title">プロファイルを削除しますか？</string>
+    <string name="profile_delete_message">プロファイル「%s」を削除しますか？</string>
+
+    <!-- Préférences profils -->
+    <string name="pref_category_profiles">📁 プロファイル</string>
+    <string name="pref_profiles_summary">ブロックプロファイルを管理</string>
+
+    <!-- ==================== BIOMETRIC / SECURITY ==================== -->
+    <string name="security_title">🔐 セキュリティ</string>
+    <string name="pref_category_security">🔐 セキュリティ</string>
+    <string name="pref_security_summary">生体認証保護</string>
+
+    <string name="bio_info_title">生体認証保護</string>
+    <string name="bio_info_desc">指紋またはFace IDでアプリを保護</string>
+
+    <string name="bio_enable_protection">保護を有効にする</string>
+    <string name="bio_enable_protection_desc">重要な操作に認証を要求する</string>
+
+    <string name="bio_protection_options">保護オプション</string>
+
+    <string name="bio_protect_disable">VPNの無効化</string>
+    <string name="bio_protect_disable_desc">保護を無効にするには認証が必要</string>
+
+    <string name="bio_protect_settings">設定へのアクセス</string>
+    <string name="bio_protect_settings_desc">設定を変更するには認証が必要</string>
+
+    <string name="bio_protect_profiles">プロファイルの変更</string>
+    <string name="bio_protect_profiles_desc">プロファイルを切り替えるには認証が必要</string>
+
+    <string name="bio_enable_title">保護を有効にする</string>
+    <string name="bio_enable_subtitle">本人確認をしてください</string>
+    <string name="bio_disable_title">保護を無効にする</string>
+    <string name="bio_disable_subtitle">本人確認をしてください</string>
+
+    <string name="bio_auth_disable_title">VPNを無効にする</string>
+    <string name="bio_auth_settings_title">設定にアクセス</string>
+    <string name="bio_auth_profiles_title">プロファイルを変更</string>
+    <string name="bio_auth_subtitle">認証が必要</string>
+
+    <string name="bio_enabled">生体認証保護が有効になりました</string>
+    <string name="bio_disabled">生体認証保護が無効になりました</string>
+
+    <string name="bio_no_hardware">このデバイスは生体認証に対応していません</string>
+    <string name="bio_hardware_unavailable">生体認証センサーが利用できません</string>
+    <string name="bio_not_enrolled">指紋またはFace IDが設定されていません。端末の設定で設定してください。</string>
+
+
+
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 バックアップと復元</string>
+    <string name="pref_backup_title">💾 リストをバックアップ</string>
+    <string name="pref_backup_summary">すべてのブロックリストをファイルにエクスポート</string>
+    <string name="pref_restore_title">📂 リストを復元</string>
+    <string name="pref_restore_summary">ファイルからブロックリストをインポート</string>
+
+    <string name="backup_success">✅ バックアップを正常にエクスポートしました</string>
+    <string name="backup_failure">❌ バックアップに失敗しました</string>
+    <string name="restore_success">✅ リストを正常に復元しました</string>
+    <string name="restore_failure">❌ 復元に失敗しました</string>
+    <string name="restore_invalid_file">❌ 無効または破損したファイルです</string>
+
+    <string name="backup_dialog_title">リストをバックアップ</string>
+    <string name="backup_dialog_message">カスタムリストとホワイトリストが .json ファイルにエクスポートされます</string>
+    <string name="restore_dialog_title">リストを復元</string>
+    <string name="restore_dialog_message">警告：現在のリストは選択したファイルのリストに置き換えられます。</string>
+    <string name="restore_dialog_confirm">復元</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">%d 件のドメインをバックアップしました</string>
+    <string name="restore_domains_count">%d 件のドメインを復元しました</string>
+
+</resources>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">DNSphere</string>
+    <string name="app_version">1.4</string>
+    <string name="widget_description">تحكم سريع في DNSphere</string>
+
+    <!-- Infos développeur -->
+    <string name="developer_name">souffly007</string>
+    <string name="github_url">https://github.com/souffly007/DNSphere</string>
+    <string name="developer_website">https://bonobo.fr</string>
+
+    <!-- ==================== MAIN ACTIVITY ==================== -->
+    <string name="protection_enabled">🛡️ الحماية مفعّلة</string>
+    <string name="protection_disabled">الحماية معطّلة</string>
+    <string name="status_on">تشغيل</string>
+    <string name="status_off">إيقاف</string>
+
+    <string name="stats_title">📊 الإحصائيات (اضغط لعرض السجلات)</string>
+    <string name="ads_blocked">الإعلانات المحجوبة</string>
+    <string name="trackers_blocked">أدوات التتبع المحجوبة</string>
+    <string name="malware_blocked">البرامج الضارة المحجوبة</string>
+
+    <string name="protection_options_title">🛡️ خيارات الحماية</string>
+    <string name="block_ads">🚫 حجب الإعلانات</string>
+    <string name="block_trackers">🔒 حجب أدوات التتبع</string>
+    <string name="block_malware">☠️ الحماية من البرامج الضارة</string>
+
+    <string name="quick_actions_title">⚡ إجراءات سريعة</string>
+    <string name="logs">📋 السجلات</string>
+    <string name="whitelist">✅ القائمة البيضاء</string>
+    <string name="settings">⚙️ الإعدادات</string>
+
+    <string name="created_by">تم الإنشاء بواسطة %s</string>
+    <string name="source_code_github">🔗 الكود المصدري على GitHub</string>
+
+    <!-- ==================== TOASTS / MESSAGES ==================== -->
+    <string name="vpn_permission_denied">تم رفض إذن VPN</string>
+    <string name="protection_started">🛡️ الحماية مفعّلة</string>
+    <string name="protection_stopped">الحماية معطّلة</string>
+    <string name="cannot_open_link">تعذّر فتح الرابط</string>
+    <string name="doh_enabled">DoH مفعّل</string>
+    <string name="doh_disabled">DoH معطّل</string>
+    <string name="dns_changed">DNS: %s</string>
+    <string name="logs_cleared">تم مسح السجلات</string>
+
+    <!-- ==================== LOGS ACTIVITY ==================== -->
+    <string name="logs_toolbar_title">📋 سجلات الحجب</string>
+    <string name="logs_empty">لا توجد عمليات حجب مسجّلة</string>
+    <string name="type_ad">إعلان</string>
+    <string name="type_tracker">أداة تتبع</string>
+    <string name="type_malware">برنامج ضار</string>
+
+    <!-- ==================== WHITELIST ACTIVITY ==================== -->
+    <string name="whitelist_toolbar_title">✅ القائمة البيضاء</string>
+    <string name="whitelist_empty">لا توجد نطاقات في القائمة البيضاء</string>
+    <string name="whitelist_add_title">إضافة نطاق</string>
+    <string name="whitelist_add_message">لن يتم حجب هذا النطاق أبدًا</string>
+    <string name="whitelist_add_hint">مثال.com</string>
+
+    <!-- ==================== SETTINGS ACTIVITY ==================== -->
+    <string name="settings_toolbar_title">⚙️ الإعدادات</string>
+
+    <!-- ==================== DIALOGS ==================== -->
+    <string name="dialog_add">إضافة</string>
+    <string name="dialog_cancel">إلغاء</string>
+    <string name="dialog_clear">مسح</string>
+    <string name="clear_logs_title">مسح السجلات</string>
+    <string name="clear_logs_message">هل تريد حذف جميع سجلات الحجب؟</string>
+
+    <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
+    <string name="pref_category_secure_dns">🔐 DNS آمن</string>
+    <string name="pref_category_schedule">⏰ الأتمتة</string>
+    <string name="pref_category_blocklists">📋 قوائم الحجب</string>
+    <string name="pref_category_apps">📱 التطبيقات</string>
+    <string name="pref_category_data">💾 البيانات</string>
+    <string name="pref_category_about">ℹ️ حول التطبيق</string>
+
+    <!-- ==================== PREFERENCES - DNS ==================== -->
+    <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="pref_use_doh_summary">تشفير طلبات DNS لمزيد من الخصوصية</string>
+    <string name="pref_doh_provider_title">خادم DoH</string>
+
+    <string name="doh_provider_cloudflare">Cloudflare (موصى به)</string>
+    <string name="doh_provider_google">Google</string>
+    <string name="doh_provider_quad9">Quad9 (الأمان)</string>
+    <string name="doh_provider_adguard">AdGuard (حجب الإعلانات)</string>
+
+    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <string name="pref_schedule_summary">التفعيل/التعطيل التلقائي</string>
+    <string name="schedule_all_disabled">جميع الجداول الزمنية معطّلة</string>
+    <string name="schedule_active_count">%d جدول زمني نشط</string>
+
+    <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
+    <string name="pref_external_lists_title">📥 القوائم الخارجية</string>
+    <string name="pref_external_lists_summary">StevenBlack، AdAway، EasyPrivacy… (+150 ألف نطاق)</string>
+    <string name="pref_manage_lists_title">📝 القوائم المخصصة</string>
+    <string name="pref_manage_lists_summary">إضافة نطاقاتك الخاصة للحجب</string>
+    <string name="lists_summary">%1$d قوائم نشطة • %2$s نطاق</string>
+
+    <!-- ==================== PREFERENCES - APPS ==================== -->
+    <string name="pref_excluded_apps_title">🚫 التطبيقات المستثناة</string>
+    <string name="pref_excluded_apps_summary">لن يتم تصفية هذه التطبيقات</string>
+
+    <!-- ==================== PREFERENCES - DATA ==================== -->
+    <string name="pref_clear_logs_title">🗑️ مسح السجلات</string>
+    <string name="pref_clear_logs_summary">حذف سجل عمليات الحجب</string>
+
+    <!-- ==================== PREFERENCES - ABOUT ==================== -->
+    <string name="pref_version_title">الإصدار</string>
+    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_developer_title">👨‍💻 تم الإنشاء بواسطة</string>
+    <string name="pref_developer_summary">souffly007</string>
+    <string name="pref_github_title">🔗 الكود المصدري (GitHub)</string>
+    <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+    <string name="pref_license_title">📄 الرخصة</string>
+    <string name="pref_license_summary">GNU GPL v3 - مفتوح المصدر</string>
+
+    <!-- ==================== STATS ACTIVITY ==================== -->
+    <string name="stats_toolbar_title">📊 الإحصائيات</string>
+    <string name="stats_today">اليوم</string>
+    <string name="stats_this_week">الأسبوع</string>
+    <string name="stats_this_month">الشهر</string>
+    <string name="stats_all_time">الكل</string>
+    <string name="stats_blocked_requests">طلبات محجوبة</string>
+    <string name="stats_by_category">📈 حسب الفئة</string>
+    <string name="stats_chart_daily">📅 حسب اليوم</string>
+    <string name="stats_by_hour">🕐 حسب الساعة (اليوم)</string>
+    <string name="stats_top_blocked">🏆 أكثر النطاقات حجبًا</string>
+    <string name="stats_no_data">لا توجد بيانات لهذه الفترة</string>
+
+    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
+    <string name="schedule_title">⏰ الوضع المجدوَل</string>
+    <string name="schedule_empty">لا يوجد جدول زمني</string>
+    <string name="schedule_empty_hint">اضغط + لإنشاء جدول زمني تلقائي</string>
+    <string name="schedule_add">إضافة جدول زمني</string>
+    <string name="schedule_edit">تعديل الجدول الزمني</string>
+    <string name="schedule_name">الاسم (اختياري)</string>
+    <string name="schedule_default_name">جدولي الزمني</string>
+    <string name="schedule_time_range">النطاق الزمني</string>
+    <string name="schedule_days">الأيام</string>
+    <string name="schedule_action">الإجراء</string>
+    <string name="schedule_action_enable">🛡️ تفعيل الحماية</string>
+    <string name="schedule_action_disable">⏸️ تعطيل الحماية</string>
+    <string name="schedule_select_day">يرجى اختيار يوم واحد على الأقل</string>
+    <string name="schedule_added">تم إضافة الجدول الزمني</string>
+    <string name="schedule_updated">تم تحديث الجدول الزمني</string>
+    <string name="schedule_deleted">تم حذف الجدول الزمني</string>
+    <string name="schedule_delete_title">حذف الجدول الزمني؟</string>
+    <string name="schedule_delete_message">هذا الإجراء لا يمكن التراجع عنه.</string>
+
+    <!-- Jours -->
+    <string name="day_mon">الإثنين</string>
+    <string name="day_tue">الثلاثاء</string>
+    <string name="day_wed">الأربعاء</string>
+    <string name="day_thu">الخميس</string>
+    <string name="day_fri">الجمعة</string>
+    <string name="day_sat">السبت</string>
+    <string name="day_sun">الأحد</string>
+
+    <!-- Commun -->
+    <string name="common_save">حفظ</string>
+    <string name="common_cancel">إلغاء</string>
+    <string name="common_delete">حذف</string>
+    <string name="common_edit">تعديل</string>
+
+    <!-- ==================== PROFILES ==================== -->
+    <string name="profiles_title">📁 ملفات تعريف الحجب</string>
+    <string name="profiles_all">جميع الملفات الشخصية</string>
+    <string name="profile_active">الملف الشخصي النشط</string>
+    <string name="profile_active_badge">نشط</string>
+    <string name="profile_add">ملف شخصي جديد</string>
+    <string name="profile_edit">تعديل الملف الشخصي</string>
+    <string name="profile_name">اسم الملف الشخصي</string>
+    <string name="profile_name_hint">ملفي الشخصي</string>
+    <string name="profile_icon">الأيقونة</string>
+    <string name="profile_blocking_options">خيارات الحجب</string>
+    <string name="profile_activate">تفعيل هذا الملف الشخصي</string>
+    <string name="profile_duplicate">تكرار</string>
+    <string name="profile_activated">تم تفعيل الملف الشخصي "%s"</string>
+    <string name="profile_added">تم إنشاء الملف الشخصي</string>
+    <string name="profile_updated">تم تحديث الملف الشخصي</string>
+    <string name="profile_deleted">تم حذف الملف الشخصي</string>
+    <string name="profile_duplicated">تم تكرار الملف الشخصي</string>
+    <string name="profile_name_required">الاسم مطلوب</string>
+    <string name="profile_cannot_delete_preset">لا يمكن حذف ملف شخصي مُعيَّن مسبقًا</string>
+    <string name="profile_cannot_delete_active">لا يمكن حذف الملف الشخصي النشط</string>
+    <string name="profile_delete_title">حذف الملف الشخصي؟</string>
+    <string name="profile_delete_message">هل تريد حذف الملف الشخصي "%s"؟</string>
+
+    <!-- Préférences profils -->
+    <string name="pref_category_profiles">📁 الملفات الشخصية</string>
+    <string name="pref_profiles_summary">إدارة ملفات تعريف الحجب</string>
+
+    <!-- ==================== BIOMETRIC / SECURITY ==================== -->
+    <string name="security_title">🔐 الأمان</string>
+    <string name="pref_category_security">🔐 الأمان</string>
+    <string name="pref_security_summary">الحماية البيومترية</string>
+
+    <string name="bio_info_title">الحماية البيومترية</string>
+    <string name="bio_info_desc">استخدم بصمة إصبعك أو Face ID لحماية التطبيق</string>
+
+    <string name="bio_enable_protection">تفعيل الحماية</string>
+    <string name="bio_enable_protection_desc">طلب المصادقة للإجراءات الحساسة</string>
+
+    <string name="bio_protection_options">خيارات الحماية</string>
+
+    <string name="bio_protect_disable">تعطيل VPN</string>
+    <string name="bio_protect_disable_desc">المصادقة مطلوبة لتعطيل الحماية</string>
+
+    <string name="bio_protect_settings">الوصول إلى الإعدادات</string>
+    <string name="bio_protect_settings_desc">المصادقة مطلوبة لتعديل الإعدادات</string>
+
+    <string name="bio_protect_profiles">تعديل الملفات الشخصية</string>
+    <string name="bio_protect_profiles_desc">المصادقة مطلوبة لتغيير الملف الشخصي</string>
+
+    <string name="bio_enable_title">تفعيل الحماية</string>
+    <string name="bio_enable_subtitle">يرجى تأكيد هويتك</string>
+    <string name="bio_disable_title">تعطيل الحماية</string>
+    <string name="bio_disable_subtitle">يرجى تأكيد هويتك</string>
+
+    <string name="bio_auth_disable_title">تعطيل VPN</string>
+    <string name="bio_auth_settings_title">الوصول إلى الإعدادات</string>
+    <string name="bio_auth_profiles_title">تعديل الملفات الشخصية</string>
+    <string name="bio_auth_subtitle">المصادقة مطلوبة</string>
+
+    <string name="bio_enabled">الحماية البيومترية مفعّلة</string>
+    <string name="bio_disabled">الحماية البيومترية معطّلة</string>
+
+    <string name="bio_no_hardware">جهازك لا يدعم البيومتريا</string>
+    <string name="bio_hardware_unavailable">المستشعر البيومتري غير متاح</string>
+    <string name="bio_not_enrolled">لم يتم إعداد بصمة الإصبع أو Face ID. يرجى الإعداد في إعدادات الهاتف.</string>
+
+
+
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 النسخ الاحتياطي والاستعادة</string>
+    <string name="pref_backup_title">💾 نسخ القوائم احتياطيًا</string>
+    <string name="pref_backup_summary">تصدير جميع قوائم الحجب إلى ملف</string>
+    <string name="pref_restore_title">📂 استعادة القوائم</string>
+    <string name="pref_restore_summary">استيراد قوائم الحجب من ملف</string>
+
+    <string name="backup_success">✅ تم تصدير النسخة الاحتياطية بنجاح</string>
+    <string name="backup_failure">❌ فشل النسخ الاحتياطي</string>
+    <string name="restore_success">✅ تمت استعادة القوائم بنجاح</string>
+    <string name="restore_failure">❌ فشلت الاستعادة</string>
+    <string name="restore_invalid_file">❌ الملف غير صالح أو تالف</string>
+
+    <string name="backup_dialog_title">نسخ القوائم احتياطيًا</string>
+    <string name="backup_dialog_message">سيتم تصدير القوائم المخصصة والقائمة البيضاء إلى ملف .json</string>
+    <string name="restore_dialog_title">استعادة القوائم</string>
+    <string name="restore_dialog_message">تحذير: ستُستبدل القوائم الحالية بتلك الموجودة في الملف المحدد.</string>
+    <string name="restore_dialog_confirm">استعادة</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">تم حفظ %d نطاق(ات)</string>
+    <string name="restore_domains_count">تمت استعادة %d نطاق(ات)</string>
+
+</resources>

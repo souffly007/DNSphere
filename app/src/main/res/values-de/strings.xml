@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!-- ==================== APP INFO ==================== -->
+<string name="app_name">DNSphere</string>
+<string name="app_version">1.4</string>
+<string name="widget_description">Schnellsteuerung für DNSphere</string>
+
+<!-- Infos développeur -->
+<string name="developer_name">souffly007</string>
+<string name="github_url">https://github.com/souffly007/DNSphere</string>
+<string name="developer_website">https://bonobo.fr</string>
+
+<!-- ==================== MAIN ACTIVITY ==================== -->
+<string name="protection_enabled">🛡️ Schutz aktiviert</string>
+<string name="protection_disabled">Schutz deaktiviert</string>
+<string name="status_on">AN</string>
+<string name="status_off">AUS</string>
+
+<string name="stats_title">📊 Statistiken (tippen für Protokolle)</string>
+<string name="ads_blocked">Werbung blockiert</string>
+<string name="trackers_blocked">Tracker blockiert</string>
+<string name="malware_blocked">Malware blockiert</string>
+
+<string name="protection_options_title">🛡️ Schutzoptionen</string>
+<string name="block_ads">🚫 Werbung blockieren</string>
+<string name="block_trackers">🔒 Tracker blockieren</string>
+<string name="block_malware">☠️ Malware-Schutz</string>
+
+<string name="quick_actions_title">⚡ Schnellaktionen</string>
+<string name="logs">📋 Protokolle</string>
+<string name="whitelist">✅ Whitelist</string>
+<string name="settings">⚙️ Einstellungen</string>
+
+<string name="created_by">Erstellt von %s</string>
+<string name="source_code_github">🔗 Quellcode auf GitHub</string>
+
+<!-- ==================== TOASTS / MESSAGES ==================== -->
+<string name="vpn_permission_denied">VPN-Berechtigung verweigert</string>
+<string name="protection_started">🛡️ Schutz aktiviert</string>
+<string name="protection_stopped">Schutz deaktiviert</string>
+<string name="cannot_open_link">Link kann nicht geöffnet werden</string>
+<string name="doh_enabled">DoH aktiviert</string>
+<string name="doh_disabled">DoH deaktiviert</string>
+<string name="dns_changed">DNS: %s</string>
+<string name="logs_cleared">Protokolle gelöscht</string>
+
+<!-- ==================== LOGS ACTIVITY ==================== -->
+<string name="logs_toolbar_title">📋 Blockierprotokolle</string>
+<string name="logs_empty">Keine Blockierungen aufgezeichnet</string>
+<string name="type_ad">Werbung</string>
+<string name="type_tracker">Tracker</string>
+<string name="type_malware">Malware</string>
+
+<!-- ==================== WHITELIST ACTIVITY ==================== -->
+<string name="whitelist_toolbar_title">✅ Whitelist</string>
+<string name="whitelist_empty">Keine Domain auf der Whitelist</string>
+<string name="whitelist_add_title">Domain hinzufügen</string>
+<string name="whitelist_add_message">Diese Domain wird niemals blockiert</string>
+<string name="whitelist_add_hint">beispiel.com</string>
+
+<!-- ==================== SETTINGS ACTIVITY ==================== -->
+<string name="settings_toolbar_title">⚙️ Einstellungen</string>
+
+<!-- ==================== DIALOGS ==================== -->
+<string name="dialog_add">Hinzufügen</string>
+<string name="dialog_cancel">Abbrechen</string>
+<string name="dialog_clear">Löschen</string>
+<string name="clear_logs_title">Protokolle löschen</string>
+<string name="clear_logs_message">Möchten Sie alle Blockierprotokolle löschen?</string>
+
+<!-- ==================== PREFERENCES - CATEGORIES ==================== -->
+<string name="pref_category_secure_dns">🔐 Sicheres DNS</string>
+<string name="pref_category_schedule">⏰ Automatisierung</string>
+<string name="pref_category_blocklists">📋 Blocklisten</string>
+<string name="pref_category_apps">📱 Anwendungen</string>
+<string name="pref_category_data">💾 Daten</string>
+<string name="pref_category_about">ℹ️ Über</string>
+
+<!-- ==================== PREFERENCES - DNS ==================== -->
+<string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+<string name="pref_use_doh_summary">DNS-Anfragen für mehr Datenschutz verschlüsseln</string>
+<string name="pref_doh_provider_title">DoH-Server</string>
+
+<string name="doh_provider_cloudflare">Cloudflare (empfohlen)</string>
+<string name="doh_provider_google">Google</string>
+<string name="doh_provider_quad9">Quad9 (Sicherheit)</string>
+<string name="doh_provider_adguard">AdGuard (Werbeblocker)</string>
+
+<!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+<string name="pref_schedule_summary">Automatisch aktivieren/deaktivieren</string>
+<string name="schedule_all_disabled">Alle Zeitpläne deaktiviert</string>
+<string name="schedule_active_count">%d aktiver Zeitplan/Zeitpläne</string>
+
+<!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
+<string name="pref_external_lists_title">📥 Externe Listen</string>
+<string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K Domains)</string>
+<string name="pref_manage_lists_title">📝 Benutzerdefinierte Listen</string>
+<string name="pref_manage_lists_summary">Eigene Domains zum Blockieren hinzufügen</string>
+<string name="lists_summary">%1$d aktive Listen • %2$s Domains</string>
+
+<!-- ==================== PREFERENCES - APPS ==================== -->
+<string name="pref_excluded_apps_title">🚫 Ausgeschlossene Apps</string>
+<string name="pref_excluded_apps_summary">Diese Apps werden nicht gefiltert</string>
+
+<!-- ==================== PREFERENCES - DATA ==================== -->
+<string name="pref_clear_logs_title">🗑️ Protokolle löschen</string>
+<string name="pref_clear_logs_summary">Blockierungsverlauf löschen</string>
+
+<!-- ==================== PREFERENCES - ABOUT ==================== -->
+<string name="pref_version_title">Version</string>
+<string name="pref_version_summary">DNSphere v1.4</string>
+<string name="pref_developer_title">👨‍💻 Erstellt von</string>
+<string name="pref_developer_summary">souffly007</string>
+<string name="pref_github_title">🔗 Quellcode (GitHub)</string>
+<string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+<string name="pref_license_title">📄 Lizenz</string>
+<string name="pref_license_summary">GNU GPL v3 - Open Source</string>
+
+<!-- ==================== STATS ACTIVITY ==================== -->
+<string name="stats_toolbar_title">📊 Statistiken</string>
+<string name="stats_today">Heute</string>
+<string name="stats_this_week">Woche</string>
+<string name="stats_this_month">Monat</string>
+<string name="stats_all_time">Gesamt</string>
+<string name="stats_blocked_requests">blockierte Anfragen</string>
+<string name="stats_by_category">📈 Nach Kategorie</string>
+<string name="stats_chart_daily">📅 Nach Tag</string>
+<string name="stats_by_hour">🕐 Nach Stunde (heute)</string>
+<string name="stats_top_blocked">🏆 Top blockierte Domains</string>
+<string name="stats_no_data">Keine Daten für diesen Zeitraum</string>
+
+<!-- ==================== SCHEDULE ACTIVITY ==================== -->
+<string name="schedule_title">⏰ Geplanter Modus</string>
+<string name="schedule_empty">Kein Zeitplan</string>
+<string name="schedule_empty_hint">Tippen Sie auf +, um einen automatischen Zeitplan zu erstellen</string>
+<string name="schedule_add">Zeitplan hinzufügen</string>
+<string name="schedule_edit">Zeitplan bearbeiten</string>
+<string name="schedule_name">Name (optional)</string>
+<string name="schedule_default_name">Mein Zeitplan</string>
+<string name="schedule_time_range">Zeitraum</string>
+<string name="schedule_days">Tage</string>
+<string name="schedule_action">Aktion</string>
+<string name="schedule_action_enable">🛡️ Schutz aktivieren</string>
+<string name="schedule_action_disable">⏸️ Schutz deaktivieren</string>
+<string name="schedule_select_day">Wählen Sie mindestens einen Tag</string>
+<string name="schedule_added">Zeitplan hinzugefügt</string>
+<string name="schedule_updated">Zeitplan aktualisiert</string>
+<string name="schedule_deleted">Zeitplan gelöscht</string>
+<string name="schedule_delete_title">Zeitplan löschen?</string>
+<string name="schedule_delete_message">Diese Aktion ist unwiderruflich.</string>
+
+<!-- Jours -->
+<string name="day_mon">Mo</string>
+<string name="day_tue">Di</string>
+<string name="day_wed">Mi</string>
+<string name="day_thu">Do</string>
+<string name="day_fri">Fr</string>
+<string name="day_sat">Sa</string>
+<string name="day_sun">So</string>
+
+<!-- Commun -->
+<string name="common_save">Speichern</string>
+<string name="common_cancel">Abbrechen</string>
+<string name="common_delete">Löschen</string>
+<string name="common_edit">Bearbeiten</string>
+
+<!-- ==================== PROFILES ==================== -->
+<string name="profiles_title">📁 Blockierprofile</string>
+<string name="profiles_all">Alle Profile</string>
+<string name="profile_active">Aktives Profil</string>
+<string name="profile_active_badge">AKTIV</string>
+<string name="profile_add">Neues Profil</string>
+<string name="profile_edit">Profil bearbeiten</string>
+<string name="profile_name">Profilname</string>
+<string name="profile_name_hint">Mein Profil</string>
+<string name="profile_icon">Symbol</string>
+<string name="profile_blocking_options">Blockieroptionen</string>
+<string name="profile_activate">Dieses Profil aktivieren</string>
+<string name="profile_duplicate">Duplizieren</string>
+<string name="profile_activated">Profil "%s" aktiviert</string>
+<string name="profile_added">Profil erstellt</string>
+<string name="profile_updated">Profil aktualisiert</string>
+<string name="profile_deleted">Profil gelöscht</string>
+<string name="profile_duplicated">Profil dupliziert</string>
+<string name="profile_name_required">Name ist erforderlich</string>
+<string name="profile_cannot_delete_preset">Vordefiniertes Profil kann nicht gelöscht werden</string>
+<string name="profile_cannot_delete_active">Aktives Profil kann nicht gelöscht werden</string>
+<string name="profile_delete_title">Profil löschen?</string>
+<string name="profile_delete_message">Möchten Sie das Profil "%s" löschen?</string>
+
+<!-- Préférences profils -->
+<string name="pref_category_profiles">📁 Profile</string>
+<string name="pref_profiles_summary">Blockierprofile verwalten</string>
+
+<!-- ==================== BIOMETRIC / SECURITY ==================== -->
+<string name="security_title">🔐 Sicherheit</string>
+<string name="pref_category_security">🔐 Sicherheit</string>
+<string name="pref_security_summary">Biometrischer Schutz</string>
+
+<string name="bio_info_title">Biometrischer Schutz</string>
+<string name="bio_info_desc">Verwenden Sie Ihren Fingerabdruck oder Face ID, um die App zu schützen</string>
+
+<string name="bio_enable_protection">Schutz aktivieren</string>
+<string name="bio_enable_protection_desc">Authentifizierung für sensible Aktionen anfordern</string>
+
+<string name="bio_protection_options">Schutzoptionen</string>
+
+<string name="bio_protect_disable">VPN deaktivieren</string>
+<string name="bio_protect_disable_desc">Authentifizierung erforderlich, um den Schutz zu deaktivieren</string>
+
+<string name="bio_protect_settings">Zugang zu Einstellungen</string>
+<string name="bio_protect_settings_desc">Authentifizierung erforderlich, um Einstellungen zu ändern</string>
+
+<string name="bio_protect_profiles">Profile bearbeiten</string>
+<string name="bio_protect_profiles_desc">Authentifizierung erforderlich, um das Profil zu wechseln</string>
+
+<string name="bio_enable_title">Schutz aktivieren</string>
+<string name="bio_enable_subtitle">Bestätigen Sie Ihre Identität</string>
+<string name="bio_disable_title">Schutz deaktivieren</string>
+<string name="bio_disable_subtitle">Bestätigen Sie Ihre Identität</string>
+
+<string name="bio_auth_disable_title">VPN deaktivieren</string>
+<string name="bio_auth_settings_title">Auf Einstellungen zugreifen</string>
+<string name="bio_auth_profiles_title">Profile bearbeiten</string>
+<string name="bio_auth_subtitle">Authentifizierung erforderlich</string>
+
+<string name="bio_enabled">Biometrischer Schutz aktiviert</string>
+<string name="bio_disabled">Biometrischer Schutz deaktiviert</string>
+
+<string name="bio_no_hardware">Ihr Gerät unterstützt keine Biometrie</string>
+<string name="bio_hardware_unavailable">Der biometrische Sensor ist nicht verfügbar</string>
+<string name="bio_not_enrolled">Kein Fingerabdruck oder Face ID konfiguriert. Konfigurieren Sie es in den Telefoneinstellungen.</string>
+
+
+
+<!-- ==================== BACKUP / RESTORE ==================== -->
+<string name="pref_category_backup">📦 Sichern und Wiederherstellen</string>
+<string name="pref_backup_title">💾 Listen sichern</string>
+<string name="pref_backup_summary">Alle Blocklisten in eine Datei exportieren</string>
+<string name="pref_restore_title">📂 Listen wiederherstellen</string>
+<string name="pref_restore_summary">Blocklisten aus einer Datei importieren</string>
+
+<string name="backup_success">✅ Sicherung erfolgreich exportiert</string>
+<string name="backup_failure">❌ Sicherung fehlgeschlagen</string>
+<string name="restore_success">✅ Listen erfolgreich wiederhergestellt</string>
+<string name="restore_failure">❌ Wiederherstellung fehlgeschlagen</string>
+<string name="restore_invalid_file">❌ Ungültige oder beschädigte Datei</string>
+
+<string name="backup_dialog_title">Listen sichern</string>
+<string name="backup_dialog_message">Benutzerdefinierte Listen und Whitelist werden in eine .json-Datei exportiert</string>
+<string name="restore_dialog_title">Listen wiederherstellen</string>
+<string name="restore_dialog_message">Achtung: Die aktuellen Listen werden durch die der ausgewählten Datei ersetzt.</string>
+<string name="restore_dialog_confirm">Wiederherstellen</string>
+
+<string name="backup_file_name">dnsphere_backup_%s.json</string>
+<string name="backup_domains_count">%d Domain(s) gesichert</string>
+<string name="restore_domains_count">%d Domain(s) wiederhergestellt</string>
+
+</resources>

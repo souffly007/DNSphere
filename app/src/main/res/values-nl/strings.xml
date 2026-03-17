@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================== APP INFO ==================== -->
+    <string name="app_name">DNSphere</string>
+    <string name="app_version">1.3</string>
+    <string name="widget_description">Snelle bediening van DNSphere</string>
+
+    <!-- Infos développeur -->
+    <string name="developer_name">souffly007</string>
+    <string name="github_url">https://github.com/souffly007/DNSphere</string>
+    <string name="developer_website">https://bonobo.fr</string>
+
+    <!-- ==================== MAIN ACTIVITY ==================== -->
+    <string name="protection_enabled">🛡️ Beveiliging ingeschakeld</string>
+    <string name="protection_disabled">Beveiliging uitgeschakeld</string>
+    <string name="status_on">AAN</string>
+    <string name="status_off">UIT</string>
+
+    <string name="stats_title">📊 Statistieken (tik voor logboeken)</string>
+    <string name="ads_blocked">Advertenties geblokkeerd</string>
+    <string name="trackers_blocked">Trackers geblokkeerd</string>
+    <string name="malware_blocked">Malware geblokkeerd</string>
+
+    <string name="protection_options_title">🛡️ Beveiligingsopties</string>
+    <string name="block_ads">🚫 Advertenties blokkeren</string>
+    <string name="block_trackers">🔒 Trackers blokkeren</string>
+    <string name="block_malware">☠️ Malwarebeveiliging</string>
+
+    <string name="quick_actions_title">⚡ Snelle acties</string>
+    <string name="logs">📋 Logboeken</string>
+    <string name="whitelist">✅ Witte lijst</string>
+    <string name="settings">⚙️ Instellingen</string>
+
+    <string name="created_by">Gemaakt door %s</string>
+    <string name="source_code_github">🔗 Broncode op GitHub</string>
+
+    <!-- ==================== TOASTS / MESSAGES ==================== -->
+    <string name="vpn_permission_denied">VPN-toestemming geweigerd</string>
+    <string name="protection_started">🛡️ Beveiliging ingeschakeld</string>
+    <string name="protection_stopped">Beveiliging uitgeschakeld</string>
+    <string name="cannot_open_link">Kan link niet openen</string>
+    <string name="doh_enabled">DoH ingeschakeld</string>
+    <string name="doh_disabled">DoH uitgeschakeld</string>
+    <string name="dns_changed">DNS: %s</string>
+    <string name="logs_cleared">Logboeken gewist</string>
+
+    <!-- ==================== LOGS ACTIVITY ==================== -->
+    <string name="logs_toolbar_title">📋 Blokkeringslogboeken</string>
+    <string name="logs_empty">Geen blokkering geregistreerd</string>
+    <string name="type_ad">Advertentie</string>
+    <string name="type_tracker">Tracker</string>
+    <string name="type_malware">Malware</string>
+
+    <!-- ==================== WHITELIST ACTIVITY ==================== -->
+    <string name="whitelist_toolbar_title">✅ Witte lijst</string>
+    <string name="whitelist_empty">Geen domein op de witte lijst</string>
+    <string name="whitelist_add_title">Domein toevoegen</string>
+    <string name="whitelist_add_message">Dit domein wordt nooit geblokkeerd</string>
+    <string name="whitelist_add_hint">voorbeeld.com</string>
+
+    <!-- ==================== SETTINGS ACTIVITY ==================== -->
+    <string name="settings_toolbar_title">⚙️ Instellingen</string>
+
+    <!-- ==================== DIALOGS ==================== -->
+    <string name="dialog_add">Toevoegen</string>
+    <string name="dialog_cancel">Annuleren</string>
+    <string name="dialog_clear">Wissen</string>
+    <string name="clear_logs_title">Logboeken wissen</string>
+    <string name="clear_logs_message">Wilt u alle blokkeringslogboeken verwijderen?</string>
+
+    <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
+    <string name="pref_category_secure_dns">🔐 Beveiligd DNS</string>
+    <string name="pref_category_schedule">⏰ Automatisering</string>
+    <string name="pref_category_blocklists">📋 Blokkeringslijsten</string>
+    <string name="pref_category_apps">📱 Toepassingen</string>
+    <string name="pref_category_data">💾 Gegevens</string>
+    <string name="pref_category_about">ℹ️ Over</string>
+
+    <!-- ==================== PREFERENCES - DNS ==================== -->
+    <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="pref_use_doh_summary">DNS-verzoeken versleutelen voor meer privacy</string>
+    <string name="pref_doh_provider_title">DoH-server</string>
+
+    <string name="doh_provider_cloudflare">Cloudflare (aanbevolen)</string>
+    <string name="doh_provider_google">Google</string>
+    <string name="doh_provider_quad9">Quad9 (beveiliging)</string>
+    <string name="doh_provider_adguard">AdGuard (advertentieblokkering)</string>
+
+    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <string name="pref_schedule_summary">Automatisch in-/uitschakelen</string>
+    <string name="schedule_all_disabled">Alle planningen uitgeschakeld</string>
+    <string name="schedule_active_count">%d actieve planning(en)</string>
+
+    <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
+    <string name="pref_external_lists_title">📥 Externe lijsten</string>
+    <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K domeinen)</string>
+    <string name="pref_manage_lists_title">📝 Aangepaste lijsten</string>
+    <string name="pref_manage_lists_summary">Uw eigen te blokkeren domeinen toevoegen</string>
+    <string name="lists_summary">%1$d actieve lijsten • %2$s domeinen</string>
+
+    <!-- ==================== PREFERENCES - APPS ==================== -->
+    <string name="pref_excluded_apps_title">🚫 Uitgesloten apps</string>
+    <string name="pref_excluded_apps_summary">Deze apps worden niet gefilterd</string>
+
+    <!-- ==================== PREFERENCES - DATA ==================== -->
+    <string name="pref_clear_logs_title">🗑️ Logboeken wissen</string>
+    <string name="pref_clear_logs_summary">Blokkeringsgeschiedenis verwijderen</string>
+
+    <!-- ==================== PREFERENCES - ABOUT ==================== -->
+    <string name="pref_version_title">Versie</string>
+    <string name="pref_version_summary">DNSphere v1.3</string>
+    <string name="pref_developer_title">👨‍💻 Gemaakt door</string>
+    <string name="pref_developer_summary">souffly007</string>
+    <string name="pref_github_title">🔗 Broncode (GitHub)</string>
+    <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
+    <string name="pref_license_title">📄 Licentie</string>
+    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
+
+    <!-- ==================== STATS ACTIVITY ==================== -->
+    <string name="stats_toolbar_title">📊 Statistieken</string>
+    <string name="stats_today">Vandaag</string>
+    <string name="stats_this_week">Week</string>
+    <string name="stats_this_month">Maand</string>
+    <string name="stats_all_time">Alles</string>
+    <string name="stats_blocked_requests">geblokkeerde verzoeken</string>
+    <string name="stats_by_category">📈 Per categorie</string>
+    <string name="stats_chart_daily">📅 Per dag</string>
+    <string name="stats_by_hour">🕐 Per uur (vandaag)</string>
+    <string name="stats_top_blocked">🏆 Top geblokkeerde domeinen</string>
+    <string name="stats_no_data">Geen gegevens voor deze periode</string>
+
+    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
+    <string name="schedule_title">⏰ Geplande modus</string>
+    <string name="schedule_empty">Geen planning</string>
+    <string name="schedule_empty_hint">Druk op + om een automatische planning te maken</string>
+    <string name="schedule_add">Planning toevoegen</string>
+    <string name="schedule_edit">Planning bewerken</string>
+    <string name="schedule_name">Naam (optioneel)</string>
+    <string name="schedule_default_name">Mijn planning</string>
+    <string name="schedule_time_range">Tijdsbereik</string>
+    <string name="schedule_days">Dagen</string>
+    <string name="schedule_action">Actie</string>
+    <string name="schedule_action_enable">🛡️ Beveiliging inschakelen</string>
+    <string name="schedule_action_disable">⏸️ Beveiliging uitschakelen</string>
+    <string name="schedule_select_day">Selecteer ten minste één dag</string>
+    <string name="schedule_added">Planning toegevoegd</string>
+    <string name="schedule_updated">Planning bijgewerkt</string>
+    <string name="schedule_deleted">Planning verwijderd</string>
+    <string name="schedule_delete_title">Planning verwijderen?</string>
+    <string name="schedule_delete_message">Deze actie is onomkeerbaar.</string>
+
+    <!-- Jours -->
+    <string name="day_mon">Ma</string>
+    <string name="day_tue">Di</string>
+    <string name="day_wed">Wo</string>
+    <string name="day_thu">Do</string>
+    <string name="day_fri">Vr</string>
+    <string name="day_sat">Za</string>
+    <string name="day_sun">Zo</string>
+
+    <!-- Commun -->
+    <string name="common_save">Opslaan</string>
+    <string name="common_cancel">Annuleren</string>
+    <string name="common_delete">Verwijderen</string>
+    <string name="common_edit">Bewerken</string>
+
+    <!-- ==================== PROFILES ==================== -->
+    <string name="profiles_title">📁 Blokkeringsprofielen</string>
+    <string name="profiles_all">Alle profielen</string>
+    <string name="profile_active">Actief profiel</string>
+    <string name="profile_active_badge">ACTIEF</string>
+    <string name="profile_add">Nieuw profiel</string>
+    <string name="profile_edit">Profiel bewerken</string>
+    <string name="profile_name">Profielnaam</string>
+    <string name="profile_name_hint">Mijn profiel</string>
+    <string name="profile_icon">Pictogram</string>
+    <string name="profile_blocking_options">Blokkeringsopties</string>
+    <string name="profile_activate">Dit profiel activeren</string>
+    <string name="profile_duplicate">Dupliceren</string>
+    <string name="profile_activated">Profiel "%s" geactiveerd</string>
+    <string name="profile_added">Profiel aangemaakt</string>
+    <string name="profile_updated">Profiel bijgewerkt</string>
+    <string name="profile_deleted">Profiel verwijderd</string>
+    <string name="profile_duplicated">Profiel gedupliceerd</string>
+    <string name="profile_name_required">Naam is verplicht</string>
+    <string name="profile_cannot_delete_preset">Vooringesteld profiel kan niet worden verwijderd</string>
+    <string name="profile_cannot_delete_active">Actief profiel kan niet worden verwijderd</string>
+    <string name="profile_delete_title">Profiel verwijderen?</string>
+    <string name="profile_delete_message">Wilt u het profiel "%s" verwijderen?</string>
+
+    <!-- Préférences profils -->
+    <string name="pref_category_profiles">📁 Profielen</string>
+    <string name="pref_profiles_summary">Blokkeringsprofielen beheren</string>
+
+    <!-- ==================== BIOMETRIC / SECURITY ==================== -->
+    <string name="security_title">🔐 Beveiliging</string>
+    <string name="pref_category_security">🔐 Beveiliging</string>
+    <string name="pref_security_summary">Biometrische beveiliging</string>
+
+    <string name="bio_info_title">Biometrische beveiliging</string>
+    <string name="bio_info_desc">Gebruik uw vingerafdruk of Face ID om de app te beveiligen</string>
+
+    <string name="bio_enable_protection">Beveiliging inschakelen</string>
+    <string name="bio_enable_protection_desc">Verificatie vereisen voor gevoelige acties</string>
+
+    <string name="bio_protection_options">Beveiligingsopties</string>
+
+    <string name="bio_protect_disable">VPN uitschakelen</string>
+    <string name="bio_protect_disable_desc">Verificatie vereist om de beveiliging uit te schakelen</string>
+
+    <string name="bio_protect_settings">Toegang tot instellingen</string>
+    <string name="bio_protect_settings_desc">Verificatie vereist om instellingen te wijzigen</string>
+
+    <string name="bio_protect_profiles">Profielen bewerken</string>
+    <string name="bio_protect_profiles_desc">Verificatie vereist om van profiel te wisselen</string>
+
+    <string name="bio_enable_title">Beveiliging inschakelen</string>
+    <string name="bio_enable_subtitle">Bevestig uw identiteit</string>
+    <string name="bio_disable_title">Beveiliging uitschakelen</string>
+    <string name="bio_disable_subtitle">Bevestig uw identiteit</string>
+
+    <string name="bio_auth_disable_title">VPN uitschakelen</string>
+    <string name="bio_auth_settings_title">Toegang tot instellingen</string>
+    <string name="bio_auth_profiles_title">Profielen bewerken</string>
+    <string name="bio_auth_subtitle">Verificatie vereist</string>
+
+    <string name="bio_enabled">Biometrische beveiliging ingeschakeld</string>
+    <string name="bio_disabled">Biometrische beveiliging uitgeschakeld</string>
+
+    <string name="bio_no_hardware">Uw apparaat ondersteunt geen biometrie</string>
+    <string name="bio_hardware_unavailable">De biometrische sensor is niet beschikbaar</string>
+    <string name="bio_not_enrolled">Geen vingerafdruk of Face ID geconfigureerd. Configureer dit in de telefooninstellingen.</string>
+
+</resources>
