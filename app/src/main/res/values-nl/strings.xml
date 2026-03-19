@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Beveiligd DNS</string>
-    <string name="pref_category_schedule">⏰ Automatisering</string>
     <string name="pref_category_blocklists">📋 Blokkeringslijsten</string>
     <string name="pref_category_apps">📱 Toepassingen</string>
     <string name="pref_category_data">💾 Gegevens</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (advertentieblokkering)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Automatisch in-/uitschakelen</string>
-    <string name="schedule_all_disabled">Alle planningen uitgeschakeld</string>
-    <string name="schedule_active_count">%d actieve planning(en)</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Externe lijsten</string>
@@ -131,24 +127,6 @@
     <string name="stats_no_data">Geen gegevens voor deze periode</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Geplande modus</string>
-    <string name="schedule_empty">Geen planning</string>
-    <string name="schedule_empty_hint">Druk op + om een automatische planning te maken</string>
-    <string name="schedule_add">Planning toevoegen</string>
-    <string name="schedule_edit">Planning bewerken</string>
-    <string name="schedule_name">Naam (optioneel)</string>
-    <string name="schedule_default_name">Mijn planning</string>
-    <string name="schedule_time_range">Tijdsbereik</string>
-    <string name="schedule_days">Dagen</string>
-    <string name="schedule_action">Actie</string>
-    <string name="schedule_action_enable">🛡️ Beveiliging inschakelen</string>
-    <string name="schedule_action_disable">⏸️ Beveiliging uitschakelen</string>
-    <string name="schedule_select_day">Selecteer ten minste één dag</string>
-    <string name="schedule_added">Planning toegevoegd</string>
-    <string name="schedule_updated">Planning bijgewerkt</string>
-    <string name="schedule_deleted">Planning verwijderd</string>
-    <string name="schedule_delete_title">Planning verwijderen?</string>
-    <string name="schedule_delete_message">Deze actie is onomkeerbaar.</string>
 
     <!-- Jours -->
     <string name="day_mon">Ma</string>

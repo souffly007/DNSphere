@@ -71,7 +71,6 @@
 
 <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
 <string name="pref_category_secure_dns">🔐 Sicheres DNS</string>
-<string name="pref_category_schedule">⏰ Automatisierung</string>
 <string name="pref_category_blocklists">📋 Blocklisten</string>
 <string name="pref_category_apps">📱 Anwendungen</string>
 <string name="pref_category_data">💾 Daten</string>
@@ -88,9 +87,6 @@
 <string name="doh_provider_adguard">AdGuard (Werbeblocker)</string>
 
 <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-<string name="pref_schedule_summary">Automatisch aktivieren/deaktivieren</string>
-<string name="schedule_all_disabled">Alle Zeitpläne deaktiviert</string>
-<string name="schedule_active_count">%d aktiver Zeitplan/Zeitpläne</string>
 
 <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
 <string name="pref_external_lists_title">📥 Externe Listen</string>
@@ -131,24 +127,6 @@
 <string name="stats_no_data">Keine Daten für diesen Zeitraum</string>
 
 <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-<string name="schedule_title">⏰ Geplanter Modus</string>
-<string name="schedule_empty">Kein Zeitplan</string>
-<string name="schedule_empty_hint">Tippen Sie auf +, um einen automatischen Zeitplan zu erstellen</string>
-<string name="schedule_add">Zeitplan hinzufügen</string>
-<string name="schedule_edit">Zeitplan bearbeiten</string>
-<string name="schedule_name">Name (optional)</string>
-<string name="schedule_default_name">Mein Zeitplan</string>
-<string name="schedule_time_range">Zeitraum</string>
-<string name="schedule_days">Tage</string>
-<string name="schedule_action">Aktion</string>
-<string name="schedule_action_enable">🛡️ Schutz aktivieren</string>
-<string name="schedule_action_disable">⏸️ Schutz deaktivieren</string>
-<string name="schedule_select_day">Wählen Sie mindestens einen Tag</string>
-<string name="schedule_added">Zeitplan hinzugefügt</string>
-<string name="schedule_updated">Zeitplan aktualisiert</string>
-<string name="schedule_deleted">Zeitplan gelöscht</string>
-<string name="schedule_delete_title">Zeitplan löschen?</string>
-<string name="schedule_delete_message">Diese Aktion ist unwiderruflich.</string>
 
 <!-- Jours -->
 <string name="day_mon">Mo</string>

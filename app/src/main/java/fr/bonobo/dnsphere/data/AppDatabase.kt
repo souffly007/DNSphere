@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
         ExcludedApp::class,
         ExternalList::class,
         ExternalListDomain::class,
-        Schedule::class,
+        // Schedule::class,  ← COMMENTÉ OU SUPPRIMÉ
         Profile::class,
         ParentalControl::class
     ],
@@ -35,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customListDao(): CustomListDao
     abstract fun excludedAppDao(): ExcludedAppDao
     abstract fun externalListDao(): ExternalListDao
-    abstract fun scheduleDao(): ScheduleDao
+    // abstract fun scheduleDao(): ScheduleDao  ← SUPPRIMEZ AUSSI CETTE LIGNE
     abstract fun profileDao(): ProfileDao
     abstract fun parentalControlDao(): ParentalControlDao
 

@@ -71,7 +71,7 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS sécurisé</string>
-    <string name="pref_category_schedule">⏰ Automatisation</string>
+    <!-- CATÉGORIE SCHEDULE SUPPRIMÉE -->
     <string name="pref_category_blocklists">📋 Listes de blocage</string>
     <string name="pref_category_apps">📱 Applications</string>
     <string name="pref_category_data">💾 Données</string>
@@ -87,10 +87,7 @@
     <string name="doh_provider_quad9">Quad9 (sécurité)</string>
     <string name="doh_provider_adguard">AdGuard (anti-pub)</string>
 
-    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Activer/désactiver automatiquement</string>
-    <string name="schedule_all_disabled">Toutes les planifications désactivées</string>
-    <string name="schedule_active_count">%d planification(s) active(s)</string>
+    <!-- PREFERENCES SCHEDULE SUPPRIMÉES -->
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Listes externes</string>
@@ -132,7 +129,7 @@
 
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Version</string>
-    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_version_summary">DNSphere v1.5</string>
     <string name="pref_developer_title">👨‍💻 Créé par</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Code source (GitHub)</string>
@@ -153,27 +150,9 @@
     <string name="stats_top_blocked">🏆 Top domaines bloqués</string>
     <string name="stats_no_data">Aucune donnée pour cette période</string>
 
-    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Mode planifié</string>
-    <string name="schedule_empty">Aucune planification</string>
-    <string name="schedule_empty_hint">Appuyez sur + pour créer une planification automatique</string>
-    <string name="schedule_add">Ajouter une planification</string>
-    <string name="schedule_edit">Modifier la planification</string>
-    <string name="schedule_name">Nom (optionnel)</string>
-    <string name="schedule_default_name">Ma planification</string>
-    <string name="schedule_time_range">Plage horaire</string>
-    <string name="schedule_days">Jours</string>
-    <string name="schedule_action">Action</string>
-    <string name="schedule_action_enable">🛡️ Activer la protection</string>
-    <string name="schedule_action_disable">⏸️ Désactiver la protection</string>
-    <string name="schedule_select_day">Sélectionnez au moins un jour</string>
-    <string name="schedule_added">Planification ajoutée</string>
-    <string name="schedule_updated">Planification mise à jour</string>
-    <string name="schedule_deleted">Planification supprimée</string>
-    <string name="schedule_delete_title">Supprimer la planification ?</string>
-    <string name="schedule_delete_message">Cette action est irréversible.</string>
+    <!-- SECTION SCHEDULE ACTIVITY SUPPRIMÉE -->
 
-    <!-- Jours -->
+    <!-- Jours (à garder car utilisés ailleurs) -->
     <string name="day_mon">Lun</string>
     <string name="day_tue">Mar</string>
     <string name="day_wed">Mer</string>

@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         loadPreferences()
         loadCurrentStats()
-        observeStats() // ✅ NOUVEAU
+        observeStats()
 
         if (intent.getBooleanExtra("auto_start", false) && !LocalVpnService.isRunning) {
             requestVpnPermission()
@@ -92,9 +92,9 @@ class MainActivity : AppCompatActivity() {
         tvCreatedBy.text = getString(R.string.created_by, DEVELOPER_NAME)
     }
 
-    // ✅ NOUVEAU : Observer les stats via LiveData
     private fun observeStats() {
-        StatsLiveData.stats.observe(this) { stats ->
+        // Correction : utiliser vpnStats au lieu de stats
+        StatsLiveData.vpnStats.observe(this) { stats ->
             tvAdsBlocked.text = stats.adsBlocked.toString()
             tvTrackersBlocked.text = stats.trackersBlocked.toString()
             saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)

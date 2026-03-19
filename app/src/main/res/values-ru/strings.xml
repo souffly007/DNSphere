@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Безопасный DNS</string>
-    <string name="pref_category_schedule">⏰ Автоматизация</string>
     <string name="pref_category_blocklists">📋 Списки блокировок</string>
     <string name="pref_category_apps">📱 Приложения</string>
     <string name="pref_category_data">💾 Данные</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (блокировка рекламы)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Включать/отключать автоматически</string>
-    <string name="schedule_all_disabled">Все расписания отключены</string>
-    <string name="schedule_active_count">%d активное(ых) расписание(ий)</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Внешние списки</string>
@@ -131,24 +127,6 @@
     <string name="stats_no_data">Нет данных за этот период</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Режим расписания</string>
-    <string name="schedule_empty">Нет расписания</string>
-    <string name="schedule_empty_hint">Нажмите +, чтобы создать автоматическое расписание</string>
-    <string name="schedule_add">Добавить расписание</string>
-    <string name="schedule_edit">Редактировать расписание</string>
-    <string name="schedule_name">Название (необязательно)</string>
-    <string name="schedule_default_name">Моё расписание</string>
-    <string name="schedule_time_range">Временной диапазон</string>
-    <string name="schedule_days">Дни</string>
-    <string name="schedule_action">Действие</string>
-    <string name="schedule_action_enable">🛡️ Включить защиту</string>
-    <string name="schedule_action_disable">⏸️ Отключить защиту</string>
-    <string name="schedule_select_day">Выберите хотя бы один день</string>
-    <string name="schedule_added">Расписание добавлено</string>
-    <string name="schedule_updated">Расписание обновлено</string>
-    <string name="schedule_deleted">Расписание удалено</string>
-    <string name="schedule_delete_title">Удалить расписание?</string>
-    <string name="schedule_delete_message">Это действие необратимо.</string>
 
     <!-- Jours -->
     <string name="day_mon">Пн</string>

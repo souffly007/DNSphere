@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS seguro</string>
-    <string name="pref_category_schedule">⏰ Automatización</string>
     <string name="pref_category_blocklists">📋 Listas de bloqueo</string>
     <string name="pref_category_apps">📱 Aplicaciones</string>
     <string name="pref_category_data">💾 Datos</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (anti-publicidad)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Activar/desactivar automáticamente</string>
-    <string name="schedule_all_disabled">Todas las programaciones desactivadas</string>
-    <string name="schedule_active_count">%d programación(es) activa(s)</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Listas externas</string>
@@ -154,24 +150,6 @@
     <string name="stats_no_data">No hay datos para este período</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Modo programado</string>
-    <string name="schedule_empty">Ninguna programación</string>
-    <string name="schedule_empty_hint">Pulse + para crear una programación automática</string>
-    <string name="schedule_add">Añadir una programación</string>
-    <string name="schedule_edit">Editar la programación</string>
-    <string name="schedule_name">Nombre (opcional)</string>
-    <string name="schedule_default_name">Mi programación</string>
-    <string name="schedule_time_range">Franja horaria</string>
-    <string name="schedule_days">Días</string>
-    <string name="schedule_action">Acción</string>
-    <string name="schedule_action_enable">🛡️ Activar la protección</string>
-    <string name="schedule_action_disable">⏸️ Desactivar la protección</string>
-    <string name="schedule_select_day">Seleccione al menos un día</string>
-    <string name="schedule_added">Programación añadida</string>
-    <string name="schedule_updated">Programación actualizada</string>
-    <string name="schedule_deleted">Programación eliminada</string>
-    <string name="schedule_delete_title">¿Eliminar la programación?</string>
-    <string name="schedule_delete_message">Esta acción es irreversible.</string>
 
     <!-- Días -->
     <string name="day_mon">Lun</string>

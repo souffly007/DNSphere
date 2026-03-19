@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS sicuro</string>
-    <string name="pref_category_schedule">⏰ Automazione</string>
     <string name="pref_category_blocklists">📋 Liste di blocco</string>
     <string name="pref_category_apps">📱 Applicazioni</string>
     <string name="pref_category_data">💾 Dati</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (anti-pubblicità)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Attivare/disattivare automaticamente</string>
-    <string name="schedule_all_disabled">Tutte le pianificazioni disattivate</string>
-    <string name="schedule_active_count">%d pianificazione/i attiva/e</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Liste esterne</string>
@@ -131,24 +127,6 @@
     <string name="stats_no_data">Nessun dato per questo periodo</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Modalità pianificata</string>
-    <string name="schedule_empty">Nessuna pianificazione</string>
-    <string name="schedule_empty_hint">Premi + per creare una pianificazione automatica</string>
-    <string name="schedule_add">Aggiungere una pianificazione</string>
-    <string name="schedule_edit">Modificare la pianificazione</string>
-    <string name="schedule_name">Nome (facoltativo)</string>
-    <string name="schedule_default_name">La mia pianificazione</string>
-    <string name="schedule_time_range">Intervallo di tempo</string>
-    <string name="schedule_days">Giorni</string>
-    <string name="schedule_action">Azione</string>
-    <string name="schedule_action_enable">🛡️ Attivare la protezione</string>
-    <string name="schedule_action_disable">⏸️ Disattivare la protezione</string>
-    <string name="schedule_select_day">Seleziona almeno un giorno</string>
-    <string name="schedule_added">Pianificazione aggiunta</string>
-    <string name="schedule_updated">Pianificazione aggiornata</string>
-    <string name="schedule_deleted">Pianificazione eliminata</string>
-    <string name="schedule_delete_title">Eliminare la pianificazione?</string>
-    <string name="schedule_delete_message">Questa azione è irreversibile.</string>
 
     <!-- Jours -->
     <string name="day_mon">Lun</string>

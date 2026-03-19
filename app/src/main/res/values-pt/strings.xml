@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS seguro</string>
-    <string name="pref_category_schedule">⏰ Automatização</string>
     <string name="pref_category_blocklists">📋 Listas de bloqueio</string>
     <string name="pref_category_apps">📱 Aplicações</string>
     <string name="pref_category_data">💾 Dados</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (anti-publicidade)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Ativar/desativar automaticamente</string>
-    <string name="schedule_all_disabled">Todas as agendas desativadas</string>
-    <string name="schedule_active_count">%d agenda(s) ativa(s)</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Listas externas</string>
@@ -131,24 +127,6 @@
     <string name="stats_no_data">Sem dados para este período</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Modo agendado</string>
-    <string name="schedule_empty">Nenhuma agenda</string>
-    <string name="schedule_empty_hint">Prima + para criar uma agenda automática</string>
-    <string name="schedule_add">Adicionar uma agenda</string>
-    <string name="schedule_edit">Editar a agenda</string>
-    <string name="schedule_name">Nome (opcional)</string>
-    <string name="schedule_default_name">A minha agenda</string>
-    <string name="schedule_time_range">Intervalo de tempo</string>
-    <string name="schedule_days">Dias</string>
-    <string name="schedule_action">Ação</string>
-    <string name="schedule_action_enable">🛡️ Ativar a proteção</string>
-    <string name="schedule_action_disable">⏸️ Desativar a proteção</string>
-    <string name="schedule_select_day">Selecione pelo menos um dia</string>
-    <string name="schedule_added">Agenda adicionada</string>
-    <string name="schedule_updated">Agenda atualizada</string>
-    <string name="schedule_deleted">Agenda eliminada</string>
-    <string name="schedule_delete_title">Eliminar a agenda?</string>
-    <string name="schedule_delete_message">Esta ação é irreversível.</string>
 
     <!-- Jours -->
     <string name="day_mon">Seg</string>

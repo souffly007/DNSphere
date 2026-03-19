@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".DnsphereApplication"
@@ -19,7 +20,6 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true">
 
-        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,50 +30,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Logs Activity -->
-        <activity
-            android:name=".ui.LogsActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ui.LogsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ui.WhitelistActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ui.StatsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ui.SettingsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
+        <activity android:name=".ui.ListManagerActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
+        <activity android:name=".ui.AppExcluderActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
+        <activity android:name=".ui.ExternalListsActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
+        <activity android:name=".ui.ScheduleActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
+        <activity android:name=".ui.ProfilesActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
+        <activity android:name=".ui.SecurityActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
+        <activity android:name=".ui.BackupActivity" android:label="Sauvegarde" android:parentActivityName=".ui.SettingsActivity" android:exported="false" />
 
-        <!-- Whitelist Activity -->
-        <activity
-            android:name=".ui.WhitelistActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-
-        <!-- ✅ AJOUTEZ CETTE SECTION -->
-        <!-- Stats Activity -->
-        <activity
-            android:name=".ui.StatsActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-
-        <!-- Settings Activity -->
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity"/>
-
-        <!-- List Manager Activity -->
-        <activity
-            android:name=".ui.ListManagerActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.SettingsActivity"/>
-
-        <!-- App Excluder Activity -->
-        <activity
-            android:name=".ui.AppExcluderActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.SettingsActivity"/>
-
-        <!-- External Lists Activity -->
-        <activity
-            android:name=".ui.ExternalListsActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.SettingsActivity"/>
-
-        <!-- VPN Service -->
         <service
             android:name=".LocalVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
@@ -84,7 +52,27 @@
             </intent-filter>
         </service>
 
-        <!-- Widget -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".scheduler.ScheduleReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="fr.bonobo.dnsphere.SCHEDULE_START" />
+                <action android:name="fr.bonobo.dnsphere.SCHEDULE_END" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".widget.DnsphereWidget"
             android:exported="true">
@@ -97,31 +85,6 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <activity
-            android:name=".ui.ScheduleActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DNSphere" />
-
-        <receiver
-            android:name=".scheduler.ScheduleReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="fr.bonobo.dnsphere.SCHEDULE_START" />
-                <action android:name="fr.bonobo.dnsphere.SCHEDULE_END" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <activity
-            android:name=".ui.ProfilesActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DNSphere" />
-
-        <activity
-            android:name=".ui.SecurityActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DNSphere" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -131,12 +94,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <activity
-            android:name=".ui.BackupActivity"
-            android:label="Sauvegarde"
-            android:parentActivityName=".ui.SettingsActivity"
-            android:exported="false" />
 
     </application>
 </manifest>

@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS آمن</string>
-    <string name="pref_category_schedule">⏰ الأتمتة</string>
     <string name="pref_category_blocklists">📋 قوائم الحجب</string>
     <string name="pref_category_apps">📱 التطبيقات</string>
     <string name="pref_category_data">💾 البيانات</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (حجب الإعلانات)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">التفعيل/التعطيل التلقائي</string>
-    <string name="schedule_all_disabled">جميع الجداول الزمنية معطّلة</string>
-    <string name="schedule_active_count">%d جدول زمني نشط</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 القوائم الخارجية</string>
@@ -131,24 +127,6 @@
     <string name="stats_no_data">لا توجد بيانات لهذه الفترة</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ الوضع المجدوَل</string>
-    <string name="schedule_empty">لا يوجد جدول زمني</string>
-    <string name="schedule_empty_hint">اضغط + لإنشاء جدول زمني تلقائي</string>
-    <string name="schedule_add">إضافة جدول زمني</string>
-    <string name="schedule_edit">تعديل الجدول الزمني</string>
-    <string name="schedule_name">الاسم (اختياري)</string>
-    <string name="schedule_default_name">جدولي الزمني</string>
-    <string name="schedule_time_range">النطاق الزمني</string>
-    <string name="schedule_days">الأيام</string>
-    <string name="schedule_action">الإجراء</string>
-    <string name="schedule_action_enable">🛡️ تفعيل الحماية</string>
-    <string name="schedule_action_disable">⏸️ تعطيل الحماية</string>
-    <string name="schedule_select_day">يرجى اختيار يوم واحد على الأقل</string>
-    <string name="schedule_added">تم إضافة الجدول الزمني</string>
-    <string name="schedule_updated">تم تحديث الجدول الزمني</string>
-    <string name="schedule_deleted">تم حذف الجدول الزمني</string>
-    <string name="schedule_delete_title">حذف الجدول الزمني؟</string>
-    <string name="schedule_delete_message">هذا الإجراء لا يمكن التراجع عنه.</string>
 
     <!-- Jours -->
     <string name="day_mon">الإثنين</string>

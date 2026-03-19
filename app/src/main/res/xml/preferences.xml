@@ -26,20 +26,7 @@
 
     </PreferenceCategory>
 
-    <!-- Mode planifié -->
-    <PreferenceCategory
-        android:title="@string/pref_category_schedule"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="schedule"
-            android:title="@string/schedule_title"
-            android:summary="@string/pref_schedule_summary"
-            app:iconSpaceReserved="false"/>
-
-    </PreferenceCategory>
-
-    <!-- Profils -->
+   <!-- Profils -->
     <PreferenceCategory
         android:title="@string/pref_category_profiles"
         app:iconSpaceReserved="false">

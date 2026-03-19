@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Secure DNS</string>
-    <string name="pref_category_schedule">⏰ Automation</string>
     <string name="pref_category_blocklists">📋 Block lists</string>
     <string name="pref_category_apps">📱 Applications</string>
     <string name="pref_category_data">💾 Data</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard (ad-blocking)</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">Enable/disable automatically</string>
-    <string name="schedule_all_disabled">All schedules disabled</string>
-    <string name="schedule_active_count">%d active schedule(s)</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 External lists</string>
@@ -154,24 +150,6 @@
     <string name="stats_no_data">No data for this period</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ Scheduled mode</string>
-    <string name="schedule_empty">No schedule</string>
-    <string name="schedule_empty_hint">Press + to create an automatic schedule</string>
-    <string name="schedule_add">Add a schedule</string>
-    <string name="schedule_edit">Edit schedule</string>
-    <string name="schedule_name">Name (optional)</string>
-    <string name="schedule_default_name">My schedule</string>
-    <string name="schedule_time_range">Time range</string>
-    <string name="schedule_days">Days</string>
-    <string name="schedule_action">Action</string>
-    <string name="schedule_action_enable">🛡️ Enable protection</string>
-    <string name="schedule_action_disable">⏸️ Disable protection</string>
-    <string name="schedule_select_day">Select at least one day</string>
-    <string name="schedule_added">Schedule added</string>
-    <string name="schedule_updated">Schedule updated</string>
-    <string name="schedule_deleted">Schedule deleted</string>
-    <string name="schedule_delete_title">Delete schedule?</string>
-    <string name="schedule_delete_message">This action is irreversible.</string>
 
     <!-- Days -->
     <string name="day_mon">Mon</string>

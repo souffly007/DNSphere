@@ -90,12 +90,8 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            // ==================== MODE PLANIFIÉ ====================
-
-            findPreference<Preference>("schedule")?.setOnPreferenceClickListener {
-                startActivity(Intent(requireContext(), ScheduleActivity::class.java))
-                true
-            }
+            // ==================== MODE PLANIFIÉ - SUPPRIMÉ ====================
+            // La fonctionnalité de planning a été retirée
 
             // ==================== PROFILS ====================
 
@@ -122,7 +118,7 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
 
-            // ==================== SAUVEGARDE (AJOUTÉ) ====================
+            // ==================== SAUVEGARDE ====================
 
             findPreference<Preference>("backup")?.setOnPreferenceClickListener {
                 startActivity(Intent(requireContext(), BackupActivity::class.java))
@@ -190,7 +186,7 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             updateListStats()
-            updateScheduleSummary()
+            // updateScheduleSummary() - SUPPRIMÉ
             updateProfileSummary()
             updateSecuritySummary()
             updateParentalSummary()
@@ -256,26 +252,13 @@ class SettingsActivity : AppCompatActivity() {
             super.onResume()
             updateListStats()
             updateDohProviderSummary()
-            updateScheduleSummary()
+            // updateScheduleSummary() - SUPPRIMÉ
             updateProfileSummary()
             updateSecuritySummary()
             updateParentalSummary()
         }
 
-        private fun updateScheduleSummary() {
-            lifecycleScope.launch {
-                try {
-                    database.scheduleDao().getAllSchedules().observe(viewLifecycleOwner) { schedules ->
-                        val enabledCount = schedules.count { it.isEnabled }
-                        findPreference<Preference>("schedule")?.summary = when {
-                            schedules.isEmpty() -> getString(R.string.pref_schedule_summary)
-                            enabledCount == 0   -> getString(R.string.schedule_all_disabled)
-                            else                -> getString(R.string.schedule_active_count, enabledCount)
-                        }
-                    }
-                } catch (e: Exception) { }
-            }
-        }
+        // Méthode updateScheduleSummary() ENTIÈREMENT SUPPRIMÉE
 
         private fun updateProfileSummary() {
             lifecycleScope.launch {

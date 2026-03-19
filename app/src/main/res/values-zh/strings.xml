@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 安全 DNS</string>
-    <string name="pref_category_schedule">⏰ 自动化</string>
     <string name="pref_category_blocklists">📋 拦截列表</string>
     <string name="pref_category_apps">📱 应用</string>
     <string name="pref_category_data">💾 数据</string>
@@ -88,9 +87,6 @@
     <string name="doh_provider_adguard">AdGuard（广告拦截）</string>
 
     <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
-    <string name="pref_schedule_summary">自动开启或关闭</string>
-    <string name="schedule_all_disabled">所有计划已关闭</string>
-    <string name="schedule_active_count">%d 个计划正在运行</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 外部列表</string>
@@ -154,24 +150,6 @@
     <string name="stats_no_data">暂无数据</string>
 
     <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-    <string name="schedule_title">⏰ 定时模式</string>
-    <string name="schedule_empty">暂无计划</string>
-    <string name="schedule_empty_hint">点击 + 创建自动计划</string>
-    <string name="schedule_add">添加计划</string>
-    <string name="schedule_edit">编辑计划</string>
-    <string name="schedule_name">名称（可选）</string>
-    <string name="schedule_default_name">我的计划</string>
-    <string name="schedule_time_range">时间范围</string>
-    <string name="schedule_days">日期</string>
-    <string name="schedule_action">操作</string>
-    <string name="schedule_action_enable">🛡️ 启用防护</string>
-    <string name="schedule_action_disable">⏸️ 关闭防护</string>
-    <string name="schedule_select_day">请至少选择一天</string>
-    <string name="schedule_added">计划已添加</string>
-    <string name="schedule_updated">计划已更新</string>
-    <string name="schedule_deleted">计划已删除</string>
-    <string name="schedule_delete_title">删除计划？</string>
-    <string name="schedule_delete_message">此操作不可撤销</string>
 
     <!-- Jours -->
     <string name="day_mon">周一</string>
