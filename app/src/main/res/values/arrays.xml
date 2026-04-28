@@ -15,4 +15,13 @@
         <item>quad9</item>
         <item>adguard</item>
     </string-array>
+
+    <string-array name="rule_types">
+        <item>AdGuard / uBlock</item>
+        <item>Regex</item>
+    </string-array>
+    <string-array name="rule_actions">
+        <item>Bloquer</item>
+        <item>Autoriser</item>
+    </string-array>
 </resources>

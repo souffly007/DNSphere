@@ -283,12 +283,12 @@
                     android:textSize="12sp"
                     android:layout_marginBottom="8dp"/>
 
+                <!-- Ligne 1 : Logs + Whitelist -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- Bouton Logs -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogs"
                         android:layout_width="0dp"
@@ -301,7 +301,6 @@
                         android:textColor="@color/green"
                         android:layout_marginEnd="4dp"/>
 
-                    <!-- Bouton Whitelist -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnWhitelist"
                         android:layout_width="0dp"
@@ -316,7 +315,19 @@
 
                 </LinearLayout>
 
-                <!-- Bouton Paramètres -->
+                <!-- Ligne 2 : Filtrage apps (nouveau) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📱 Filtrage par application"
+                    android:textSize="12sp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="@color/orange"
+                    android:textColor="@color/orange"
+                    android:layout_marginTop="8dp"/>
+
+                <!-- Ligne 3 : Paramètres -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSettings"
                     android:layout_width="match_parent"

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- RulesEditorActivity -->
+    <string name="rules_editor_title">Règles personnalisées</string>
+    <string name="rules_tab_text">Éditeur texte</string>
+    <string name="rules_tab_list">Liste</string>
+
+    <!-- Onglet texte -->
+    <string name="rules_text_hint">Une règle par ligne. Syntaxe AdGuard (||domaine^) ou regex (regex:pattern)</string>
+    <string name="rules_text_placeholder">||ads.example.com^\n@@||safe.example.com^\nregex:.*\\.spy\\..*</string>
+    <string name="rules_text_stats">%1$d blocage(s) · %2$d autorisation(s) · %3$d ligne(s) ignorée(s)</string>
+    <string name="rules_apply">Appliquer les règles</string>
+    <string name="rules_no_valid_rules">Aucune règle valide trouvée</string>
+    <string name="rules_apply_confirm_title">Remplacer les règles ?</string>
+    <string name="rules_apply_confirm_msg">%1$d règle(s) valide(s). %2$d ligne(s) ignorée(s).\n\nToutes les règles existantes seront remplacées.</string>
+    <string name="rules_applied">%1$d règle(s) appliquée(s)</string>
+
+    <!-- Onglet liste -->
+    <string name="rules_list_stats">%1$d blocage(s) · %2$d autorisation(s) actifs · %3$d au total</string>
+    <string name="rules_add_rule">Ajouter une règle</string>
+
+    <!-- Dialogue ajout/édition -->
+    <string name="rules_add_title">Nouvelle règle</string>
+    <string name="rules_edit_title">Modifier la règle</string>
+    <string name="rules_pattern_label">Pattern</string>
+    <string name="rules_pattern_hint">ex: ads.example.com</string>
+    <string name="rules_type_label">Type</string>
+    <string name="rules_action_label">Action</string>
+    <string name="rules_comment_label">Commentaire (optionnel)</string>
+    <string name="rules_comment_hint">ex: Bloque les pubs Amazon</string>
+
+    <!-- Suppression -->
+    <string name="rules_delete_title">Supprimer la règle ?</string>
+    <string name="rules_delete_msg">La règle « %1$s » sera supprimée.</string>
+    <string name="rules_clear_title">Tout effacer ?</string>
+    <string name="rules_clear_msg">Toutes les règles personnalisées seront supprimées.</string>
+
+    <!-- Aide -->
+    <string name="rules_help_title">Syntaxe des règles</string>
+    <string name="rules_help_content">AdGuard / uBlock :\n\n  ||domaine^  →  bloque domaine et sous-domaines\n  @@||domaine^  →  autorise\n  ||*.tracker.net^  →  wildcard\n\nRegex :\n\n  regex:.*\\.ad\\..*\n  @@regex:.*\\.safe\\.\n\nCommentaires : # ou !\n\nPriorité :\nForce-block › Jamais bloquer › Autoriser (user) › Bloquer (user) › Whitelist › Listes</string>
+
+    <!-- Boutons communs spécifiques rules (les autres existent déjà : common_delete, common_edit, common_save, common_cancel) -->
+    <string name="rules_apply_btn">Appliquer</string>
+
+</resources>

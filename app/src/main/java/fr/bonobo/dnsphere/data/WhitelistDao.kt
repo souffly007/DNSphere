@@ -15,8 +15,7 @@ interface WhitelistDao {
     @Query("SELECT * FROM whitelist WHERE forceBlock = 0 ORDER BY addedAt DESC")
     fun getAll(): LiveData<List<WhitelistItem>>
 
-    // ← NOUVEAU : observer les forceBlock séparément
-    @Query("SELECT * FROM whitelist WHERE forceBlock = 1 ORDER BY addedAt DESC")
+     @Query("SELECT * FROM whitelist WHERE forceBlock = 1 ORDER BY addedAt DESC")
     fun getAllForceBlockedLive(): LiveData<List<WhitelistItem>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM whitelist WHERE domain = :domain AND forceBlock = 0)")
@@ -25,7 +24,6 @@ interface WhitelistDao {
     @Query("SELECT * FROM whitelist WHERE forceBlock = 0")
     suspend fun getAllSync(): List<WhitelistItem>
 
-    // ← NOUVEAU : récupérer tous les forceBlock pour BlockListManager
     @Query("SELECT * FROM whitelist WHERE forceBlock = 1")
     suspend fun getAllForceBlocked(): List<WhitelistItem>
 

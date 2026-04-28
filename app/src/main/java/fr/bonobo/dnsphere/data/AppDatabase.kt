@@ -20,11 +20,13 @@ import kotlinx.coroutines.launch
         ExcludedApp::class,
         ExternalList::class,
         ExternalListDomain::class,
-        // Schedule::class,  ← COMMENTÉ OU SUPPRIMÉ
         Profile::class,
-        ParentalControl::class
+        ParentalControl::class,
+        UserRule::class,
+        AppRule::class,
+        ProfileSchedule::class
     ],
-    version = 8,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,19 +37,20 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customListDao(): CustomListDao
     abstract fun excludedAppDao(): ExcludedAppDao
     abstract fun externalListDao(): ExternalListDao
-    // abstract fun scheduleDao(): ScheduleDao  ← SUPPRIMEZ AUSSI CETTE LIGNE
     abstract fun profileDao(): ProfileDao
     abstract fun parentalControlDao(): ParentalControlDao
+    abstract fun userRuleDao(): UserRuleDao
+    abstract fun appRuleDao(): AppRuleDao
+    abstract fun profileScheduleDao(): ProfileScheduleDao
 
     companion object {
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        // Migration 5 → 6 : ajout table parental_control
         private val MIGRATION_5_6 = object : Migration(5, 6) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
                     CREATE TABLE IF NOT EXISTS parental_control (
                         id INTEGER PRIMARY KEY NOT NULL DEFAULT 1,
                         pinHash TEXT NOT NULL DEFAULT '',
@@ -68,19 +71,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        // Migration 6 → 7 : vide, réservée
         private val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Rien pour l'instant
-            }
+            override fun migrate(db: SupportSQLiteDatabase) { }
         }
 
-        // Migration 7 → 8 : ajout forceBlock + suppression colonne note
-        // SQLite ne supporte pas DROP COLUMN → on recrée la table
         private val MIGRATION_7_8 = object : Migration(7, 8) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // 1. Créer la nouvelle table avec le bon schéma
-                database.execSQL("""
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
                     CREATE TABLE IF NOT EXISTS whitelist_new (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         domain TEXT NOT NULL,
@@ -88,15 +85,65 @@ abstract class AppDatabase : RoomDatabase() {
                         forceBlock INTEGER NOT NULL DEFAULT 0
                     )
                 """.trimIndent())
-                // 2. Copier les données existantes (sans la colonne note)
-                database.execSQL("""
+                db.execSQL("""
                     INSERT INTO whitelist_new (id, domain, addedAt, forceBlock)
                     SELECT id, domain, addedAt, 0 FROM whitelist
                 """.trimIndent())
-                // 3. Supprimer l'ancienne table
-                database.execSQL("DROP TABLE whitelist")
-                // 4. Renommer la nouvelle
-                database.execSQL("ALTER TABLE whitelist_new RENAME TO whitelist")
+                db.execSQL("DROP TABLE whitelist")
+                db.execSQL("ALTER TABLE whitelist_new RENAME TO whitelist")
+            }
+        }
+
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS user_rules (
+                        id        INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        pattern   TEXT    NOT NULL,
+                        type      TEXT    NOT NULL,
+                        action    TEXT    NOT NULL,
+                        enabled   INTEGER NOT NULL DEFAULT 1,
+                        comment   TEXT    NOT NULL DEFAULT '',
+                        createdAt INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS app_rules (
+                        uid         INTEGER PRIMARY KEY NOT NULL,
+                        packageName TEXT    NOT NULL,
+                        appName     TEXT    NOT NULL,
+                        rule        TEXT    NOT NULL,
+                        customDns   TEXT    NOT NULL DEFAULT '',
+                        createdAt   INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+
+        // Migration 10 → 11 : ajout table profile_schedules
+        private val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS profile_schedules (
+                        id          INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        profileId   INTEGER NOT NULL,
+                        label       TEXT    NOT NULL DEFAULT '',
+                        startHour   INTEGER NOT NULL,
+                        startMinute INTEGER NOT NULL,
+                        endHour     INTEGER NOT NULL,
+                        endMinute   INTEGER NOT NULL,
+                        activeDays  INTEGER NOT NULL DEFAULT 127,
+                        enabled     INTEGER NOT NULL DEFAULT 1,
+                        createdAt   INTEGER NOT NULL,
+                        FOREIGN KEY (profileId) REFERENCES profiles(id) ON DELETE CASCADE
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_profile_schedules_profileId ON profile_schedules(profileId)")
             }
         }
 
@@ -110,7 +157,10 @@ abstract class AppDatabase : RoomDatabase() {
                     .addMigrations(
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9,
+                        MIGRATION_9_10,
+                        MIGRATION_10_11
                     )
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {

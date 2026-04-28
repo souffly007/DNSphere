@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rules_pattern_label"
+        android:textAppearance="?attr/textAppearanceCaption" />
+
+    <EditText
+        android:id="@+id/editPattern"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:hint="@string/rules_pattern_hint"
+        android:inputType="textNoSuggestions" />
+
+    <TextView
+        android:id="@+id/tvPreview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:paddingBottom="12dp"
+        android:fontFamily="monospace"
+        android:textSize="12sp"
+        android:textColor="?attr/colorPrimary" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rules_type_label"
+        android:textAppearance="?attr/textAppearanceCaption" />
+
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rules_action_label"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:paddingTop="8dp" />
+
+    <Spinner
+        android:id="@+id/spinnerAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rules_comment_label"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:paddingTop="8dp" />
+
+    <EditText
+        android:id="@+id/editComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/rules_comment_hint"
+        android:inputType="text" />
+
+</LinearLayout>

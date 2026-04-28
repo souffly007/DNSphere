@@ -86,6 +86,13 @@
 
     </PreferenceCategory>
 
+    <Preference
+        android:key="user_rules"
+        android:title="Règles personnalisées"
+        android:summary="Bloquer ou autoriser des domaines (AdGuard, Regex)"
+        app:iconSpaceReserved="false"/>
+
+
     <!-- SAUVEGARDE & RESTAURATION -->
     <PreferenceCategory
         android:title="Données"> <Preference

@@ -3,6 +3,7 @@ package fr.bonobo.dnsphere
 import android.content.Context
 import android.util.Log
 import fr.bonobo.dnsphere.data.AppDatabase
+import fr.bonobo.dnsphere.data.UserRule
 import kotlinx.coroutines.runBlocking
 
 class BlockListManager(private val context: Context) {
@@ -21,9 +22,14 @@ class BlockListManager(private val context: Context) {
 
     // =========================================================================
     // 🚫 BLOCAGE FORCÉ — priorité absolue, écrase neverBlockDomains et whitelist
-    // Alimenté par WhitelistActivity en mode "blocage forcé"
     // =========================================================================
     private val forceBlockDomains = mutableSetOf<String>()
+
+    // =========================================================================
+    // 📋 RÈGLES UTILISATEUR (AdGuard / Regex)
+    // Priorité : forceBlock > neverBlock > USER_ALLOW > USER_BLOCK > whitelist > listes
+    // =========================================================================
+    private var userRules: List<UserRule> = emptyList()
 
     // =========================================================================
     // 🛡️ DOMAINES CRITIQUES À NE JAMAIS BLOQUER
@@ -240,7 +246,8 @@ class BlockListManager(private val context: Context) {
         loadCustomLists()
         loadExternalLists()
         loadWhitelist()
-        loadForceBlockList()   // ← NOUVEAU
+        loadForceBlockList()
+        loadUserRules()
         Log.d(TAG, "BlockListManager initialisé: ${getStats()}")
     }
 
@@ -255,10 +262,6 @@ class BlockListManager(private val context: Context) {
         loadShoppingDomains()
     }
 
-    /**
-     * Charge les domaines à blocage forcé depuis la table whitelist
-     * avec le flag forceBlock = true.
-     */
     fun loadForceBlockList() {
         runBlocking {
             try {
@@ -268,6 +271,17 @@ class BlockListManager(private val context: Context) {
                 Log.d(TAG, "ForceBlock chargé: ${forceBlockDomains.size} domaines")
             } catch (e: Exception) {
                 Log.e(TAG, "Erreur chargement forceBlock: ${e.message}")
+            }
+        }
+    }
+
+    fun loadUserRules() {
+        runBlocking {
+            try {
+                userRules = database.userRuleDao().getEnabledRules()
+                Log.d(TAG, "UserRules chargées: ${userRules.size} règles actives")
+            } catch (e: Exception) {
+                Log.e(TAG, "Erreur chargement user rules: ${e.message}")
             }
         }
     }
@@ -300,7 +314,6 @@ class BlockListManager(private val context: Context) {
             try {
                 val items = database.whitelistDao().getAllSync()
                 whitelistedDomains.clear()
-                // N'inclure dans la whitelist que les entrées NON forceBlock
                 whitelistedDomains.addAll(items.filter { !it.forceBlock }.map { it.domain })
             } catch (e: Exception) { }
         }
@@ -310,13 +323,6 @@ class BlockListManager(private val context: Context) {
     // VÉRIFICATION DES DOMAINES
     // =========================================================================
 
-    /**
-     * Ordre de priorité :
-     * 1. forceBlock  → TOUJOURS bloqué (écrase neverBlock et whitelist)
-     * 2. neverBlock  → jamais bloqué
-     * 3. whitelist   → jamais bloqué
-     * 4. listes de blocage normales
-     */
     fun isForceBlocked(hostname: String): Boolean {
         val domain = hostname.lowercase()
         return forceBlockDomains.any { domain == it || domain.endsWith(".$it") }
@@ -325,13 +331,18 @@ class BlockListManager(private val context: Context) {
     fun isWhitelisted(hostname: String): Boolean {
         val domain = hostname.lowercase()
 
-        // forceBlock écrase tout — pas whitelisté si forcé
+        // 1. forceBlock écrase tout
         if (isForceBlocked(domain)) return false
 
-        // Domaines critiques système
+        // 2. Domaines critiques système — jamais bloqués
         if (neverBlockDomains.any { domain == it || domain.endsWith(".$it") }) return true
 
-        // Whitelist utilisateur
+        // 3. Règles utilisateur — USER_ALLOW autorise, USER_BLOCK refuse la whitelist
+        val userResult = RulesEngine.evaluate(domain, userRules)
+        if (userResult == RulesEngine.MatchResult.ALLOW) return true
+        if (userResult == RulesEngine.MatchResult.BLOCK) return false
+
+        // 4. Whitelist utilisateur standard
         return whitelistedDomains.any { domain == it || domain.endsWith(".$it") }
     }
 
@@ -367,19 +378,40 @@ class BlockListManager(private val context: Context) {
     }
 
     fun shouldBlock(hostname: String): Boolean {
-        // forceBlock en priorité absolue
+        // 1. forceBlock — priorité absolue
         if (isForceBlocked(hostname)) return true
-        if (isWhitelisted(hostname))  return false
+
+        val domain = hostname.lowercase()
+
+        // 2. neverBlock — jamais bloqué
+        if (neverBlockDomains.any { domain == it || domain.endsWith(".$it") }) return false
+
+        // 3. Règles utilisateur
+        val userResult = RulesEngine.evaluate(domain, userRules)
+        if (userResult == RulesEngine.MatchResult.ALLOW) return false
+        if (userResult == RulesEngine.MatchResult.BLOCK) return true
+
+        // 4. Whitelist standard
+        if (isWhitelisted(hostname)) return false
+
+        // 5. Listes built-in
         return isAd(hostname) || isTracker(hostname) ||
                 isMalware(hostname) || isShopping(hostname) ||
                 isExternalBlocked(hostname)
     }
 
     fun getBlockType(hostname: String): BlockType {
-        // forceBlock prime sur tout
         if (isForceBlocked(hostname)) return BlockType.FORCE_BLOCKED
-        if (isWhitelisted(hostname))  return BlockType.WHITELISTED
+
         val domain = hostname.lowercase()
+
+        // Règles utilisateur avant la whitelist
+        val userResult = RulesEngine.evaluate(domain, userRules)
+        if (userResult == RulesEngine.MatchResult.BLOCK) return BlockType.USER_BLOCKED
+        if (userResult == RulesEngine.MatchResult.ALLOW) return BlockType.USER_ALLOWED
+
+        if (isWhitelisted(hostname)) return BlockType.WHITELISTED
+
         return when {
             adDomains.any       { domain == it || domain.endsWith(".$it") } -> BlockType.AD
             trackerDomains.any  { domain == it || domain.endsWith(".$it") } -> BlockType.TRACKER
@@ -399,7 +431,8 @@ class BlockListManager(private val context: Context) {
         loadCustomLists()
         loadExternalLists()
         loadWhitelist()
-        loadForceBlockList()   // ← NOUVEAU
+        loadForceBlockList()
+        loadUserRules()
         Log.d(TAG, "BlockListManager rafraîchi: ${getStats()}")
     }
 
@@ -412,7 +445,8 @@ class BlockListManager(private val context: Context) {
             externalDomains = externalDomains.size,
             customDomains   = customDomains.size,
             whitelisted     = whitelistedDomains.size,
-            forceBlocked    = forceBlockDomains.size,   // ← NOUVEAU
+            forceBlocked    = forceBlockDomains.size,
+            userRules       = userRules.size,
             neverBlocked    = neverBlockDomains.size
         )
     }
@@ -425,7 +459,8 @@ class BlockListManager(private val context: Context) {
         val externalDomains: Int,
         val customDomains:   Int,
         val whitelisted:     Int,
-        val forceBlocked:    Int,   // ← NOUVEAU
+        val forceBlocked:    Int,
+        val userRules:       Int,
         val neverBlocked:    Int
     ) {
         val totalBuiltIn: Int get() = builtInAds + builtInTrackers + builtInMalware + builtInShopping
@@ -433,17 +468,20 @@ class BlockListManager(private val context: Context) {
 
         override fun toString() =
             "Stats(builtIn=$totalBuiltIn, external=$externalDomains, custom=$customDomains, " +
-                    "whitelist=$whitelisted, forceBlocked=$forceBlocked, neverBlocked=$neverBlocked, TOTAL=$total)"
+                    "whitelist=$whitelisted, forceBlocked=$forceBlocked, userRules=$userRules, " +
+                    "neverBlocked=$neverBlocked, TOTAL=$total)"
     }
 
     enum class BlockType {
         NONE, AD, TRACKER, MALWARE, SHOPPING, EXTERNAL, CUSTOM,
         WHITELISTED,
-        FORCE_BLOCKED   // ← NOUVEAU
+        FORCE_BLOCKED,
+        USER_BLOCKED,
+        USER_ALLOWED
     }
 
     // =========================================================================
-    // LISTES AD/TRACKER/MALWARE/SHOPPING (inchangées)
+    // LISTES AD/TRACKER/MALWARE/SHOPPING
     // =========================================================================
 
     private fun loadAdDomains() {

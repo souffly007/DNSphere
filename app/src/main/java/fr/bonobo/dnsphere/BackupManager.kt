@@ -81,7 +81,7 @@ class BackupManager(private val context: Context) {
     }
 
     private fun buildMetadata(): String {
-        val stats = database.externalListDao()
+        database.externalListDao()
         return JSONObject().apply {
             put("version", BACKUP_VERSION)
             put("date",    System.currentTimeMillis())
@@ -123,7 +123,7 @@ class BackupManager(private val context: Context) {
             array.put(JSONObject().apply {
                 put("name",        list.name)
                 put("url",         list.url)
-                put("description", list.description ?: "")
+                put("description", list.description)
                 put("category",    list.category.name)
                 put("format",      list.format.name)
                 put("enabled",     list.enabled)

@@ -1,8 +1,8 @@
-// DohResolver.kt - CORRECTION
 package fr.bonobo.dnsphere.dns
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,84 +10,104 @@ import java.io.ByteArrayOutputStream
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class DohResolver private constructor() {
+class DohResolver private constructor(context: Context) {
 
     companion object {
         const val TAG = "DohResolver"
 
-        // ✅ CORRECTION : Utiliser les MÊMES prefs que MainActivity
-        private const val PREFS_NAME = "vpn_prefs"  // <-- Changé !
-        private const val KEY_PROVIDER = "doh_provider"
+        private const val PREFS_NAME = "dnsphere_prefs"
+        private const val KEY_PROVIDER = "current_dns_provider"
         private const val DEFAULT_PROVIDER = "cloudflare"
 
         val PROVIDERS = mapOf(
             "cloudflare" to "https://cloudflare-dns.com/dns-query",
             "google" to "https://dns.google/dns-query",
-            "quad9" to "https://dns.quad9.net:5053/dns-query",
+            "quad9" to "https://dns.quad9.net/dns-query",
             "adguard" to "https://dns.adguard.com/dns-query"
         )
 
         @Volatile
         private var instance: DohResolver? = null
-        private var prefs: SharedPreferences? = null
 
         fun getInstance(context: Context): DohResolver {
-            if (prefs == null) {
-                // ✅ Utiliser MODE_PRIVATE et le même nom de prefs
-                prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            }
             return instance ?: synchronized(this) {
-                instance ?: DohResolver().also { instance = it }
+                instance ?: DohResolver(context.applicationContext).also { instance = it }
             }
-        }
-
-        fun getInstance(): DohResolver {
-            return instance ?: DohResolver().also { instance = it }
         }
     }
 
     var enabled = true
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private var currentProviderName: String = DEFAULT_PROVIDER
+    private var currentUrl: String = PROVIDERS[DEFAULT_PROVIDER]!!
 
-    var currentProvider: String
-        get() {
-            val provider = prefs?.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER
-            Log.d(TAG, "📖 Reading provider from prefs: $provider")
-            return provider
+    init {
+        loadCurrentConfig()
+    }
+
+    private fun loadCurrentConfig() {
+        val savedProvider = prefs.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER
+        currentProviderName = savedProvider
+        currentUrl = PROVIDERS[savedProvider] ?: PROVIDERS[DEFAULT_PROVIDER]!!
+        Log.d(TAG, "⚙️ Config chargée: $currentProviderName ($currentUrl)")
+    }
+
+    private fun saveCurrentConfig() {
+        prefs.edit().putString(KEY_PROVIDER, currentProviderName).commit()
+        Log.d(TAG, "💾 Config sauvegardée: $currentProviderName")
+    }
+
+    fun setProvider(provider: String) {
+        val normalizedProvider = provider.lowercase().trim()
+        if (PROVIDERS.containsKey(normalizedProvider)) {
+            currentProviderName = normalizedProvider
+            currentUrl = PROVIDERS[normalizedProvider]!!
+            saveCurrentConfig()
+            Log.d(TAG, "🔄 Provider changé: $normalizedProvider -> $currentUrl")
+        } else {
+            Log.w(TAG, "⚠️ Provider inconnu ignoré: $provider")
         }
-        set(value) {
-            if (PROVIDERS.containsKey(value)) {
-                prefs?.edit()?.putString(KEY_PROVIDER, value)?.commit()
-                Log.d(TAG, "💾 Saved provider to prefs: $value")
-            } else {
-                Log.w(TAG, "⚠️ Unknown provider ignored: $value")
-            }
+    }
+
+    fun getProviderName(): String {
+        return when (currentProviderName) {
+            "cloudflare" -> "Cloudflare"
+            "google" -> "Google"
+            "quad9" -> "Quad9"
+            "adguard" -> "AdGuard"
+            else -> currentProviderName.replaceFirstChar { it.uppercase() }
         }
+    }
+
+    fun getProviderUrl(): String {
+        return currentUrl
+    }
 
     suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
-        if (!enabled) return null
+        if (!enabled) {
+            Log.d(TAG, "⏭️ DoH désactivé")
+            return null
+        }
 
         return withContext(Dispatchers.IO) {
             try {
-                val providerKey = currentProvider
-                val url = PROVIDERS[providerKey] ?: PROVIDERS[DEFAULT_PROVIDER]!!
+                Log.d(TAG, "🌐 Requête DoH vers $currentProviderName ($currentUrl)")
 
-                Log.d(TAG, "🌐 DoH Request: $providerKey -> $url")
+                // Encoder la requête DNS en base64 URL-safe
+                val base64Query = Base64.encodeToString(
+                    dnsQuery,
+                    Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+                )
 
-                val connection = URL(url).openConnection() as HttpsURLConnection
+                // Construire l'URL avec le paramètre dns
+                val requestUrl = "$currentUrl?dns=$base64Query"
 
-                connection.apply {
-                    requestMethod = "POST"
-                    setRequestProperty("Content-Type", "application/dns-message")
-                    setRequestProperty("Accept", "application/dns-message")
-                    doOutput = true
-                    connectTimeout = 5000
-                    readTimeout = 5000
-                }
+                val connection = URL(requestUrl).openConnection() as HttpsURLConnection
 
-                connection.outputStream.use { output ->
-                    output.write(dnsQuery)
-                    output.flush()
-                }
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("Accept", "application/dns-message")
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
 
                 if (connection.responseCode == HttpsURLConnection.HTTP_OK) {
                     val response = connection.inputStream.use { input ->
@@ -100,14 +120,15 @@ class DohResolver private constructor() {
                         buffer.toByteArray()
                     }
                     connection.disconnect()
-                    Log.d(TAG, "✅ DoH Response OK from $providerKey")
+                    Log.d(TAG, "✅ Réponse DoH OK (${response.size} bytes)")
                     return@withContext response
                 }
 
+                Log.w(TAG, "❌ Réponse DoH error: ${connection.responseCode}")
                 connection.disconnect()
                 null
             } catch (e: Exception) {
-                Log.e(TAG, "❌ DoH failed", e)
+                Log.e(TAG, "❌ Échec DoH: ${e.message}", e)
                 null
             }
         }
@@ -116,30 +137,11 @@ class DohResolver private constructor() {
     fun createBlockedResponse(originalQuery: ByteArray): ByteArray {
         val response = originalQuery.copyOf()
         response[2] = (response[2].toInt() or 0x80).toByte()
-        response[2] = (response[2].toInt() or 0x04).toByte()
         response[3] = (response[3].toInt() and 0xF0 or 0x03).toByte()
         return response
     }
 
     fun createNullRouteResponse(originalQuery: ByteArray): ByteArray {
         return createBlockedResponse(originalQuery)
-    }
-
-    fun setProvider(provider: String) {
-        currentProvider = provider
-    }
-
-    fun getProviderName(): String {
-        return when (currentProvider) {
-            "cloudflare" -> "Cloudflare"
-            "google" -> "Google"
-            "quad9" -> "Quad9"
-            "adguard" -> "AdGuard"
-            else -> currentProvider.replaceFirstChar { it.uppercase() }
-        }
-    }
-
-    fun getProviderUrl(): String {
-        return PROVIDERS[currentProvider] ?: PROVIDERS[DEFAULT_PROVIDER]!!
     }
 }

@@ -13,7 +13,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.5"
+        versionName = "1.5c"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -21,7 +21,7 @@ android {
     // ON REGROUPE TOUT ICI
     buildFeatures {
         viewBinding = true
-        buildConfig = true // <--- C'est CETTE ligne qui manquait !
+        buildConfig = true
     }
 
     buildTypes {
@@ -59,6 +59,10 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
+
+    // Cronet — moteur QUIC pour DoQ + DoH3
+    implementation("com.google.android.gms:play-services-cronet:18.0.1")
+    implementation("org.chromium.net:cronet-api:119.6045.31")
 
     // Preferences
     implementation("androidx.preference:preference-ktx:1.2.1")

@@ -142,4 +142,12 @@
         app:tint="@android:color/white"
         app:backgroundTint="@color/green"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Programmation"
+        android:icon="@drawable/ic_schedule" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

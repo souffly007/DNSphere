@@ -6,8 +6,8 @@ class StatsRepository(private val blockLogDao: BlockLogDao) {
 
     // 1. Fonction de nettoyage (à appeler pour remettre à zéro ce qui a plus de 7 jours)
     suspend fun clearOldStats() {
-        val sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
-        blockLogDao.deleteOldLogs(sevenDaysAgo)
+        val fourDaysAgo = System.currentTimeMillis() - (4 * 24 * 60 * 60 * 1000L)
+        blockLogDao.deleteOldLogs(fourDaysAgo)
     }
 
     suspend fun getStats(period: StatsPeriod): StatsData {

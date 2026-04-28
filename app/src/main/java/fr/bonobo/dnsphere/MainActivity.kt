@@ -19,16 +19,14 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.security.BiometricHelper
 import fr.bonobo.dnsphere.security.ProtectedAction
-import fr.bonobo.dnsphere.ui.LogsActivity
-import fr.bonobo.dnsphere.ui.SettingsActivity
-import fr.bonobo.dnsphere.ui.WhitelistActivity
+import fr.bonobo.dnsphere.ui.*
 import fr.bonobo.dnsphere.widget.DnsphereWidget
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val GITHUB_URL = "https://github.com/souffly007/DNSphere"
-        const val DEVELOPER_URL = "https://github.com/souffly007"
+        const val GITHUB_URL     = "https://github.com/souffly007/DNSphere"
+        const val DEVELOPER_URL  = "https://github.com/souffly007"
         const val DEVELOPER_NAME = "souffly007"
     }
 
@@ -61,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        database = AppDatabase.getInstance(this)
+        database       = AppDatabase.getInstance(this)
         biometricHelper = BiometricHelper.getInstance(this)
 
         initViews()
@@ -69,6 +67,9 @@ class MainActivity : AppCompatActivity() {
         loadPreferences()
         loadCurrentStats()
         observeStats()
+
+        // Démarrage du watchdog — surveille le VPN toutes les 15 min
+        WatchdogWorker.start(this)
 
         if (intent.getBooleanExtra("auto_start", false) && !LocalVpnService.isRunning) {
             requestVpnPermission()
@@ -80,36 +81,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        btnToggle = findViewById(R.id.btnToggle)
-        tvStatus = findViewById(R.id.tvStatus)
-        tvAdsBlocked = findViewById(R.id.tvAdsBlocked)
+        btnToggle         = findViewById(R.id.btnToggle)
+        tvStatus          = findViewById(R.id.tvStatus)
+        tvAdsBlocked      = findViewById(R.id.tvAdsBlocked)
         tvTrackersBlocked = findViewById(R.id.tvTrackersBlocked)
-        tvCreatedBy = findViewById(R.id.tvCreatedBy)
-        switchAds = findViewById(R.id.switchAds)
-        switchTrackers = findViewById(R.id.switchTrackers)
-        switchMalware = findViewById(R.id.switchMalware)
+        tvCreatedBy       = findViewById(R.id.tvCreatedBy)
+        switchAds         = findViewById(R.id.switchAds)
+        switchTrackers    = findViewById(R.id.switchTrackers)
+        switchMalware     = findViewById(R.id.switchMalware)
 
         tvCreatedBy.text = getString(R.string.created_by, DEVELOPER_NAME)
     }
 
     private fun observeStats() {
-        // Correction : utiliser vpnStats au lieu de stats
         StatsLiveData.vpnStats.observe(this) { stats ->
-            tvAdsBlocked.text = stats.adsBlocked.toString()
+            tvAdsBlocked.text      = stats.adsBlocked.toString()
             tvTrackersBlocked.text = stats.trackersBlocked.toString()
             saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)
-
             Log.d("MainActivity", "📊 Stats reçues: Pubs=${stats.adsBlocked}, Trackers=${stats.trackersBlocked}")
         }
     }
 
     private fun setupListeners() {
         btnToggle.setOnClickListener {
-            if (isVpnRunning) {
-                stopVpnService()
-            } else {
-                requestVpnPermission()
-            }
+            if (isVpnRunning) stopVpnService() else requestVpnPermission()
         }
 
         switchAds.setOnCheckedChangeListener { _, isChecked ->
@@ -127,7 +122,7 @@ class MainActivity : AppCompatActivity() {
             updateServiceConfig()
         }
 
-        findViewById<View>(R.id.cardStats).setOnClickListener {
+                findViewById<View>(R.id.cardStats).setOnClickListener {
             startActivity(Intent(this, LogsActivity::class.java))
         }
 
@@ -143,6 +138,10 @@ class MainActivity : AppCompatActivity() {
             openSettings()
         }
 
+        findViewById<MaterialButton>(R.id.btnApps).setOnClickListener {
+            startActivity(Intent(this, AppsActivity::class.java))
+        }
+
         findViewById<TextView>(R.id.tvGitHub)?.setOnClickListener {
             openUrl(GITHUB_URL)
         }
@@ -155,12 +154,10 @@ class MainActivity : AppCompatActivity() {
     private fun openSettings() {
         if (biometricHelper.isAuthRequired(ProtectedAction.ACCESS_SETTINGS)) {
             biometricHelper.authenticateForAction(
-                activity = this,
-                action = ProtectedAction.ACCESS_SETTINGS,
-                onSuccess = {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                },
-                onCancel = { }
+                activity  = this,
+                action    = ProtectedAction.ACCESS_SETTINGS,
+                onSuccess = { startActivity(Intent(this, SettingsActivity::class.java)) },
+                onCancel  = { }
             )
         } else {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -169,8 +166,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openUrl(url: String) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (e: Exception) {
             Toast.makeText(this, R.string.cannot_open_link, Toast.LENGTH_SHORT).show()
         }
@@ -178,43 +174,46 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
-        if (intent != null) {
-            vpnPermissionLauncher.launch(intent)
-        } else {
-            startVpnService()
-        }
+        if (intent != null) vpnPermissionLauncher.launch(intent)
+        else startVpnService()
     }
 
     private fun startVpnService() {
-        val prefs = getSharedPreferences("vpn_prefs", MODE_PRIVATE)
+        val prefs    = getSharedPreferences("vpn_prefs", MODE_PRIVATE)
+        val dnsPrefs = getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
 
         val intent = Intent(this, LocalVpnService::class.java).apply {
             action = LocalVpnService.ACTION_START
-            putExtra("block_ads", prefs.getBoolean("block_ads", true))
+            putExtra("block_ads",      prefs.getBoolean("block_ads",      true))
             putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
-            putExtra("block_malware", prefs.getBoolean("block_malware", true))
-            putExtra("block_social", prefs.getBoolean("block_social", false))
-            putExtra("block_adult", prefs.getBoolean("block_adult", false))
+            putExtra("block_malware",  prefs.getBoolean("block_malware",  true))
+            putExtra("block_social",   prefs.getBoolean("block_social",   false))
+            putExtra("block_adult",    prefs.getBoolean("block_adult",    false))
             putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
-            putExtra("use_doh", prefs.getBoolean("use_doh", false))
-            putExtra("doh_provider", prefs.getString("doh_provider", "cloudflare"))
+            putExtra("use_doh",        dnsPrefs.getBoolean("use_doh",     false))
+            putExtra("use_dot",        dnsPrefs.getBoolean("use_dot",     false))
+            putExtra("use_doq",        dnsPrefs.getBoolean("use_doq",     false))
+            putExtra("use_doh3",       dnsPrefs.getBoolean("use_doh3",    false))
+            putExtra("doh_provider",   dnsPrefs.getString("current_dns_provider", "cloudflare"))
         }
+
         ContextCompat.startForegroundService(this, intent)
+
+        // Mémoriser que l'utilisateur veut le VPN actif → pour le watchdog
+        setVpnShouldRun(true)
+
         updateUI(true)
         DnsphereWidget.updateWidget(this)
-
         Toast.makeText(this, R.string.protection_started, Toast.LENGTH_SHORT).show()
     }
 
     private fun stopVpnService() {
         if (biometricHelper.isAuthRequired(ProtectedAction.DISABLE_VPN)) {
             biometricHelper.authenticateForAction(
-                activity = this,
-                action = ProtectedAction.DISABLE_VPN,
-                onSuccess = {
-                    doStopVpnService()
-                },
-                onCancel = { }
+                activity  = this,
+                action    = ProtectedAction.DISABLE_VPN,
+                onSuccess = { doStopVpnService() },
+                onCancel  = { }
             )
         } else {
             doStopVpnService()
@@ -226,15 +225,27 @@ class MainActivity : AppCompatActivity() {
             action = LocalVpnService.ACTION_STOP
         }
         startService(intent)
+
+        // L'utilisateur a volontairement arrêté → le watchdog ne relance pas
+        setVpnShouldRun(false)
+
         updateUI(false)
         DnsphereWidget.updateWidget(this)
-
         Toast.makeText(this, R.string.protection_stopped, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Indique au watchdog si le VPN doit être actif ou non.
+     */
+    private fun setVpnShouldRun(shouldRun: Boolean) {
+        getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
+            .edit()
+            .putBoolean("vpn_should_be_running", shouldRun)
+            .apply()
     }
 
     private fun updateUI(running: Boolean) {
         isVpnRunning = running
-
         if (running) {
             btnToggle.text = getString(R.string.status_on)
             btnToggle.setBackgroundColor(getColor(R.color.green))
@@ -249,51 +260,48 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateServiceConfig() {
-        if (isVpnRunning) {
-            val prefs = getSharedPreferences("vpn_prefs", MODE_PRIVATE)
-            val intent = Intent(this, LocalVpnService::class.java).apply {
-                action = LocalVpnService.ACTION_UPDATE_CONFIG
-                putExtra("block_ads", prefs.getBoolean("block_ads", true))
-                putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
-                putExtra("block_malware", prefs.getBoolean("block_malware", true))
-                putExtra("block_social", prefs.getBoolean("block_social", false))
-                putExtra("block_adult", prefs.getBoolean("block_adult", false))
-                putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
-                putExtra("use_doh", prefs.getBoolean("use_doh", false))
-                putExtra("doh_provider", prefs.getString("doh_provider", "cloudflare"))
-            }
-            startService(intent)
+        if (!isVpnRunning) return
+        val prefs    = getSharedPreferences("vpn_prefs", MODE_PRIVATE)
+        val dnsPrefs = getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
+        val intent   = Intent(this, LocalVpnService::class.java).apply {
+            action = LocalVpnService.ACTION_UPDATE_CONFIG
+            putExtra("block_ads",      prefs.getBoolean("block_ads",      true))
+            putExtra("block_trackers", prefs.getBoolean("block_trackers", true))
+            putExtra("block_malware",  prefs.getBoolean("block_malware",  true))
+            putExtra("block_social",   prefs.getBoolean("block_social",   false))
+            putExtra("block_adult",    prefs.getBoolean("block_adult",    false))
+            putExtra("block_gambling", prefs.getBoolean("block_gambling", false))
+            putExtra("use_doh",        dnsPrefs.getBoolean("use_doh",     false))
+            putExtra("use_dot",        dnsPrefs.getBoolean("use_dot",     false))
+            putExtra("use_doq",        dnsPrefs.getBoolean("use_doq",     false))
+            putExtra("use_doh3",       dnsPrefs.getBoolean("use_doh3",    false))
+            putExtra("doh_provider",   dnsPrefs.getString("current_dns_provider", "cloudflare"))
         }
+        startService(intent)
     }
 
     private fun savePreference(key: String, value: Boolean) {
-        getSharedPreferences("vpn_prefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean(key, value)
-            .apply()
+        getSharedPreferences("vpn_prefs", MODE_PRIVATE).edit().putBoolean(key, value).apply()
     }
 
     private fun loadPreferences() {
         val prefs = getSharedPreferences("vpn_prefs", MODE_PRIVATE)
-        switchAds.isChecked = prefs.getBoolean("block_ads", true)
+        switchAds.isChecked      = prefs.getBoolean("block_ads",      true)
         switchTrackers.isChecked = prefs.getBoolean("block_trackers", true)
-        switchMalware.isChecked = prefs.getBoolean("block_malware", true)
+        switchMalware.isChecked  = prefs.getBoolean("block_malware",  true)
     }
 
     private fun loadCurrentStats() {
-        val prefs = getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
-        val adsBlocked = prefs.getInt("ads_blocked", 0)
+        val prefs           = getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
+        val adsBlocked      = prefs.getInt("ads_blocked", 0)
         val trackersBlocked = prefs.getInt("trackers_blocked", 0)
-
-        tvAdsBlocked.text = adsBlocked.toString()
+        tvAdsBlocked.text      = adsBlocked.toString()
         tvTrackersBlocked.text = trackersBlocked.toString()
-
         Log.d("MainActivity", "📊 Stats chargées: Pubs=$adsBlocked, Trackers=$trackersBlocked")
     }
 
     private fun saveStatsForWidget(ads: Int, trackers: Int) {
-        getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
-            .edit()
+        getSharedPreferences("dnsphere_stats", MODE_PRIVATE).edit()
             .putInt("ads_blocked", ads)
             .putInt("trackers_blocked", trackers)
             .apply()

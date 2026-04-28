@@ -37,10 +37,12 @@
         <activity android:name=".ui.ListManagerActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
         <activity android:name=".ui.AppExcluderActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
         <activity android:name=".ui.ExternalListsActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
-        <activity android:name=".ui.ScheduleActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
         <activity android:name=".ui.ProfilesActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
         <activity android:name=".ui.SecurityActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
         <activity android:name=".ui.BackupActivity" android:label="Sauvegarde" android:parentActivityName=".ui.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.RulesEditorActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity" />
+        <activity android:name=".ui.AppsActivity"/>
+        <activity android:name=".ui.ProfileScheduleActivity"/>
 
         <service
             android:name=".LocalVpnService"

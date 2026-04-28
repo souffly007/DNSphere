@@ -110,7 +110,7 @@ class ExternalListsActivity : AppCompatActivity() {
         val chipGroup    = dialogView.findViewById<ChipGroup>(R.id.chipGroupCategories)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerKnownLists)
 
-        var selectedCategory: ListCategory? = null
+        // 1. On retire le @Suppress et on utilise une variable simple pour les données
         var filteredLists = KnownHostsLists.ALL
 
         val knownAdapter = KnownListAdapter { knownList ->
@@ -128,9 +128,10 @@ class ExternalListsActivity : AppCompatActivity() {
                 isCheckable = true
                 isChecked   = (cat == null)
                 setOnClickListener {
-                    selectedCategory = cat
-                    filteredLists    = if (cat == null) KnownHostsLists.ALL
+                    // 2. On supprime la ligne "selectedCategory = cat" qui ne servait à rien
+                    filteredLists = if (cat == null) KnownHostsLists.ALL
                     else KnownHostsLists.BY_CATEGORY[cat] ?: emptyList()
+
                     knownAdapter.submitList(filteredLists)
                 }
             }

@@ -145,6 +145,17 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
 
+            // ==================== RÈGLES PERSONNALISÉES ====================
+
+            findPreference<Preference>("user_rules")?.setOnPreferenceClickListener {
+                try {
+                    startActivity(Intent(requireContext(), RulesEditorActivity::class.java))
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Fonctionnalité non disponible", Toast.LENGTH_SHORT).show()
+                }
+                true
+            }
+
             // ==================== APPLICATIONS ====================
 
             findPreference<Preference>("excluded_apps")?.setOnPreferenceClickListener {
