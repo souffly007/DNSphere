@@ -111,6 +111,11 @@ class LocalVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("DNSphere", "📥 onStartCommand: action=${intent?.action}")
 
+        // Android 14+ requirement: call startForeground() as soon as possible
+        if (intent?.action == ACTION_START) {
+            startVpnForeground()
+        }
+
         when (intent?.action) {
             ACTION_START -> {
                 loadConfigFromIntent(intent)
@@ -277,10 +282,26 @@ class LocalVpnService : VpnService() {
     // DÉMARRAGE VPN
     // =========================================================================
 
+    private fun startVpnForeground() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(NOTIFICATION_ID, createNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            } else {
+                startForeground(NOTIFICATION_ID, createNotification())
+            }
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is android.app.ForegroundServiceStartNotAllowedException) {
+                Log.e("DNSphere", "❌ Foreground service start not allowed", e)
+            } else {
+                Log.e("DNSphere", "❌ Error starting foreground service", e)
+            }
+        }
+    }
+
     private fun startVpn() {
         if (isRunning) return
 
-        startForeground(NOTIFICATION_ID, createNotification())
+        startVpnForeground()
 
         try {
             val excludedApps = runBlocking {
@@ -637,7 +658,7 @@ class LocalVpnService : VpnService() {
                 action = ACTION_SWITCH_DNS
                 putExtra(EXTRA_DNS_PROVIDER, nextProvider)
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val totalBlocked  = adsBlocked + trackersBlocked + malwareBlocked + shoppingBlocked
         val shortDnsLabel = getShortDnsLabel()
@@ -665,6 +686,12 @@ class LocalVpnService : VpnService() {
         try {
             getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, createNotification())
         } catch (e: Exception) { }
+    }
+
+    override fun onRevoke() {
+        Log.w("DNSphere", "⚠️ VPN révoqué par le système ou une autre app")
+        stopVpn()
+        super.onRevoke()
     }
 
     override fun onDestroy() {
