@@ -6,6 +6,10 @@
         <item>@string/doh_provider_google</item>
         <item>@string/doh_provider_quad9</item>
         <item>@string/doh_provider_adguard</item>
+        <item>@string/doh_provider_rethink</item>
+        <item>@string/doh_provider_rethink_light</item>
+        <item>@string/doh_provider_rethink_recommended</item>
+        <item>@string/doh_provider_rethink_max</item>
     </string-array>
 
     <!-- DoH Provider values (ne pas traduire) -->
@@ -14,6 +18,10 @@
         <item>google</item>
         <item>quad9</item>
         <item>adguard</item>
+        <item>rethink</item>
+        <item>rethink-light</item>
+        <item>rethink-recommended</item>
+        <item>rethink-max</item>
     </string-array>
 
     <string-array name="rule_types">

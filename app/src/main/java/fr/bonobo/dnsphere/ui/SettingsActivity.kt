@@ -11,6 +11,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import fr.bonobo.dnsphere.BlockListManager
 import fr.bonobo.dnsphere.LocalVpnService
 import fr.bonobo.dnsphere.R
 import fr.bonobo.dnsphere.BuildConfig
@@ -48,12 +49,14 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
 
         private lateinit var database: AppDatabase
+        private lateinit var blockListManager: BlockListManager
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.sharedPreferencesName = "vpn_prefs"
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
             database = AppDatabase.getInstance(requireContext())
+            blockListManager = BlockListManager(requireContext())
 
             findPreference<Preference>("version")?.summary = BuildConfig.VERSION_NAME
 
@@ -90,8 +93,23 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            // ==================== MODE PLANIFIÉ - SUPPRIMÉ ====================
-            // La fonctionnalité de planning a été retirée
+            // ==================== WEBRTC LEAK PROTECTION ====================
+
+            findPreference<SwitchPreferenceCompat>("webrtc_leak_protection")?.apply {
+                isChecked = blockListManager.isWebRtcProtectionEnabled
+
+                setOnPreferenceChangeListener { _, newValue ->
+                    val enabled = newValue as Boolean
+                    blockListManager.setWebRtcProtection(enabled)
+                    Toast.makeText(
+                        requireContext(),
+                        if (enabled) getString(R.string.webrtc_enabled)
+                        else         getString(R.string.webrtc_disabled),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    true
+                }
+            }
 
             // ==================== PROFILS ====================
 
@@ -197,7 +215,6 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             updateListStats()
-            // updateScheduleSummary() - SUPPRIMÉ
             updateProfileSummary()
             updateSecuritySummary()
             updateParentalSummary()
@@ -245,11 +262,15 @@ class SettingsActivity : AppCompatActivity() {
 
         private fun getProviderDisplayName(provider: String): String {
             return when (provider) {
-                "cloudflare" -> getString(R.string.doh_provider_cloudflare)
-                "google"     -> getString(R.string.doh_provider_google)
-                "quad9"      -> getString(R.string.doh_provider_quad9)
-                "adguard"    -> getString(R.string.doh_provider_adguard)
-                else         -> provider
+                "cloudflare"          -> getString(R.string.doh_provider_cloudflare)
+                "google"              -> getString(R.string.doh_provider_google)
+                "quad9"               -> getString(R.string.doh_provider_quad9)
+                "adguard"             -> getString(R.string.doh_provider_adguard)
+                "rethink"             -> getString(R.string.doh_provider_rethink)
+                "rethink-light"       -> getString(R.string.doh_provider_rethink_light)
+                "rethink-recommended" -> getString(R.string.doh_provider_rethink_recommended)
+                "rethink-max"         -> getString(R.string.doh_provider_rethink_max)
+                else                  -> provider
             }
         }
 
@@ -263,13 +284,12 @@ class SettingsActivity : AppCompatActivity() {
             super.onResume()
             updateListStats()
             updateDohProviderSummary()
-            // updateScheduleSummary() - SUPPRIMÉ
             updateProfileSummary()
             updateSecuritySummary()
             updateParentalSummary()
+            findPreference<SwitchPreferenceCompat>("webrtc_leak_protection")?.isChecked =
+                blockListManager.isWebRtcProtectionEnabled
         }
-
-        // Méthode updateScheduleSummary() ENTIÈREMENT SUPPRIMÉE
 
         private fun updateProfileSummary() {
             lifecycleScope.launch {

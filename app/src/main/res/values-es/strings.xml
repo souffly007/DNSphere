@@ -6,7 +6,7 @@
     <string name="app_version">1.4</string>
     <string name="widget_description">Control rápido de DNSphere</string>
 
-    <!-- Información del desarrollador -->
+    <!-- Infos développeur -->
     <string name="developer_name">souffly007</string>
     <string name="github_url">https://github.com/souffly007/DNSphere</string>
     <string name="developer_website">https://bonobo.fr</string>
@@ -17,13 +17,13 @@
     <string name="status_on">ON</string>
     <string name="status_off">OFF</string>
 
-    <string name="stats_title">📊 Estadísticas (toca para ver los registros)</string>
+    <string name="stats_title">📊 Estadísticas (toca para ver registros)</string>
     <string name="ads_blocked">Anuncios bloqueados</string>
     <string name="trackers_blocked">Rastreadores bloqueados</string>
     <string name="malware_blocked">Malware bloqueado</string>
 
     <string name="protection_options_title">🛡️ Opciones de protección</string>
-    <string name="block_ads">🚫 Bloquear publicidad</string>
+    <string name="block_ads">🚫 Bloquear anuncios</string>
     <string name="block_trackers">🔒 Bloquear rastreadores</string>
     <string name="block_malware">☠️ Protección contra malware</string>
 
@@ -48,14 +48,14 @@
     <!-- ==================== LOGS ACTIVITY ==================== -->
     <string name="logs_toolbar_title">📋 Registros de bloqueo</string>
     <string name="logs_empty">No hay bloqueos registrados</string>
-    <string name="type_ad">Publicidad</string>
+    <string name="type_ad">Anuncio</string>
     <string name="type_tracker">Rastreador</string>
     <string name="type_malware">Malware</string>
 
     <!-- ==================== WHITELIST ACTIVITY ==================== -->
     <string name="whitelist_toolbar_title">✅ Lista blanca</string>
-    <string name="whitelist_empty">No hay dominios en la lista blanca</string>
-    <string name="whitelist_add_title">Añadir un dominio</string>
+    <string name="whitelist_empty">Ningún dominio en la lista blanca</string>
+    <string name="whitelist_add_title">Añadir dominio</string>
     <string name="whitelist_add_message">Este dominio nunca será bloqueado</string>
     <string name="whitelist_add_hint">ejemplo.com</string>
 
@@ -67,7 +67,7 @@
     <string name="dialog_cancel">Cancelar</string>
     <string name="dialog_clear">Borrar</string>
     <string name="clear_logs_title">Borrar registros</string>
-    <string name="clear_logs_message">¿Desea eliminar todos los registros de bloqueo?</string>
+    <string name="clear_logs_message">¿Quieres eliminar todos los registros de bloqueo?</string>
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS seguro</string>
@@ -78,21 +78,32 @@
 
     <!-- ==================== PREFERENCES - DNS ==================== -->
     <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
-    <string name="pref_use_doh_summary">Cifrar las solicitudes DNS para mayor privacidad</string>
+    <string name="pref_use_doh_summary">Cifrar consultas DNS para más privacidad</string>
     <string name="pref_doh_provider_title">Servidor DoH</string>
 
     <string name="doh_provider_cloudflare">Cloudflare (recomendado)</string>
     <string name="doh_provider_google">Google</string>
     <string name="doh_provider_quad9">Quad9 (seguridad)</string>
-    <string name="doh_provider_adguard">AdGuard (anti-publicidad)</string>
+    <string name="doh_provider_adguard">AdGuard (anti-anuncios)</string>
 
-    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <!-- ==================== DOH PROVIDERS - RETHINKDNS ==================== -->
+    <string name="doh_provider_rethink">RethinkDNS – Resolver puro</string>
+    <string name="doh_provider_rethink_light">RethinkDNS – Protección ligera 🟢</string>
+    <string name="doh_provider_rethink_recommended">RethinkDNS – Protección recomendada 🟡</string>
+    <string name="doh_provider_rethink_max">RethinkDNS – Protección máxima 🔴</string>
+
+    <!-- ==================== WEBRTC LEAK PROTECTION ==================== -->
+    <string name="pref_webrtc_title">🛡️ Protección WebRTC</string>
+    <string name="pref_webrtc_summary">Bloquea servidores STUN/TURN públicos para evitar la filtración de su IP real a través del navegador</string>
+    <string name="webrtc_enabled">🛡️ Protección WebRTC activada</string>
+    <string name="webrtc_disabled">Protección WebRTC desactivada</string>
+    <string name="type_webrtc_stun">WebRTC STUN</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Listas externas</string>
     <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K dominios)</string>
     <string name="pref_manage_lists_title">📝 Listas personalizadas</string>
-    <string name="pref_manage_lists_summary">Añadir sus propios dominios a bloquear</string>
+    <string name="pref_manage_lists_summary">Añadir tus propios dominios para bloquear</string>
     <string name="lists_summary">%1$d listas activas • %2$s dominios</string>
 
     <!-- ==================== PREFERENCES - APPS ==================== -->
@@ -105,9 +116,9 @@
 
     <!-- ==================== BACKUP / RESTORE ==================== -->
     <string name="pref_category_backup">📦 Copia de seguridad y restauración</string>
-    <string name="pref_backup_title">💾 Hacer copia de seguridad de las listas</string>
+    <string name="pref_backup_title">💾 Guardar listas</string>
     <string name="pref_backup_summary">Exportar todas las listas de bloqueo a un archivo</string>
-    <string name="pref_restore_title">📂 Restaurar las listas</string>
+    <string name="pref_restore_title">📂 Restaurar listas</string>
     <string name="pref_restore_summary">Importar listas de bloqueo desde un archivo</string>
 
     <string name="backup_success">✅ Copia de seguridad exportada con éxito</string>
@@ -116,9 +127,9 @@
     <string name="restore_failure">❌ Error en la restauración</string>
     <string name="restore_invalid_file">❌ Archivo inválido o corrupto</string>
 
-    <string name="backup_dialog_title">Copia de seguridad de las listas</string>
+    <string name="backup_dialog_title">Guardar listas</string>
     <string name="backup_dialog_message">Las listas personalizadas y la lista blanca se exportarán a un archivo .json</string>
-    <string name="restore_dialog_title">Restaurar las listas</string>
+    <string name="restore_dialog_title">Restaurar listas</string>
     <string name="restore_dialog_message">Atención: las listas actuales serán reemplazadas por las del archivo seleccionado.</string>
     <string name="restore_dialog_confirm">Restaurar</string>
 
@@ -128,13 +139,13 @@
 
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Versión</string>
-    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_version_summary">DNSphere v1.5</string>
     <string name="pref_developer_title">👨‍💻 Creado por</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Código fuente (GitHub)</string>
     <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
     <string name="pref_license_title">📄 Licencia</string>
-    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
+    <string name="pref_license_summary">GNU GPL v3 - Código abierto</string>
 
     <!-- ==================== STATS ACTIVITY ==================== -->
     <string name="stats_toolbar_title">📊 Estadísticas</string>
@@ -146,12 +157,10 @@
     <string name="stats_by_category">📈 Por categoría</string>
     <string name="stats_chart_daily">📅 Por día</string>
     <string name="stats_by_hour">🕐 Por hora (hoy)</string>
-    <string name="stats_top_blocked">🏆 Dominios más bloqueados</string>
-    <string name="stats_no_data">No hay datos para este período</string>
+    <string name="stats_top_blocked">🏆 Principales dominios bloqueados</string>
+    <string name="stats_no_data">Sin datos para este período</string>
 
-    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-
-    <!-- Días -->
+    <!-- Jours -->
     <string name="day_mon">Lun</string>
     <string name="day_tue">Mar</string>
     <string name="day_wed">Mié</string>
@@ -160,7 +169,7 @@
     <string name="day_sat">Sáb</string>
     <string name="day_sun">Dom</string>
 
-    <!-- Común -->
+    <!-- Commun -->
     <string name="common_save">Guardar</string>
     <string name="common_cancel">Cancelar</string>
     <string name="common_delete">Eliminar</string>
@@ -172,14 +181,14 @@
     <string name="profile_active">Perfil activo</string>
     <string name="profile_active_badge">ACTIVO</string>
     <string name="profile_add">Nuevo perfil</string>
-    <string name="profile_edit">Editar el perfil</string>
+    <string name="profile_edit">Editar perfil</string>
     <string name="profile_name">Nombre del perfil</string>
     <string name="profile_name_hint">Mi perfil</string>
     <string name="profile_icon">Icono</string>
     <string name="profile_blocking_options">Opciones de bloqueo</string>
     <string name="profile_activate">Activar este perfil</string>
     <string name="profile_duplicate">Duplicar</string>
-    <string name="profile_activated">Perfil "%s" activado</string>
+    <string name="profile_activated">Perfil \"%s\" activado</string>
     <string name="profile_added">Perfil creado</string>
     <string name="profile_updated">Perfil actualizado</string>
     <string name="profile_deleted">Perfil eliminado</string>
@@ -187,11 +196,12 @@
     <string name="profile_name_required">El nombre es obligatorio</string>
     <string name="profile_cannot_delete_preset">No se puede eliminar un perfil predefinido</string>
     <string name="profile_cannot_delete_active">No se puede eliminar el perfil activo</string>
-    <string name="profile_delete_title">¿Eliminar el perfil?</string>
-    <string name="profile_delete_message">¿Desea eliminar el perfil "%s"?</string>
+    <string name="profile_delete_title">¿Eliminar perfil?</string>
+    <string name="profile_delete_message">¿Quieres eliminar el perfil \"%s\"?</string>
 
+    <!-- Préférences profils -->
     <string name="pref_category_profiles">📁 Perfiles</string>
-    <string name="pref_profiles_summary">Gestionar los perfiles de bloqueo</string>
+    <string name="pref_profiles_summary">Gestionar perfiles de bloqueo</string>
 
     <!-- ==================== BIOMETRIC / SECURITY ==================== -->
     <string name="security_title">🔐 Seguridad</string>
@@ -199,37 +209,37 @@
     <string name="pref_security_summary">Protección biométrica</string>
 
     <string name="bio_info_title">Protección biométrica</string>
-    <string name="bio_info_desc">Use su huella dactilar o Face ID para proteger la aplicación</string>
+    <string name="bio_info_desc">Use su huella digital o Face ID para proteger la aplicación</string>
 
-    <string name="bio_enable_protection">Activar la protección</string>
+    <string name="bio_enable_protection">Activar protección</string>
     <string name="bio_enable_protection_desc">Solicitar autenticación para acciones sensibles</string>
 
     <string name="bio_protection_options">Opciones de protección</string>
 
-    <string name="bio_protect_disable">Desactivación de la VPN</string>
+    <string name="bio_protect_disable">Desactivar VPN</string>
     <string name="bio_protect_disable_desc">Autenticación requerida para desactivar la protección</string>
 
-    <string name="bio_protect_settings">Acceso a los ajustes</string>
-    <string name="bio_protect_settings_desc">Autenticación requerida para modificar los ajustes</string>
+    <string name="bio_protect_settings">Acceso a la configuración</string>
+    <string name="bio_protect_settings_desc">Autenticación requerida para cambiar la configuración</string>
 
-    <string name="bio_protect_profiles">Modificación de perfiles</string>
+    <string name="bio_protect_profiles">Edición de perfiles</string>
     <string name="bio_protect_profiles_desc">Autenticación requerida para cambiar de perfil</string>
 
-    <string name="bio_enable_title">Activar la protección</string>
+    <string name="bio_enable_title">Activar protección</string>
     <string name="bio_enable_subtitle">Confirme su identidad</string>
-    <string name="bio_disable_title">Desactivar la protección</string>
+    <string name="bio_disable_title">Desactivar protección</string>
     <string name="bio_disable_subtitle">Confirme su identidad</string>
 
-    <string name="bio_auth_disable_title">Desactivar la VPN</string>
-    <string name="bio_auth_settings_title">Acceder a los ajustes</string>
-    <string name="bio_auth_profiles_title">Editar los perfiles</string>
+    <string name="bio_auth_disable_title">Desactivar VPN</string>
+    <string name="bio_auth_settings_title">Acceder a la configuración</string>
+    <string name="bio_auth_profiles_title">Editar perfiles</string>
     <string name="bio_auth_subtitle">Autenticación requerida</string>
 
     <string name="bio_enabled">Protección biométrica activada</string>
     <string name="bio_disabled">Protección biométrica desactivada</string>
 
-    <string name="bio_no_hardware">Su dispositivo no admite biometría</string>
+    <string name="bio_no_hardware">Su dispositivo no soporta biometría</string>
     <string name="bio_hardware_unavailable">El sensor biométrico no está disponible</string>
-    <string name="bio_not_enrolled">No hay huella dactilar ni Face ID configurados. Configúrelo en los ajustes del teléfono.</string>
+    <string name="bio_not_enrolled">No hay huella digital o Face ID configurado. Configúrelo en los ajustes del teléfono.</string>
 
 </resources>

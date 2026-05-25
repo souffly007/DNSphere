@@ -14,18 +14,18 @@
     <!-- ==================== MAIN ACTIVITY ==================== -->
     <string name="protection_enabled">🛡️ Защита включена</string>
     <string name="protection_disabled">Защита отключена</string>
-    <string name="status_on">ВКЛ</string>
-    <string name="status_off">ВЫКЛ</string>
+    <string name="status_on">ON</string>
+    <string name="status_off">OFF</string>
 
-    <string name="stats_title">📊 Статистика (нажмите для журналов)</string>
-    <string name="ads_blocked">Реклама заблокирована</string>
-    <string name="trackers_blocked">Трекеры заблокированы</string>
-    <string name="malware_blocked">Вредоносное ПО заблокировано</string>
+    <string name="stats_title">📊 Статистика (нажмите, чтобы увидеть журналы)</string>
+    <string name="ads_blocked">Заблокировано рекламы</string>
+    <string name="trackers_blocked">Заблокировано трекеров</string>
+    <string name="malware_blocked">Заблокировано вредоносных программ</string>
 
     <string name="protection_options_title">🛡️ Параметры защиты</string>
     <string name="block_ads">🚫 Блокировать рекламу</string>
     <string name="block_trackers">🔒 Блокировать трекеры</string>
-    <string name="block_malware">☠️ Защита от вредоносного ПО</string>
+    <string name="block_malware">☠️ Защита от вредоносных программ</string>
 
     <string name="quick_actions_title">⚡ Быстрые действия</string>
     <string name="logs">📋 Журналы</string>
@@ -39,25 +39,25 @@
     <string name="vpn_permission_denied">Разрешение VPN отклонено</string>
     <string name="protection_started">🛡️ Защита включена</string>
     <string name="protection_stopped">Защита отключена</string>
-    <string name="cannot_open_link">Не удаётся открыть ссылку</string>
-    <string name="doh_enabled">DoH включён</string>
-    <string name="doh_disabled">DoH отключён</string>
+    <string name="cannot_open_link">Не удается открыть ссылку</string>
+    <string name="doh_enabled">DoH включен</string>
+    <string name="doh_disabled">DoH отключен</string>
     <string name="dns_changed">DNS: %s</string>
     <string name="logs_cleared">Журналы очищены</string>
 
     <!-- ==================== LOGS ACTIVITY ==================== -->
-    <string name="logs_toolbar_title">📋 Журналы блокировок</string>
+    <string name="logs_toolbar_title">📋 Журналы блокировки</string>
     <string name="logs_empty">Нет зарегистрированных блокировок</string>
     <string name="type_ad">Реклама</string>
     <string name="type_tracker">Трекер</string>
-    <string name="type_malware">Вредоносное ПО</string>
+    <string name="type_malware">Вредоносная программа</string>
 
     <!-- ==================== WHITELIST ACTIVITY ==================== -->
     <string name="whitelist_toolbar_title">✅ Белый список</string>
     <string name="whitelist_empty">Нет доменов в белом списке</string>
     <string name="whitelist_add_title">Добавить домен</string>
     <string name="whitelist_add_message">Этот домен никогда не будет заблокирован</string>
-    <string name="whitelist_add_hint">пример.com</string>
+    <string name="whitelist_add_hint">example.com</string>
 
     <!-- ==================== SETTINGS ACTIVITY ==================== -->
     <string name="settings_toolbar_title">⚙️ Настройки</string>
@@ -67,51 +67,85 @@
     <string name="dialog_cancel">Отмена</string>
     <string name="dialog_clear">Очистить</string>
     <string name="clear_logs_title">Очистить журналы</string>
-    <string name="clear_logs_message">Вы хотите удалить все журналы блокировок?</string>
+    <string name="clear_logs_message">Вы хотите удалить все журналы блокировки?</string>
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Безопасный DNS</string>
-    <string name="pref_category_blocklists">📋 Списки блокировок</string>
+    <string name="pref_category_blocklists">📋 Списки блокировки</string>
     <string name="pref_category_apps">📱 Приложения</string>
     <string name="pref_category_data">💾 Данные</string>
-    <string name="pref_category_about">ℹ️ О приложении</string>
+    <string name="pref_category_about">ℹ️ О программе</string>
 
     <!-- ==================== PREFERENCES - DNS ==================== -->
     <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
-    <string name="pref_use_doh_summary">Шифровать DNS-запросы для большей конфиденциальности</string>
+    <string name="pref_use_doh_summary">Шифровать DNS-запросы для повышения конфиденциальности</string>
     <string name="pref_doh_provider_title">Сервер DoH</string>
 
     <string name="doh_provider_cloudflare">Cloudflare (рекомендуется)</string>
     <string name="doh_provider_google">Google</string>
     <string name="doh_provider_quad9">Quad9 (безопасность)</string>
-    <string name="doh_provider_adguard">AdGuard (блокировка рекламы)</string>
+    <string name="doh_provider_adguard">AdGuard (антиреклама)</string>
 
-    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <!-- ==================== DOH PROVIDERS - RETHINKDNS ==================== -->
+    <string name="doh_provider_rethink">RethinkDNS – Чистый резолвер</string>
+    <string name="doh_provider_rethink_light">RethinkDNS – Легкая защита 🟢</string>
+    <string name="doh_provider_rethink_recommended">RethinkDNS – Рекомендуемая защита 🟡</string>
+    <string name="doh_provider_rethink_max">RethinkDNS – Максимальная защита 🔴</string>
+
+    <!-- ==================== WEBRTC LEAK PROTECTION ==================== -->
+    <string name="pref_webrtc_title">🛡️ Защита WebRTC</string>
+    <string name="pref_webrtc_summary">Блокирует общедоступные серверы STUN/TURN для предотвращения утечки вашего реального IP-адреса через браузер</string>
+    <string name="webrtc_enabled">🛡️ Защита WebRTC включена</string>
+    <string name="webrtc_disabled">Защита WebRTC отключена</string>
+    <string name="type_webrtc_stun">WebRTC STUN</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Внешние списки</string>
     <string name="pref_external_lists_summary">StevenBlack, AdAway, EasyPrivacy… (+150K доменов)</string>
     <string name="pref_manage_lists_title">📝 Пользовательские списки</string>
-    <string name="pref_manage_lists_summary">Добавить собственные домены для блокировки</string>
+    <string name="pref_manage_lists_summary">Добавьте свои собственные домены для блокировки</string>
     <string name="lists_summary">%1$d активных списков • %2$s доменов</string>
 
     <!-- ==================== PREFERENCES - APPS ==================== -->
-    <string name="pref_excluded_apps_title">🚫 Исключённые приложения</string>
+    <string name="pref_excluded_apps_title">🚫 Исключенные приложения</string>
     <string name="pref_excluded_apps_summary">Эти приложения не будут фильтроваться</string>
 
     <!-- ==================== PREFERENCES - DATA ==================== -->
     <string name="pref_clear_logs_title">🗑️ Очистить журналы</string>
     <string name="pref_clear_logs_summary">Удалить историю блокировок</string>
 
+    <!-- ==================== BACKUP / RESTORE ==================== -->
+    <string name="pref_category_backup">📦 Резервное копирование и восстановление</string>
+    <string name="pref_backup_title">💾 Сохранить списки</string>
+    <string name="pref_backup_summary">Экспортировать все списки блокировки в файл</string>
+    <string name="pref_restore_title">📂 Восстановить списки</string>
+    <string name="pref_restore_summary">Импортировать списки блокировки из файла</string>
+
+    <string name="backup_success">✅ Резервная копия успешно экспортирована</string>
+    <string name="backup_failure">❌ Ошибка резервного копирования</string>
+    <string name="restore_success">✅ Списки успешно восстановлены</string>
+    <string name="restore_failure">❌ Ошибка восстановления</string>
+    <string name="restore_invalid_file">❌ Неверный или поврежденный файл</string>
+
+    <string name="backup_dialog_title">Сохранить списки</string>
+    <string name="backup_dialog_message">Пользовательские списки и белый список будут экспортированы в файл .json</string>
+    <string name="restore_dialog_title">Восстановить списки</string>
+    <string name="restore_dialog_message">Внимание: текущие списки будут заменены списками из выбранного файла.</string>
+    <string name="restore_dialog_confirm">Восстановить</string>
+
+    <string name="backup_file_name">dnsphere_backup_%s.json</string>
+    <string name="backup_domains_count">%d домен(ов) сохранено</string>
+    <string name="restore_domains_count">%d домен(ов) восстановлено</string>
+
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Версия</string>
-    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_version_summary">DNSphere v1.5</string>
     <string name="pref_developer_title">👨‍💻 Создано</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Исходный код (GitHub)</string>
     <string name="pref_github_summary">https://github.com/souffly007/DNSphere</string>
     <string name="pref_license_title">📄 Лицензия</string>
-    <string name="pref_license_summary">GNU GPL v3 - Open Source</string>
+    <string name="pref_license_summary">GNU GPL v3 - Открытый исходный код</string>
 
     <!-- ==================== STATS ACTIVITY ==================== -->
     <string name="stats_toolbar_title">📊 Статистика</string>
@@ -126,8 +160,6 @@
     <string name="stats_top_blocked">🏆 Топ заблокированных доменов</string>
     <string name="stats_no_data">Нет данных за этот период</string>
 
-    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
-
     <!-- Jours -->
     <string name="day_mon">Пн</string>
     <string name="day_tue">Вт</string>
@@ -141,7 +173,7 @@
     <string name="common_save">Сохранить</string>
     <string name="common_cancel">Отмена</string>
     <string name="common_delete">Удалить</string>
-    <string name="common_edit">Редактировать</string>
+    <string name="common_edit">Изменить</string>
 
     <!-- ==================== PROFILES ==================== -->
     <string name="profiles_title">📁 Профили блокировки</string>
@@ -149,23 +181,23 @@
     <string name="profile_active">Активный профиль</string>
     <string name="profile_active_badge">АКТИВЕН</string>
     <string name="profile_add">Новый профиль</string>
-    <string name="profile_edit">Редактировать профиль</string>
-    <string name="profile_name">Название профиля</string>
+    <string name="profile_edit">Изменить профиль</string>
+    <string name="profile_name">Имя профиля</string>
     <string name="profile_name_hint">Мой профиль</string>
-    <string name="profile_icon">Значок</string>
+    <string name="profile_icon">Иконка</string>
     <string name="profile_blocking_options">Параметры блокировки</string>
     <string name="profile_activate">Активировать этот профиль</string>
     <string name="profile_duplicate">Дублировать</string>
-    <string name="profile_activated">Профиль «%s» активирован</string>
+    <string name="profile_activated">Профиль \"%s\" активирован</string>
     <string name="profile_added">Профиль создан</string>
-    <string name="profile_updated">Профиль обновлён</string>
-    <string name="profile_deleted">Профиль удалён</string>
+    <string name="profile_updated">Профиль обновлен</string>
+    <string name="profile_deleted">Профиль удален</string>
     <string name="profile_duplicated">Профиль дублирован</string>
-    <string name="profile_name_required">Название обязательно</string>
+    <string name="profile_name_required">Требуется имя</string>
     <string name="profile_cannot_delete_preset">Невозможно удалить предустановленный профиль</string>
     <string name="profile_cannot_delete_active">Невозможно удалить активный профиль</string>
     <string name="profile_delete_title">Удалить профиль?</string>
-    <string name="profile_delete_message">Вы хотите удалить профиль «%s»?</string>
+    <string name="profile_delete_message">Вы хотите удалить профиль \"%s\"?</string>
 
     <!-- Préférences profils -->
     <string name="pref_category_profiles">📁 Профили</string>
@@ -177,10 +209,10 @@
     <string name="pref_security_summary">Биометрическая защита</string>
 
     <string name="bio_info_title">Биометрическая защита</string>
-    <string name="bio_info_desc">Используйте отпечаток пальца или Face ID для защиты приложения</string>
+    <string name="bio_info_desc">Используйте свой отпечаток пальца или Face ID для защиты приложения</string>
 
     <string name="bio_enable_protection">Включить защиту</string>
-    <string name="bio_enable_protection_desc">Запрашивать аутентификацию для чувствительных действий</string>
+    <string name="bio_enable_protection_desc">Запрашивать аутентификацию для конфиденциальных действий</string>
 
     <string name="bio_protection_options">Параметры защиты</string>
 
@@ -208,34 +240,6 @@
 
     <string name="bio_no_hardware">Ваше устройство не поддерживает биометрию</string>
     <string name="bio_hardware_unavailable">Биометрический датчик недоступен</string>
-    <string name="bio_not_enrolled">Отпечаток пальца или Face ID не настроен. Настройте его в параметрах телефона.</string>
-
-
-
-
-
-
-    <!-- ==================== BACKUP / RESTORE ==================== -->
-    <string name="pref_category_backup">📦 Резервное копирование и восстановление</string>
-    <string name="pref_backup_title">💾 Резервное копирование списков</string>
-    <string name="pref_backup_summary">Экспортировать все списки блокировок в файл</string>
-    <string name="pref_restore_title">📂 Восстановление списков</string>
-    <string name="pref_restore_summary">Импортировать списки блокировок из файла</string>
-
-    <string name="backup_success">✅ Резервная копия успешно экспортирована</string>
-    <string name="backup_failure">❌ Ошибка резервного копирования</string>
-    <string name="restore_success">✅ Списки успешно восстановлены</string>
-    <string name="restore_failure">❌ Ошибка восстановления</string>
-    <string name="restore_invalid_file">❌ Недействительный или повреждённый файл</string>
-
-    <string name="backup_dialog_title">Резервное копирование списков</string>
-    <string name="backup_dialog_message">Пользовательские списки и белый список будут экспортированы в файл .json</string>
-    <string name="restore_dialog_title">Восстановление списков</string>
-    <string name="restore_dialog_message">Внимание: текущие списки будут заменены списками из выбранного файла.</string>
-    <string name="restore_dialog_confirm">Восстановить</string>
-
-    <string name="backup_file_name">dnsphere_backup_%s.json</string>
-    <string name="backup_domains_count">%d домен(ов) сохранено</string>
-    <string name="restore_domains_count">%d домен(ов) восстановлено</string>
+    <string name="bio_not_enrolled">Отпечаток пальца или Face ID не настроены. Настройте их в настройках телефона.</string>
 
 </resources>

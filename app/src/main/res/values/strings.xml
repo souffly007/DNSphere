@@ -71,7 +71,6 @@
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 DNS sécurisé</string>
-    <!-- CATÉGORIE SCHEDULE SUPPRIMÉE -->
     <string name="pref_category_blocklists">📋 Listes de blocage</string>
     <string name="pref_category_apps">📱 Applications</string>
     <string name="pref_category_data">💾 Données</string>
@@ -87,7 +86,18 @@
     <string name="doh_provider_quad9">Quad9 (sécurité)</string>
     <string name="doh_provider_adguard">AdGuard (anti-pub)</string>
 
-    <!-- PREFERENCES SCHEDULE SUPPRIMÉES -->
+    <!-- ==================== DOH PROVIDERS - RETHINKDNS ==================== -->
+    <string name="doh_provider_rethink">RethinkDNS – Resolver pur</string>
+    <string name="doh_provider_rethink_light">RethinkDNS – Protection légère 🟢</string>
+    <string name="doh_provider_rethink_recommended">RethinkDNS – Protection recommandée 🟡</string>
+    <string name="doh_provider_rethink_max">RethinkDNS – Protection maximale 🔴</string>
+
+    <!-- ==================== WEBRTC LEAK PROTECTION ==================== -->
+    <string name="pref_webrtc_title">🛡️ Protection WebRTC</string>
+    <string name="pref_webrtc_summary">Bloque les serveurs STUN/TURN publics pour empêcher la fuite de votre IP réelle via le navigateur</string>
+    <string name="webrtc_enabled">🛡️ Protection WebRTC activée</string>
+    <string name="webrtc_disabled">Protection WebRTC désactivée</string>
+    <string name="type_webrtc_stun">WebRTC STUN</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 Listes externes</string>
@@ -150,9 +160,7 @@
     <string name="stats_top_blocked">🏆 Top domaines bloqués</string>
     <string name="stats_no_data">Aucune donnée pour cette période</string>
 
-    <!-- SECTION SCHEDULE ACTIVITY SUPPRIMÉE -->
-
-    <!-- Jours (à garder car utilisés ailleurs) -->
+    <!-- Jours -->
     <string name="day_mon">Lun</string>
     <string name="day_tue">Mar</string>
     <string name="day_wed">Mer</string>

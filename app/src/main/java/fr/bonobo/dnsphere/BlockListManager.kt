@@ -26,8 +26,24 @@ class BlockListManager(private val context: Context) {
     private val forceBlockDomains = mutableSetOf<String>()
 
     // =========================================================================
+    // 🛡️ WEBRTC STUN/TURN LEAK PROTECTION
+    // =========================================================================
+    private val stunDomains = mutableSetOf<String>()
+
+    private val prefs = context.getSharedPreferences("dnsphere_settings", Context.MODE_PRIVATE)
+
+    val isWebRtcProtectionEnabled: Boolean
+        get() = prefs.getBoolean("webrtc_leak_protection", false)
+
+    fun setWebRtcProtection(enabled: Boolean) {
+        prefs.edit().putBoolean("webrtc_leak_protection", enabled).apply()
+        loadStunList()
+        Log.d(TAG, "WebRTC leak protection: $enabled")
+    }
+
+    // =========================================================================
     // 📋 RÈGLES UTILISATEUR (AdGuard / Regex)
-    // Priorité : forceBlock > neverBlock > USER_ALLOW > USER_BLOCK > whitelist > listes
+    // Priorité : forceBlock > neverBlock > WEBRTC > USER_ALLOW > USER_BLOCK > whitelist > listes
     // =========================================================================
     private var userRules: List<UserRule> = emptyList()
 
@@ -248,6 +264,7 @@ class BlockListManager(private val context: Context) {
         loadWhitelist()
         loadForceBlockList()
         loadUserRules()
+        loadStunList()
         Log.d(TAG, "BlockListManager initialisé: ${getStats()}")
     }
 
@@ -319,6 +336,52 @@ class BlockListManager(private val context: Context) {
         }
     }
 
+    /**
+     * Charge la liste STUN/TURN uniquement si la protection WebRTC est activée.
+     * Ces domaines sont des serveurs STUN/TURN publics utilisés par les navigateurs
+     * pour découvrir l'IP réelle de l'utilisateur via WebRTC.
+     *
+     * ⚠️ Note : WhatsApp, Facebook, Signal, Discord, Zoom, Meet ont leurs propres
+     * serveurs STUN/TURN déjà protégés dans neverBlockDomains — ils ne sont
+     * pas affectés par cette liste.
+     */
+    fun loadStunList() {
+        stunDomains.clear()
+        if (!isWebRtcProtectionEnabled) {
+            Log.d(TAG, "WebRTC protection désactivée — STUN list vide")
+            return
+        }
+        stunDomains.addAll(listOf(
+            // Google STUN (utilisés massivement par Chrome/WebRTC)
+            "stun.l.google.com",
+            "stun1.l.google.com",
+            "stun2.l.google.com",
+            "stun3.l.google.com",
+            "stun4.l.google.com",
+            // Cloudflare STUN
+            "stun.cloudflare.com",
+            // Twilio
+            "global.stun.twilio.com",
+            // Jitsi / XMPP
+            "stun.xmpp.org",
+            "meet-jit-si-turnrelay.jitsi.net",
+            // Nextcloud Talk
+            "stun.nextcloud.com",
+            // SIP / Ekiga
+            "stun.ekiga.net",
+            "stun.ideasip.com",
+            // Divers publics
+            "stun.stunprotocol.org",
+            "stun.voip.blackberry.com",
+            "stun.freenode.net",
+            // TURN publics (relay)
+            "turn.anyfirewall.com",
+            "turn.bistri.com",
+            "numb.viagenie.ca"
+        ))
+        Log.d(TAG, "STUN/TURN list chargée: ${stunDomains.size} domaines (WebRTC protection ON)")
+    }
+
     // =========================================================================
     // VÉRIFICATION DES DOMAINES
     // =========================================================================
@@ -326,6 +389,12 @@ class BlockListManager(private val context: Context) {
     fun isForceBlocked(hostname: String): Boolean {
         val domain = hostname.lowercase()
         return forceBlockDomains.any { domain == it || domain.endsWith(".$it") }
+    }
+
+    fun isStunBlocked(hostname: String): Boolean {
+        if (!isWebRtcProtectionEnabled) return false
+        val domain = hostname.lowercase()
+        return stunDomains.any { domain == it || domain.endsWith(".$it") }
     }
 
     fun isWhitelisted(hostname: String): Boolean {
@@ -383,18 +452,21 @@ class BlockListManager(private val context: Context) {
 
         val domain = hostname.lowercase()
 
-        // 2. neverBlock — jamais bloqué
+        // 2. neverBlock — jamais bloqué (apps critiques : WhatsApp, Signal, Zoom…)
         if (neverBlockDomains.any { domain == it || domain.endsWith(".$it") }) return false
 
-        // 3. Règles utilisateur
+        // 3. WebRTC STUN/TURN leak protection
+        if (isStunBlocked(hostname)) return true
+
+        // 4. Règles utilisateur
         val userResult = RulesEngine.evaluate(domain, userRules)
         if (userResult == RulesEngine.MatchResult.ALLOW) return false
         if (userResult == RulesEngine.MatchResult.BLOCK) return true
 
-        // 4. Whitelist standard
+        // 5. Whitelist standard
         if (isWhitelisted(hostname)) return false
 
-        // 5. Listes built-in
+        // 6. Listes built-in
         return isAd(hostname) || isTracker(hostname) ||
                 isMalware(hostname) || isShopping(hostname) ||
                 isExternalBlocked(hostname)
@@ -404,6 +476,9 @@ class BlockListManager(private val context: Context) {
         if (isForceBlocked(hostname)) return BlockType.FORCE_BLOCKED
 
         val domain = hostname.lowercase()
+
+        // WebRTC STUN/TURN
+        if (isStunBlocked(hostname)) return BlockType.WEBRTC_STUN
 
         // Règles utilisateur avant la whitelist
         val userResult = RulesEngine.evaluate(domain, userRules)
@@ -433,6 +508,7 @@ class BlockListManager(private val context: Context) {
         loadWhitelist()
         loadForceBlockList()
         loadUserRules()
+        loadStunList()
         Log.d(TAG, "BlockListManager rafraîchi: ${getStats()}")
     }
 
@@ -447,7 +523,8 @@ class BlockListManager(private val context: Context) {
             whitelisted     = whitelistedDomains.size,
             forceBlocked    = forceBlockDomains.size,
             userRules       = userRules.size,
-            neverBlocked    = neverBlockDomains.size
+            neverBlocked    = neverBlockDomains.size,
+            stunDomains     = stunDomains.size
         )
     }
 
@@ -461,7 +538,8 @@ class BlockListManager(private val context: Context) {
         val whitelisted:     Int,
         val forceBlocked:    Int,
         val userRules:       Int,
-        val neverBlocked:    Int
+        val neverBlocked:    Int,
+        val stunDomains:     Int = 0
     ) {
         val totalBuiltIn: Int get() = builtInAds + builtInTrackers + builtInMalware + builtInShopping
         val total: Int get() = totalBuiltIn + externalDomains + customDomains
@@ -469,7 +547,7 @@ class BlockListManager(private val context: Context) {
         override fun toString() =
             "Stats(builtIn=$totalBuiltIn, external=$externalDomains, custom=$customDomains, " +
                     "whitelist=$whitelisted, forceBlocked=$forceBlocked, userRules=$userRules, " +
-                    "neverBlocked=$neverBlocked, TOTAL=$total)"
+                    "neverBlocked=$neverBlocked, stunDomains=$stunDomains, TOTAL=$total)"
     }
 
     enum class BlockType {
@@ -477,7 +555,8 @@ class BlockListManager(private val context: Context) {
         WHITELISTED,
         FORCE_BLOCKED,
         USER_BLOCKED,
-        USER_ALLOWED
+        USER_ALLOWED,
+        WEBRTC_STUN   // Serveur STUN/TURN bloqué pour protection WebRTC leak
     }
 
     // =========================================================================

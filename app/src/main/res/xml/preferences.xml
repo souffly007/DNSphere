@@ -24,9 +24,16 @@
             android:dependency="use_doh"
             app:iconSpaceReserved="false"/>
 
+        <SwitchPreferenceCompat
+            android:key="webrtc_leak_protection"
+            android:title="🛡️ Protection WebRTC"
+            android:summary="Bloque les serveurs STUN/TURN publics pour empêcher la fuite de votre IP réelle via le navigateur"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false"/>
+
     </PreferenceCategory>
 
-   <!-- Profils -->
+    <!-- Profils -->
     <PreferenceCategory
         android:title="@string/pref_category_profiles"
         app:iconSpaceReserved="false">
@@ -52,9 +59,7 @@
 
     </PreferenceCategory>
 
-    <!-- ================================================================ -->
-    <!-- CONTRÔLE PARENTAL — AJOUT                                         -->
-    <!-- ================================================================ -->
+    <!-- Contrôle parental -->
     <PreferenceCategory
         android:title="👨‍👧 Contrôle parental"
         app:iconSpaceReserved="false">
@@ -92,18 +97,17 @@
         android:summary="Bloquer ou autoriser des domaines (AdGuard, Regex)"
         app:iconSpaceReserved="false"/>
 
-
-    <!-- SAUVEGARDE & RESTAURATION -->
+    <!-- Sauvegarde & Restauration -->
     <PreferenceCategory
-        android:title="Données"> <Preference
-        android:key="backup"
-        android:title="Sauvegarde &amp; Restauration"
-        android:summary="Exporter ou importer vos listes et paramètres"
-        android:icon="@drawable/ic_backup" />
+        android:title="Données">
+
+        <Preference
+            android:key="backup"
+            android:title="Sauvegarde &amp; Restauration"
+            android:summary="Exporter ou importer vos listes et paramètres"
+            android:icon="@drawable/ic_backup"/>
 
     </PreferenceCategory>
-
-
 
     <!-- Applications -->
     <PreferenceCategory
@@ -140,7 +144,7 @@
             android:key="version"
             android:title="@string/pref_version_title"
             android:summary="..."
-            android:selectable="false" />
+            android:selectable="false"/>
 
         <Preference
             android:key="developer"

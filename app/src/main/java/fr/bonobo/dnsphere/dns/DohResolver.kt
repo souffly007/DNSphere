@@ -20,10 +20,18 @@ class DohResolver private constructor(context: Context) {
         private const val DEFAULT_PROVIDER = "cloudflare"
 
         val PROVIDERS = mapOf(
-            "cloudflare" to "https://cloudflare-dns.com/dns-query",
-            "google" to "https://dns.google/dns-query",
-            "quad9" to "https://dns.quad9.net/dns-query",
-            "adguard" to "https://dns.adguard.com/dns-query"
+            "cloudflare"          to "https://cloudflare-dns.com/dns-query",
+            "google"              to "https://dns.google/dns-query",
+            "quad9"               to "https://dns.quad9.net/dns-query",
+            "adguard"             to "https://dns.adguard.com/dns-query",
+            // ── RethinkDNS ──────────────────────────────────────────────────
+            // Resolver pur, sans blocklist
+            "rethink"             to "https://sky.rethinkdns.com/dns-query",
+            // Presets avec blocklists intégrées via stamp base64
+            // Générateur : https://rethinkdns.com/configure
+            "rethink-light"       to "https://sky.rethinkdns.com/1:EAAQAAABAgA=",
+            "rethink-recommended" to "https://sky.rethinkdns.com/1:YASAAQBwIAA=",
+            "rethink-max"         to "https://sky.rethinkdns.com/1:YASCAQB4YgA="
         )
 
         @Volatile
@@ -48,7 +56,9 @@ class DohResolver private constructor(context: Context) {
     private fun loadCurrentConfig() {
         val savedProvider = prefs.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER
         currentProviderName = savedProvider
-        currentUrl = PROVIDERS[savedProvider] ?: PROVIDERS[DEFAULT_PROVIDER]!!
+        // Si c'est une URL directe (ex: stamp RethinkDNS personnalisé), on l'utilise telle quelle
+        currentUrl = PROVIDERS[savedProvider] ?: if (savedProvider.startsWith("https://")) savedProvider
+        else PROVIDERS[DEFAULT_PROVIDER]!!
         Log.d(TAG, "⚙️ Config chargée: $currentProviderName ($currentUrl)")
     }
 
@@ -57,31 +67,56 @@ class DohResolver private constructor(context: Context) {
         Log.d(TAG, "💾 Config sauvegardée: $currentProviderName")
     }
 
+    /**
+     * Accepte :
+     *  - un alias connu : "cloudflare", "google", "quad9", "adguard",
+     *                     "rethink", "rethink-light", "rethink-recommended", "rethink-max"
+     *  - une URL directe https:// : utilisée telle quelle (ex: stamp RethinkDNS personnalisé
+     *                     généré depuis rethinkdns.com/configure)
+     */
     fun setProvider(provider: String) {
         val normalizedProvider = provider.lowercase().trim()
-        if (PROVIDERS.containsKey(normalizedProvider)) {
-            currentProviderName = normalizedProvider
-            currentUrl = PROVIDERS[normalizedProvider]!!
-            saveCurrentConfig()
-            Log.d(TAG, "🔄 Provider changé: $normalizedProvider -> $currentUrl")
-        } else {
-            Log.w(TAG, "⚠️ Provider inconnu ignoré: $provider")
+        when {
+            PROVIDERS.containsKey(normalizedProvider) -> {
+                currentProviderName = normalizedProvider
+                currentUrl = PROVIDERS[normalizedProvider]!!
+                saveCurrentConfig()
+                Log.d(TAG, "🔄 Provider changé: $normalizedProvider -> $currentUrl")
+            }
+            provider.startsWith("https://") -> {
+                // URL directe (stamp RethinkDNS personnalisé ou autre provider custom)
+                currentProviderName = provider.trim()
+                currentUrl = provider.trim()
+                saveCurrentConfig()
+                Log.d(TAG, "🔄 Provider URL directe: $currentUrl")
+            }
+            else -> {
+                Log.w(TAG, "⚠️ Provider inconnu ignoré: $provider")
+            }
         }
     }
 
     fun getProviderName(): String {
         return when (currentProviderName) {
-            "cloudflare" -> "Cloudflare"
-            "google" -> "Google"
-            "quad9" -> "Quad9"
-            "adguard" -> "AdGuard"
-            else -> currentProviderName.replaceFirstChar { it.uppercase() }
+            "cloudflare"          -> "Cloudflare"
+            "google"              -> "Google"
+            "quad9"               -> "Quad9"
+            "adguard"             -> "AdGuard"
+            "rethink"             -> "RethinkDNS"
+            "rethink-light"       -> "RethinkDNS – Protection légère"
+            "rethink-recommended" -> "RethinkDNS – Protection recommandée"
+            "rethink-max"         -> "RethinkDNS – Protection maximale"
+            else -> {
+                // URL directe RethinkDNS avec stamp personnalisé
+                if (currentProviderName.contains("rethinkdns.com")) "RethinkDNS – Personnalisé"
+                else currentProviderName.replaceFirstChar { it.uppercase() }
+            }
         }
     }
 
-    fun getProviderUrl(): String {
-        return currentUrl
-    }
+    fun getProviderUrl(): String = currentUrl
+
+    fun isRethinkDns(): Boolean = currentUrl.contains("rethinkdns.com")
 
     suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
         if (!enabled) {
@@ -93,13 +128,11 @@ class DohResolver private constructor(context: Context) {
             try {
                 Log.d(TAG, "🌐 Requête DoH vers $currentProviderName ($currentUrl)")
 
-                // Encoder la requête DNS en base64 URL-safe
                 val base64Query = Base64.encodeToString(
                     dnsQuery,
                     Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
                 )
 
-                // Construire l'URL avec le paramètre dns
                 val requestUrl = "$currentUrl?dns=$base64Query"
 
                 val connection = URL(requestUrl).openConnection() as HttpsURLConnection

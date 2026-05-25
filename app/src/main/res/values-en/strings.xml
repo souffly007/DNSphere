@@ -4,7 +4,7 @@
     <!-- ==================== APP INFO ==================== -->
     <string name="app_name">DNSphere</string>
     <string name="app_version">1.4</string>
-    <string name="widget_description">Quick control for DNSphere</string>
+    <string name="widget_description">Quick control of DNSphere</string>
 
     <!-- Developer info -->
     <string name="developer_name">souffly007</string>
@@ -46,7 +46,7 @@
     <string name="logs_cleared">Logs cleared</string>
 
     <!-- ==================== LOGS ACTIVITY ==================== -->
-    <string name="logs_toolbar_title">📋 Block logs</string>
+    <string name="logs_toolbar_title">📋 Blocking logs</string>
     <string name="logs_empty">No blocks recorded</string>
     <string name="type_ad">Ad</string>
     <string name="type_tracker">Tracker</string>
@@ -55,7 +55,7 @@
     <!-- ==================== WHITELIST ACTIVITY ==================== -->
     <string name="whitelist_toolbar_title">✅ Whitelist</string>
     <string name="whitelist_empty">No domains in whitelist</string>
-    <string name="whitelist_add_title">Add a domain</string>
+    <string name="whitelist_add_title">Add domain</string>
     <string name="whitelist_add_message">This domain will never be blocked</string>
     <string name="whitelist_add_hint">example.com</string>
 
@@ -67,26 +67,37 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_clear">Clear</string>
     <string name="clear_logs_title">Clear logs</string>
-    <string name="clear_logs_message">Do you want to delete all block logs?</string>
+    <string name="clear_logs_message">Do you want to delete all blocking logs?</string>
 
     <!-- ==================== PREFERENCES - CATEGORIES ==================== -->
     <string name="pref_category_secure_dns">🔐 Secure DNS</string>
-    <string name="pref_category_blocklists">📋 Block lists</string>
-    <string name="pref_category_apps">📱 Applications</string>
+    <string name="pref_category_blocklists">📋 Blocklists</string>
+    <string name="pref_category_apps">📱 Apps</string>
     <string name="pref_category_data">💾 Data</string>
     <string name="pref_category_about">ℹ️ About</string>
 
     <!-- ==================== PREFERENCES - DNS ==================== -->
     <string name="pref_use_doh_title">DNS over HTTPS (DoH)</string>
-    <string name="pref_use_doh_summary">Encrypt DNS requests for more privacy</string>
+    <string name="pref_use_doh_summary">Encrypt DNS queries for more privacy</string>
     <string name="pref_doh_provider_title">DoH server</string>
 
     <string name="doh_provider_cloudflare">Cloudflare (recommended)</string>
     <string name="doh_provider_google">Google</string>
     <string name="doh_provider_quad9">Quad9 (security)</string>
-    <string name="doh_provider_adguard">AdGuard (ad-blocking)</string>
+    <string name="doh_provider_adguard">AdGuard (anti-ad)</string>
 
-    <!-- ==================== PREFERENCES - SCHEDULE ==================== -->
+    <!-- ==================== DOH PROVIDERS - RETHINKDNS ==================== -->
+    <string name="doh_provider_rethink">RethinkDNS – Pure resolver</string>
+    <string name="doh_provider_rethink_light">RethinkDNS – Light protection 🟢</string>
+    <string name="doh_provider_rethink_recommended">RethinkDNS – Recommended protection 🟡</string>
+    <string name="doh_provider_rethink_max">RethinkDNS – Maximum protection 🔴</string>
+
+    <!-- ==================== WEBRTC LEAK PROTECTION ==================== -->
+    <string name="pref_webrtc_title">🛡️ WebRTC protection</string>
+    <string name="pref_webrtc_summary">Blocks public STUN/TURN servers to prevent your real IP address from leaking via the browser</string>
+    <string name="webrtc_enabled">🛡️ WebRTC protection enabled</string>
+    <string name="webrtc_disabled">WebRTC protection disabled</string>
+    <string name="type_webrtc_stun">WebRTC STUN</string>
 
     <!-- ==================== PREFERENCES - BLOCKLISTS ==================== -->
     <string name="pref_external_lists_title">📥 External lists</string>
@@ -101,14 +112,14 @@
 
     <!-- ==================== PREFERENCES - DATA ==================== -->
     <string name="pref_clear_logs_title">🗑️ Clear logs</string>
-    <string name="pref_clear_logs_summary">Delete block history</string>
+    <string name="pref_clear_logs_summary">Delete blocking history</string>
 
     <!-- ==================== BACKUP / RESTORE ==================== -->
-    <string name="pref_category_backup">📦 Backup and Restore</string>
-    <string name="pref_backup_title">💾 Back up lists</string>
-    <string name="pref_backup_summary">Export all block lists to a file</string>
+    <string name="pref_category_backup">📦 Backup and restore</string>
+    <string name="pref_backup_title">💾 Backup lists</string>
+    <string name="pref_backup_summary">Export all blocklists to a file</string>
     <string name="pref_restore_title">📂 Restore lists</string>
-    <string name="pref_restore_summary">Import block lists from a file</string>
+    <string name="pref_restore_summary">Import blocklists from a file</string>
 
     <string name="backup_success">✅ Backup exported successfully</string>
     <string name="backup_failure">❌ Backup failed</string>
@@ -116,10 +127,10 @@
     <string name="restore_failure">❌ Restore failed</string>
     <string name="restore_invalid_file">❌ Invalid or corrupted file</string>
 
-    <string name="backup_dialog_title">Back up lists</string>
+    <string name="backup_dialog_title">Backup lists</string>
     <string name="backup_dialog_message">Custom lists and whitelist will be exported to a .json file</string>
     <string name="restore_dialog_title">Restore lists</string>
-    <string name="restore_dialog_message">Warning: current lists will be replaced by those in the selected file.</string>
+    <string name="restore_dialog_message">Warning: current lists will be replaced by those from the selected file.</string>
     <string name="restore_dialog_confirm">Restore</string>
 
     <string name="backup_file_name">dnsphere_backup_%s.json</string>
@@ -128,7 +139,7 @@
 
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Version</string>
-    <string name="pref_version_summary">DNSphere v1.4</string>
+    <string name="pref_version_summary">DNSphere v1.5</string>
     <string name="pref_developer_title">👨‍💻 Created by</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Source code (GitHub)</string>
@@ -142,14 +153,12 @@
     <string name="stats_this_week">Week</string>
     <string name="stats_this_month">Month</string>
     <string name="stats_all_time">All</string>
-    <string name="stats_blocked_requests">blocked requests</string>
+    <string name="stats_blocked_requests">requests blocked</string>
     <string name="stats_by_category">📈 By category</string>
     <string name="stats_chart_daily">📅 By day</string>
     <string name="stats_by_hour">🕐 By hour (today)</string>
     <string name="stats_top_blocked">🏆 Top blocked domains</string>
     <string name="stats_no_data">No data for this period</string>
-
-    <!-- ==================== SCHEDULE ACTIVITY ==================== -->
 
     <!-- Days -->
     <string name="day_mon">Mon</string>
@@ -167,7 +176,7 @@
     <string name="common_edit">Edit</string>
 
     <!-- ==================== PROFILES ==================== -->
-    <string name="profiles_title">📁 Block profiles</string>
+    <string name="profiles_title">📁 Blocking profiles</string>
     <string name="profiles_all">All profiles</string>
     <string name="profile_active">Active profile</string>
     <string name="profile_active_badge">ACTIVE</string>
@@ -188,10 +197,11 @@
     <string name="profile_cannot_delete_preset">Cannot delete a preset profile</string>
     <string name="profile_cannot_delete_active">Cannot delete the active profile</string>
     <string name="profile_delete_title">Delete profile?</string>
-    <string name="profile_delete_message">Do you want to delete the profile "%s"?</string>
+    <string name="profile_delete_message">Do you want to delete the "%s" profile?</string>
 
+    <!-- Profile preferences -->
     <string name="pref_category_profiles">📁 Profiles</string>
-    <string name="pref_profiles_summary">Manage block profiles</string>
+    <string name="pref_profiles_summary">Manage blocking profiles</string>
 
     <!-- ==================== BIOMETRIC / SECURITY ==================== -->
     <string name="security_title">🔐 Security</string>
@@ -202,17 +212,17 @@
     <string name="bio_info_desc">Use your fingerprint or Face ID to protect the app</string>
 
     <string name="bio_enable_protection">Enable protection</string>
-    <string name="bio_enable_protection_desc">Require authentication for sensitive actions</string>
+    <string name="bio_enable_protection_desc">Request authentication for sensitive actions</string>
 
     <string name="bio_protection_options">Protection options</string>
 
-    <string name="bio_protect_disable">VPN deactivation</string>
+    <string name="bio_protect_disable">Disable VPN</string>
     <string name="bio_protect_disable_desc">Authentication required to disable protection</string>
 
     <string name="bio_protect_settings">Access to settings</string>
-    <string name="bio_protect_settings_desc">Authentication required to modify settings</string>
+    <string name="bio_protect_settings_desc">Authentication required to change settings</string>
 
-    <string name="bio_protect_profiles">Profile modification</string>
+    <string name="bio_protect_profiles">Edit profiles</string>
     <string name="bio_protect_profiles_desc">Authentication required to change profile</string>
 
     <string name="bio_enable_title">Enable protection</string>
@@ -229,7 +239,7 @@
     <string name="bio_disabled">Biometric protection disabled</string>
 
     <string name="bio_no_hardware">Your device does not support biometrics</string>
-    <string name="bio_hardware_unavailable">The biometric sensor is not available</string>
-    <string name="bio_not_enrolled">No fingerprint or Face ID configured. Set it up in your phone settings.</string>
+    <string name="bio_hardware_unavailable">Biometric sensor is not available</string>
+    <string name="bio_not_enrolled">No fingerprint or Face ID configured. Set it up in phone settings.</string>
 
 </resources>
