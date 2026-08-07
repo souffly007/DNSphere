@@ -25,7 +25,8 @@ enum class ListCategory {
     MALWARE,
     PRIVACY,
     SOCIAL,
-    CUSTOM
+    CUSTOM,
+    PARENTAL
 }
 
 enum class ListFormat {

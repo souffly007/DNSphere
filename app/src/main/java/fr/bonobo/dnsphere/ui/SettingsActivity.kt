@@ -55,7 +55,7 @@ class SettingsActivity : AppCompatActivity() {
             preferenceManager.sharedPreferencesName = "vpn_prefs"
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
-            database = AppDatabase.getInstance(requireContext())
+            database         = AppDatabase.getInstance(requireContext())
             blockListManager = BlockListManager(requireContext())
 
             findPreference<Preference>("version")?.summary = BuildConfig.VERSION_NAME
@@ -241,15 +241,22 @@ class SettingsActivity : AppCompatActivity() {
             requireContext().startService(intent)
         }
 
+        /**
+        ** Lit uniquement pinEnabled depuis la DB via coroutine — sans instancier
+        * ParentalManager (qui chargeait 500K domaines sur la main thread → ANR).
+        */
         private fun updateParentalSummary() {
-            try {
-                val parentalManager = fr.bonobo.dnsphere.ParentalManager(requireContext())
-                findPreference<Preference>("parental_control")?.summary = if (parentalManager.isPinEnabled()) {
-                    "🔒 Activé"
-                } else {
-                    "Bloquer des catégories et restreindre les horaires"
-                }
-            } catch (e: Exception) { }
+            lifecycleScope.launch {
+                try {
+                    val config = database.parentalControlDao().get()
+                    val pinEnabled = config?.pinEnabled == true
+                    findPreference<Preference>("parental_control")?.summary = if (pinEnabled) {
+                        "🔒 Activé"
+                    } else {
+                        "Bloquer des catégories et restreindre les horaires"
+                    }
+                } catch (e: Exception) { }
+            }
         }
 
         private fun openUrl(url: String) {

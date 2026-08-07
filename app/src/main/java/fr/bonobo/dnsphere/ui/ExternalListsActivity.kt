@@ -186,6 +186,7 @@ class ExternalListsActivity : AppCompatActivity() {
         ListCategory.PRIVACY  -> "🔒"
         ListCategory.SOCIAL   -> "📱"
         ListCategory.CUSTOM   -> "📝"
+        ListCategory.PARENTAL -> "👨‍👩‍👧‍👦"
     }
 
     // =========================================================================

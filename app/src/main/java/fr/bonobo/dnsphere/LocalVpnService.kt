@@ -102,7 +102,6 @@ class LocalVpnService : VpnService() {
         loadSavedDnsConfig()
         createNotificationChannel()
 
-        // Charger les règles par app en cache
         serviceScope.launch { appFilterManager.loadRules() }
 
         Log.d("DNSphere", "🚀 Service créé — DoH: ${dohResolver.getProviderName()}, DoQ: ${doqResolver.getServerName()}, DoH3: ${doh3Resolver.getProviderName()}")
@@ -121,10 +120,14 @@ class LocalVpnService : VpnService() {
                 stopVpn()
             }
             ACTION_UPDATE_CONFIG -> {
-                loadConfigFromIntent(intent)
+                // Ne recharger la config depuis l'intent QUE s'il contient des extras.
+                // Un intent vide (ex: envoyé par ListUpdateWorker après téléchargement)
+                // recharge uniquement les listes sans écraser blockAds/blockTrackers/etc.
+                if (intent.extras != null && intent.extras!!.size() > 0) {
+                    loadConfigFromIntent(intent)
+                }
                 blockListManager.refresh()
                 parentalManager.reload()
-                // Recharger les règles app à chaud
                 serviceScope.launch { appFilterManager.loadRules() }
                 updateNotification()
                 Log.d("DNSphere", "🔄 Config rechargée à chaud")
@@ -359,7 +362,6 @@ class LocalVpnService : VpnService() {
                             when (appRule?.rule) {
 
                                 AppRuleType.BLOCK_ALL -> {
-                                    // Bloquer toutes les requêtes de cette app
                                     Log.d("DNSphere", "🚫 [APP:${appRule.appName}] $dnsQuery")
                                     incrementBlockCounter("AD")
                                     logBlock(dnsQuery, "APP_BLOCK")
@@ -368,17 +370,26 @@ class LocalVpnService : VpnService() {
                                 }
 
                                 AppRuleType.ALLOW_ALL -> {
-                                    // Bypass complet — forward sans filtrage
                                     Log.d("DNSphere", "✅ [APP:${appRule.appName}] bypass $dnsQuery")
                                     forwardDnsQuery(ipPacket)?.let { outputStream.write(it) }
                                     delay(1); continue
                                 }
 
-                                else -> {
-                                    // DEFAULT ou null → filtrage standard ci-dessous
-                                }
+                                else -> { /* DEFAULT ou null → filtrage standard */ }
                             }
                             // ─────────────────────────────────────────────────
+
+                            // SafeSearch enforcement (profil Enfants)
+                            if (parentalManager.getConfig().pinEnabled &&
+                                parentalManager.getConfig().blockAdult) {
+                                val safeIp = SafeSearchEnforcer.getSafeIp(dnsQuery)
+                                if (safeIp != null) {
+                                    Log.d("DNSphere", "🔍 SafeSearch: $dnsQuery")
+                                    createSafeSearchDnsResponse(ipPacket, safeIp)
+                                        ?.let { outputStream.write(it) }
+                                    delay(1); continue
+                                }
+                            }
 
                             // Filtrage DNS standard
                             val blockType = getBlockType(dnsQuery)
@@ -455,6 +466,10 @@ class LocalVpnService : VpnService() {
 
     private fun getBlockType(hostname: String): String? {
         if (blockListManager.isWhitelisted(hostname)) return null
+        if (blockListManager.isDohBypass(hostname)) return "DOH_BYPASS"
+        // SafeSearch : moteurs sans SafeSearch DNS bloqués entièrement en mode parental
+        if (parentalManager.getConfig().pinEnabled &&
+            SafeSearchEnforcer.isBlockedSearchEngine(hostname)) return "PARENTAL"
         if (parentalManager.shouldBlockNow(hostname)) return "PARENTAL"
         return when {
             blockAds      && blockListManager.isAd(hostname)       -> "AD"
@@ -471,7 +486,7 @@ class LocalVpnService : VpnService() {
             "AD"                               -> adsBlocked++
             "TRACKER"                          -> trackersBlocked++
             "MALWARE"                          -> malwareBlocked++
-            "SHOPPING", "EXTERNAL", "PARENTAL",
+            "SHOPPING", "EXTERNAL", "PARENTAL", "DOH_BYPASS",
             "APP_BLOCK"                        -> shoppingBlocked++
         }
     }
@@ -512,6 +527,48 @@ class LocalVpnService : VpnService() {
             }
             if (parts.isNotEmpty()) parts.joinToString(".").lowercase() else null
         } catch (e: Exception) { null }
+    }
+
+    /**
+     * Crée une réponse DNS avec une IP SafeSearch spécifique.
+     * Retourne une réponse A record valide au lieu de NXDOMAIN.
+     *
+     * Structure de la réponse DNS :
+     * - Header (12 bytes) : copié depuis la query, flags modifiés
+     * - Question : copiée depuis la query
+     * - Answer : pointeur vers la question + type A + IP SafeSearch
+     */
+    private fun createSafeSearchDnsResponse(originalPacket: ByteArray, safeIp: ByteArray): ByteArray? {
+        return try {
+            val dnsQuery = extractDnsPayload(originalPacket)
+            if (dnsQuery.size < 12) return null
+
+            // Section Answer : pointeur vers QNAME (0xC00C = offset 12)
+            val answerSection = byteArrayOf(
+                0xC0.toByte(), 0x0C.toByte(), // Name: pointer to question (offset 12)
+                0x00, 0x01,                    // Type: A
+                0x00, 0x01,                    // Class: IN
+                0x00, 0x00, 0x00, 0x78,        // TTL: 120 secondes
+                0x00, 0x04,                    // RDLENGTH: 4 octets
+                safeIp[0], safeIp[1], safeIp[2], safeIp[3]
+            )
+
+            // Construire la réponse = query + answer
+            val dnsResponse = ByteArray(dnsQuery.size + answerSection.size)
+            System.arraycopy(dnsQuery,      0, dnsResponse, 0,             dnsQuery.size)
+            System.arraycopy(answerSection, 0, dnsResponse, dnsQuery.size, answerSection.size)
+
+            // Flags : QR=1 (réponse), RD=1, RA=1, RCODE=0 (no error)
+            dnsResponse[2] = 0x81.toByte()
+            dnsResponse[3] = 0x80.toByte()
+            // ANCOUNT = 1
+            dnsResponse[6] = 0x00
+            dnsResponse[7] = 0x01
+
+            buildResponsePacket(originalPacket, dnsResponse)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun createBlockedDnsResponse(originalPacket: ByteArray): ByteArray? {

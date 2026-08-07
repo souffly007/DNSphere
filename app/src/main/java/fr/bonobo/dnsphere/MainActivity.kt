@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import fr.bonobo.dnsphere.data.AppDatabase
@@ -43,6 +44,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var biometricHelper: BiometricHelper
     private var isVpnRunning = false
 
+    // =========================================================================
+    // Observer permanent — non lié au lifecycle de l'activité
+    // Permet de recevoir les updates même quand l'activité est en STARTED
+    // (écran allumé mais app en arrière-plan ne pose pas de problème car
+    // observeForever reçoit toujours, et on le retire dans onDestroy)
+    // =========================================================================
+    private val statsObserver = Observer<VpnStats> { stats ->
+        tvAdsBlocked.text      = stats.adsBlocked.toString()
+        tvTrackersBlocked.text = stats.trackersBlocked.toString()
+        saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)
+        Log.d("MainActivity", "📊 Stats reçues: Pubs=${stats.adsBlocked}, Trackers=${stats.trackersBlocked}")
+    }
+
     private val vpnPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -59,14 +73,16 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        database       = AppDatabase.getInstance(this)
+        database        = AppDatabase.getInstance(this)
         biometricHelper = BiometricHelper.getInstance(this)
 
         initViews()
         setupListeners()
         loadPreferences()
         loadCurrentStats()
-        observeStats()
+
+        // observeForever : reçoit les updates quel que soit l'état du lifecycle
+        StatsLiveData.vpnStats.observeForever(statsObserver)
 
         // Démarrage du watchdog — surveille le VPN toutes les 15 min
         WatchdogWorker.start(this)
@@ -93,15 +109,6 @@ class MainActivity : AppCompatActivity() {
         tvCreatedBy.text = getString(R.string.created_by, DEVELOPER_NAME)
     }
 
-    private fun observeStats() {
-        StatsLiveData.vpnStats.observe(this) { stats ->
-            tvAdsBlocked.text      = stats.adsBlocked.toString()
-            tvTrackersBlocked.text = stats.trackersBlocked.toString()
-            saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)
-            Log.d("MainActivity", "📊 Stats reçues: Pubs=${stats.adsBlocked}, Trackers=${stats.trackersBlocked}")
-        }
-    }
-
     private fun setupListeners() {
         btnToggle.setOnClickListener {
             if (isVpnRunning) stopVpnService() else requestVpnPermission()
@@ -122,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             updateServiceConfig()
         }
 
-                findViewById<View>(R.id.cardStats).setOnClickListener {
+        findViewById<View>(R.id.cardStats).setOnClickListener {
             startActivity(Intent(this, LogsActivity::class.java))
         }
 
@@ -198,10 +205,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         ContextCompat.startForegroundService(this, intent)
-
-        // Mémoriser que l'utilisateur veut le VPN actif → pour le watchdog
         setVpnShouldRun(true)
-
         updateUI(true)
         DnsphereWidget.updateWidget(this)
         Toast.makeText(this, R.string.protection_started, Toast.LENGTH_SHORT).show()
@@ -225,18 +229,12 @@ class MainActivity : AppCompatActivity() {
             action = LocalVpnService.ACTION_STOP
         }
         startService(intent)
-
-        // L'utilisateur a volontairement arrêté → le watchdog ne relance pas
         setVpnShouldRun(false)
-
         updateUI(false)
         DnsphereWidget.updateWidget(this)
         Toast.makeText(this, R.string.protection_stopped, Toast.LENGTH_SHORT).show()
     }
 
-    /**
-     * Indique au watchdog si le VPN doit être actif ou non.
-     */
     private fun setVpnShouldRun(shouldRun: Boolean) {
         getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
             .edit()
@@ -313,6 +311,14 @@ class MainActivity : AppCompatActivity() {
         isVpnRunning = LocalVpnService.isRunning
         updateUI(isVpnRunning)
         loadPreferences()
+    }
+
+    // =========================================================================
+    // IMPORTANT : retirer l'observer permanent pour éviter les memory leaks
+    // =========================================================================
+    override fun onDestroy() {
+        super.onDestroy()
+        StatsLiveData.vpnStats.removeObserver(statsObserver)
     }
 
     override fun onNewIntent(intent: Intent?) {

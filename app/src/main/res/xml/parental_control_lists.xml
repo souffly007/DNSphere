@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Listes de blocage">
+
+        <CheckBoxPreference
+            android:key="block_adult"
+            android:title="Contenu adulte"
+            android:summary="Blocage des sites pornographiques et explicites"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="block_gambling"
+            android:title="Jeux d'argent"
+            android:summary="Blocage des casinos, paris sportifs et poker en ligne"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="block_violence"
+            android:title="Violence"
+            android:summary="Blocage des contenus violents et choquants"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="block_drugs"
+            android:title="Drogues"
+            android:summary="Blocage des sites liés aux drogues et substances illicites"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="block_weapons"
+            android:title="Armes"
+            android:summary="Blocage des sites de vente d'armes et munitions"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="block_hate"
+            android:title="Haine et discrimination"
+            android:summary="Blocage des discours de haine et contenus discriminatoires"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Listes personnalisées">
+
+        <EditTextPreference
+            android:key="custom_blacklist"
+            android:title="Liste noire personnalisée"
+            android:summary="Domaines à bloquer (un par ligne)"
+            android:dialogTitle="Sites à bloquer"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="custom_whitelist"
+            android:title="Liste blanche personnalisée"
+            android:summary="Domaines autorisés (un par ligne)"
+            android:dialogTitle="Sites autorisés"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

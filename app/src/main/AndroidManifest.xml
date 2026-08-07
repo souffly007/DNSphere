@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -17,7 +20,8 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.DNSphere"
         android:usesCleartextTraffic="true"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        tools:targetApi="31">
 
         <activity
             android:name=".MainActivity"
@@ -29,19 +33,69 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.LogsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
-        <activity android:name=".ui.WhitelistActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
-        <activity android:name=".ui.StatsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
-        <activity android:name=".ui.SettingsActivity" android:exported="false" android:parentActivityName=".MainActivity"/>
-        <activity android:name=".ui.ListManagerActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
-        <activity android:name=".ui.AppExcluderActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
-        <activity android:name=".ui.ExternalListsActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity"/>
-        <activity android:name=".ui.ProfilesActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
-        <activity android:name=".ui.SecurityActivity" android:exported="false" android:theme="@style/Theme.DNSphere" />
-        <activity android:name=".ui.BackupActivity" android:label="Sauvegarde" android:parentActivityName=".ui.SettingsActivity" android:exported="false" />
-        <activity android:name=".ui.RulesEditorActivity" android:exported="false" android:parentActivityName=".ui.SettingsActivity" />
-        <activity android:name=".ui.AppsActivity"/>
-        <activity android:name=".ui.ProfileScheduleActivity"/>
+        <activity
+            android:name=".ui.LogsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".ui.WhitelistActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".ui.StatsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".ui.ListManagerActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.SettingsActivity"/>
+
+        <activity
+            android:name=".ui.AppExcluderActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.SettingsActivity"/>
+
+        <activity
+            android:name=".ui.ExternalListsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.SettingsActivity"/>
+
+        <activity
+            android:name=".ui.ProfilesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DNSphere" />
+
+        <activity
+            android:name=".ui.SecurityActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DNSphere" />
+
+        <activity
+            android:name=".ui.BackupActivity"
+            android:label="Sauvegarde"
+            android:parentActivityName=".ui.SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.RulesEditorActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.SettingsActivity" />
+
+        <activity
+            android:name=".ui.AppsActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ui.ProfileScheduleActivity"
+            android:exported="false"/>
 
         <service
             android:name=".LocalVpnService"
@@ -52,9 +106,21 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
             <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:name="android.foregroundService.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="vpn_service_to_intercept_dns_queries" />
         </service>
+
+        <service
+            android:name=".services.ListUpdateService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receivers.ListUpdateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="fr.bonobo.dnsphere.UPDATE_LISTS" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".BootReceiver"

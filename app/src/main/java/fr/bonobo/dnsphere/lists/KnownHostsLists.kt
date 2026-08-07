@@ -10,13 +10,15 @@ import fr.bonobo.dnsphere.data.ListFormat
 object KnownHostsLists {
 
     data class KnownList(
-        val name:        String,
-        val url:         String,
-        val description: String,
-        val category:    ListCategory,
-        val format:      ListFormat,
-        val icon:        String,
-        val approxCount: String   // indication du nombre de domaines
+        val name:           String,
+        val url:            String,
+        val description:    String,
+        val category:       ListCategory,
+        val format:         ListFormat,
+        val icon:           String,
+        val approxCount:    String,
+        /** Si true, cette liste est activée automatiquement quand le profil Enfants est créé */
+        val parentalDefault: Boolean = false
     )
 
     val ALL = listOf(
@@ -223,9 +225,57 @@ object KnownHostsLists {
             format      = ListFormat.ADBLOCK,
             icon        = "🇫🇷",
             approxCount = "~500 règles"
+        ),
+
+        // =====================================================================
+        // CONTRÔLE PARENTAL — contenus adultes
+        // Ces listes sont activées automatiquement pour le profil Enfants
+        // =====================================================================
+        KnownList(
+            name            = "HaGeZi – Pro++",
+            url             = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/wildcard/pro.plus-onlydomains.txt",
+            description     = "Blocage contenu adulte/pornographique — référence contrôle parental DNS.",
+            category        = ListCategory.PARENTAL,
+            format          = ListFormat.ADBLOCK,
+            icon            = "🔞",
+            approxCount     = "~320K domaines",
+            parentalDefault = true
+        ),
+        KnownList(
+            name            = "StevenBlack – Porn only",
+            url             = "http://sbc.io/hosts/alternates/fakenews-gambling-porn/hosts",
+            description     = "Extension StevenBlack dédiée contenu pornographique.",
+            category        = ListCategory.PARENTAL,
+            format          = ListFormat.HOSTS,
+            icon            = "🔞",
+            approxCount     = "~160K domaines",
+            parentalDefault = true
+        ),
+        KnownList(
+            name            = "HaGeZi – Gambling",
+            url             = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/gambling.txt",
+            description     = "Bloque les sites de jeux d'argent et paris en ligne.",
+            category        = ListCategory.PARENTAL,
+            format          = ListFormat.ADBLOCK,
+            icon            = "🎲",
+            approxCount     = "~100K domaines",
+            parentalDefault = true
+        ),
+        KnownList(
+            name            = "HaGeZi – Fake (arnaques & phishing)",
+            url             = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/fake.txt",
+            description     = "Protège contre les arnaques, faux sites et phishing.",
+            category        = ListCategory.PARENTAL,
+            format          = ListFormat.ADBLOCK,
+            icon            = "🎣",
+            approxCount     = "~30K domaines",
+            parentalDefault = true
         )
     )
 
     // Grouper par catégorie pour l'affichage
     val BY_CATEGORY: Map<ListCategory, List<KnownList>> = ALL.groupBy { it.category }
+
+    /** Listes activées par défaut à la création d'un profil Enfants */
+    val PARENTAL_DEFAULTS: List<KnownList> = ALL.filter { it.parentalDefault }
 }

@@ -38,6 +38,30 @@ interface ExternalListDao {
     @Query("UPDATE external_lists SET lastError = :error WHERE id = :id")
     suspend fun setListError(id: Int, error: String)
 
+    /**
+     * Retourne tous les domaines des listes activées d'une catégorie donnée.
+     * Utilisé par ParentalManager pour charger les domaines PARENTAL en mémoire.
+     */
+    @Query("""
+        SELECT d.domain FROM external_list_domains d
+        INNER JOIN external_lists l ON d.listId = l.id
+        WHERE l.category = :category AND l.enabled = 1
+    """)
+    suspend fun getDomainsByCategory(category: ListCategory): List<String>
+
+    /**
+     * Retourne toutes les URLs de listes enregistrées (pour éviter les doublons).
+     */
+    @Query("SELECT url FROM external_lists")
+    suspend fun getAllUrls(): List<String>
+
+    /**
+     * Réactive toutes les listes d'une catégorie (au cas où elles auraient été désactivées).
+     */
+    @Query("UPDATE external_lists SET enabled = 1 WHERE category = :category")
+    suspend fun enableByCategory(category: ListCategory)
+
+
     // ==================== DOMAINS ====================
 
     @Query("SELECT domain FROM external_list_domains WHERE listId IN (SELECT id FROM external_lists WHERE enabled = 1)")

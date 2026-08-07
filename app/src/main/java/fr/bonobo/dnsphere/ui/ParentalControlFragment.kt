@@ -22,6 +22,10 @@ class ParentalControlFragment : Fragment() {
     private lateinit var switchEnabled: Switch
     private lateinit var layoutConfig: LinearLayout
 
+    // Avertissement listes non téléchargées
+    private lateinit var bannerListesManquantes: View
+    private lateinit var btnTelechargerListes: Button
+
     // Catégories
     private lateinit var switchAdult: Switch
     private lateinit var switchGaming: Switch
@@ -48,10 +52,6 @@ class ParentalControlFragment : Fragment() {
 
     private lateinit var btnSave: Button
 
-    // =========================================================================
-    // FLAG ANTI-BOUCLE — empêche le listener de se déclencher
-    // quand on change isChecked programmatiquement
-    // =========================================================================
     private var isUpdatingSwitch = false
 
     override fun onCreateView(
@@ -69,30 +69,33 @@ class ParentalControlFragment : Fragment() {
         setupNumberPickers()
         loadCurrentConfig()
         setupListeners()
+        updateListesBanner()
     }
 
     private fun bindViews(view: View) {
-        switchEnabled   = view.findViewById(R.id.switchParentalEnabled)
-        layoutConfig    = view.findViewById(R.id.layoutParentalConfig)
-        switchAdult     = view.findViewById(R.id.switchBlockAdult)
-        switchGaming    = view.findViewById(R.id.switchBlockGaming)
-        switchSocial    = view.findViewById(R.id.switchBlockSocial)
-        switchStreaming  = view.findViewById(R.id.switchBlockStreaming)
-        switchForums    = view.findViewById(R.id.switchBlockForums)
-        switchSchedule  = view.findViewById(R.id.switchScheduleEnabled)
-        layoutSchedule  = view.findViewById(R.id.layoutSchedule)
-        npStartHour     = view.findViewById(R.id.npStartHour)
-        npStartMinute   = view.findViewById(R.id.npStartMinute)
-        npEndHour       = view.findViewById(R.id.npEndHour)
-        npEndMinute     = view.findViewById(R.id.npEndMinute)
-        cbMonday        = view.findViewById(R.id.cbMonday)
-        cbTuesday       = view.findViewById(R.id.cbTuesday)
-        cbWednesday     = view.findViewById(R.id.cbWednesday)
-        cbThursday      = view.findViewById(R.id.cbThursday)
-        cbFriday        = view.findViewById(R.id.cbFriday)
-        cbSaturday      = view.findViewById(R.id.cbSaturday)
-        cbSunday        = view.findViewById(R.id.cbSunday)
-        btnSave         = view.findViewById(R.id.btnSaveParental)
+        switchEnabled          = view.findViewById(R.id.switchParentalEnabled)
+        layoutConfig           = view.findViewById(R.id.layoutParentalConfig)
+        bannerListesManquantes = view.findViewById(R.id.bannerListesManquantes)
+        btnTelechargerListes   = view.findViewById(R.id.btnTelechargerListes)
+        switchAdult            = view.findViewById(R.id.switchBlockAdult)
+        switchGaming           = view.findViewById(R.id.switchBlockGaming)
+        switchSocial           = view.findViewById(R.id.switchBlockSocial)
+        switchStreaming         = view.findViewById(R.id.switchBlockStreaming)
+        switchForums           = view.findViewById(R.id.switchBlockForums)
+        switchSchedule         = view.findViewById(R.id.switchScheduleEnabled)
+        layoutSchedule         = view.findViewById(R.id.layoutSchedule)
+        npStartHour            = view.findViewById(R.id.npStartHour)
+        npStartMinute          = view.findViewById(R.id.npStartMinute)
+        npEndHour              = view.findViewById(R.id.npEndHour)
+        npEndMinute            = view.findViewById(R.id.npEndMinute)
+        cbMonday               = view.findViewById(R.id.cbMonday)
+        cbTuesday              = view.findViewById(R.id.cbTuesday)
+        cbWednesday            = view.findViewById(R.id.cbWednesday)
+        cbThursday             = view.findViewById(R.id.cbThursday)
+        cbFriday               = view.findViewById(R.id.cbFriday)
+        cbSaturday             = view.findViewById(R.id.cbSaturday)
+        cbSunday               = view.findViewById(R.id.cbSunday)
+        btnSave                = view.findViewById(R.id.btnSaveParental)
     }
 
     private fun setupNumberPickers() {
@@ -108,14 +111,13 @@ class ParentalControlFragment : Fragment() {
     private fun loadCurrentConfig() {
         val cfg = parentalManager.getConfig()
 
-        // Mettre à jour le switch sans déclencher le listener
         setSwitchSilently(switchEnabled, cfg.pinEnabled)
         layoutConfig.visibility = if (cfg.pinEnabled) View.VISIBLE else View.GONE
 
         switchAdult.isChecked     = cfg.blockAdult
         switchGaming.isChecked    = cfg.blockGaming
         switchSocial.isChecked    = cfg.blockSocialMedia
-        switchStreaming.isChecked = cfg.blockStreaming
+        switchStreaming.isChecked  = cfg.blockStreaming
         switchForums.isChecked    = cfg.blockForums
 
         switchSchedule.isChecked  = cfg.scheduleEnabled
@@ -136,8 +138,22 @@ class ParentalControlFragment : Fragment() {
     }
 
     // =========================================================================
+    // BANNER — avertissement si les listes parentales ne sont pas téléchargées
+    // =========================================================================
+
+    private fun updateListesBanner() {
+        val cfg = parentalManager.getConfig()
+        val listesManquantes = cfg.pinEnabled &&
+                cfg.blockAdult &&
+                parentalManager.externalAdultDomainsCount() == 0
+
+        bannerListesManquantes.visibility = if (listesManquantes) View.VISIBLE else View.GONE
+    }
+
+    // =========================================================================
     // Change isChecked sans déclencher le OnCheckedChangeListener
     // =========================================================================
+
     private fun setSwitchSilently(switch: Switch, checked: Boolean) {
         isUpdatingSwitch = true
         switch.isChecked = checked
@@ -147,9 +163,7 @@ class ParentalControlFragment : Fragment() {
     private fun setupListeners() {
 
         switchEnabled.setOnCheckedChangeListener { _, isChecked ->
-            // Ignorer si c'est un changement programmatique
             if (isUpdatingSwitch) return@setOnCheckedChangeListener
-
             if (isChecked) {
                 showSetPinDialog()
             } else {
@@ -157,8 +171,47 @@ class ParentalControlFragment : Fragment() {
             }
         }
 
+        switchAdult.setOnCheckedChangeListener { _, _ ->
+            updateListesBanner()
+        }
+
         switchSchedule.setOnCheckedChangeListener { _, isChecked ->
             layoutSchedule.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+
+        // Télécharger les listes parentales depuis le banner
+        btnTelechargerListes.setOnClickListener {
+            lifecycleScope.launch {
+                btnTelechargerListes.isEnabled = false
+                btnTelechargerListes.text = "⏳ Installation en cours…"
+                try {
+                    // 1. Enregistrer les listes en base si pas encore fait
+                    parentalManager.installParentalDefaultLists()
+
+                    // 2. Lancer le téléchargement réel des domaines via WorkManager
+                    fr.bonobo.dnsphere.lists.ListUpdateWorker.runNow(requireContext())
+
+                    // 3. Recharger la config VPN à chaud
+                    val intent = android.content.Intent(LocalVpnService.ACTION_UPDATE_CONFIG)
+                    requireContext().sendBroadcast(intent)
+
+                    Toast.makeText(
+                        requireContext(),
+                        "⏳ Téléchargement en cours (~500 000 domaines)…\nLe blocage sera actif dans quelques minutes.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    updateListesBanner()
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "❌ Erreur : \${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } finally {
+                    btnTelechargerListes.isEnabled = true
+                    btnTelechargerListes.text = "📥 Télécharger maintenant"
+                }
+            }
         }
 
         btnSave.setOnClickListener {
@@ -192,6 +245,7 @@ class ParentalControlFragment : Fragment() {
         lifecycleScope.launch {
             parentalManager.saveConfig(newConfig)
             notifyVpnReload()
+            updateListesBanner()
             Toast.makeText(requireContext(), "✅ Contrôle parental mis à jour", Toast.LENGTH_SHORT).show()
         }
     }
@@ -231,13 +285,13 @@ class ParentalControlFragment : Fragment() {
                 val pin = input.text.toString()
                 if (pin.length < 4) {
                     Toast.makeText(requireContext(), "PIN trop court (min 4 chiffres)", Toast.LENGTH_SHORT).show()
-                    setSwitchSilently(switchEnabled, false)  // ← sans déclencher le listener
+                    setSwitchSilently(switchEnabled, false)
                 } else {
                     showConfirmPinDialog(pin)
                 }
             }
             .setNegativeButton("Annuler") { _, _ ->
-                setSwitchSilently(switchEnabled, false)      // ← sans déclencher le listener
+                setSwitchSilently(switchEnabled, false)
             }
             .setCancelable(false)
             .show()
@@ -257,15 +311,25 @@ class ParentalControlFragment : Fragment() {
                     lifecycleScope.launch {
                         parentalManager.enableWithPin(pin, parentalManager.getConfig())
                         layoutConfig.visibility = View.VISIBLE
-                        Toast.makeText(requireContext(), "✅ PIN défini, contrôle parental activé", Toast.LENGTH_SHORT).show()
+                        // enableWithPin() enregistre les listes en base
+                        // ListUpdateWorker télécharge réellement les domaines
+                        fr.bonobo.dnsphere.lists.ListUpdateWorker.runNow(requireContext())
+                        val intent = android.content.Intent(LocalVpnService.ACTION_UPDATE_CONFIG)
+                        requireContext().sendBroadcast(intent)
+                        Toast.makeText(
+                            requireContext(),
+                            "✅ PIN défini — téléchargement des listes en cours…\nLe blocage sera actif dans quelques minutes.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        updateListesBanner()
                     }
                 } else {
                     Toast.makeText(requireContext(), "❌ Les PINs ne correspondent pas", Toast.LENGTH_SHORT).show()
-                    setSwitchSilently(switchEnabled, false)  // ← sans déclencher le listener
+                    setSwitchSilently(switchEnabled, false)
                 }
             }
             .setNegativeButton("Annuler") { _, _ ->
-                setSwitchSilently(switchEnabled, false)      // ← sans déclencher le listener
+                setSwitchSilently(switchEnabled, false)
             }
             .setCancelable(false)
             .show()
@@ -286,15 +350,16 @@ class ParentalControlFragment : Fragment() {
                     val ok = parentalManager.disable(input.text.toString())
                     if (ok) {
                         layoutConfig.visibility = View.GONE
+                        bannerListesManquantes.visibility = View.GONE
                         Toast.makeText(requireContext(), "Contrôle parental désactivé", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(requireContext(), "❌ PIN incorrect", Toast.LENGTH_SHORT).show()
-                        setSwitchSilently(switchEnabled, true)   // ← sans déclencher le listener
+                        setSwitchSilently(switchEnabled, true)
                     }
                 }
             }
             .setNegativeButton("Annuler") { _, _ ->
-                setSwitchSilently(switchEnabled, true)           // ← sans déclencher le listener
+                setSwitchSilently(switchEnabled, true)
             }
             .setCancelable(false)
             .show()

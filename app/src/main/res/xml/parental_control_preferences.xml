@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Listes de contrôle parental">
+
+        <CheckBoxPreference
+            android:key="parental_hagezi_ultimate"
+            android:title="🔞 HaGeZi – Aggressive protection"
+            android:summary="Blocage contenu adulte/pornographique (320K domaines)"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="parental_stevenblack_porn"
+            android:title="🔞 StevenBlack – Porn only"
+            android:summary="Extension StevenBlack dédiée contenu pornographique (160K domaines)"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="parental_hagezi_gambling"
+            android:title="🎲 HaGeZi – Gambling"
+            android:summary="Bloque les sites de jeux d'argent et paris en ligne (100K domaines)"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="parental_hagezi_fake"
+            android:title="🎣 HaGeZi – Fake"
+            android:summary="Protège contre les arnaques, faux sites et phishing (30K domaines)"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Listes personnalisées">
+
+        <EditTextPreference
+            android:key="custom_blacklist"
+            android:title="Liste noire personnalisée"
+            android:summary="Domaines à bloquer (un par ligne)"
+            android:dialogTitle="Ajouter des domaines à bloquer"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="custom_whitelist"
+            android:title="Liste blanche personnalisée"
+            android:summary="Domaines autorisés (un par ligne)"
+            android:dialogTitle="Ajouter des domaines autorisés"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Mise à jour">
+
+        <Preference
+            android:key="btn_telecharger_listes"
+            android:title="📥 Télécharger les listes"
+            android:summary="Télécharger les dernières listes de blocage parentales" />
+
+        <Preference
+            android:key="banner_listes_manquantes"
+            android:title="⚠️ Listes manquantes"
+            android:summary="Certaines listes ne sont pas disponibles"
+            android:persistent="false" />
+        <!-- Supprimé : android:isVisible="false" car cet attribut n'existe pas -->
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

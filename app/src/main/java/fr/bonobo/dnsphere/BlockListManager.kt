@@ -10,25 +10,52 @@ class BlockListManager(private val context: Context) {
 
     companion object {
         private const val TAG = "BlockListManager"
+
+        // =====================================================================
+        // Endpoints DoH des navigateurs qui bypass le DNS VPN
+        // Bloquer ces domaines force Chrome/Edge/Opera à revenir au DNS système
+        // Firefox est géré séparément (canary domain : use-application-dns.net)
+        // =====================================================================
+        private val DOH_BYPASS_DOMAINS = setOf(
+            // Chrome / Chromium
+            "dns.google",
+            "dns.google.com",
+            "8888.google",
+            "chrome.cloudflare-dns.com",
+            "dns64.dns.google",
+            // Edge
+            "doh.xfinity.com",
+            // Opera / Brave
+            "doh.opendns.com",
+            // Générique Cloudflare DoH
+            "cloudflare-dns.com",
+            "1dot1dot1dot1.cloudflare-dns.com",
+            // NextDNS
+            "dns.nextdns.io",
+            // AdGuard DoH
+            "dns.adguard.com",
+            "dns-unfiltered.adguard.com",
+            // Quad9
+            "dns.quad9.net",
+            "dns11.quad9.net",
+            // Canary domain Firefox — si bloqué, Firefox désactive son DoH intégré
+            "use-application-dns.net"
+        )
     }
 
-    private val adDomains       = mutableSetOf<String>()
-    private val trackerDomains  = mutableSetOf<String>()
-    private val malwareDomains  = mutableSetOf<String>()
-    private val shoppingDomains = mutableSetOf<String>()
-    private val customDomains   = mutableSetOf<String>()
-    private val externalDomains = mutableSetOf<String>()
-    private val whitelistedDomains = mutableSetOf<String>()
-
     // =========================================================================
-    // 🚫 BLOCAGE FORCÉ — priorité absolue, écrase neverBlockDomains et whitelist
+    // HashSets — lookup O(1) au lieu de O(n)
+    // On stocke les domaines racines ; matchesDomainFast() remonte les parents
     // =========================================================================
-    private val forceBlockDomains = mutableSetOf<String>()
-
-    // =========================================================================
-    // 🛡️ WEBRTC STUN/TURN LEAK PROTECTION
-    // =========================================================================
-    private val stunDomains = mutableSetOf<String>()
+    private val adDomains       = HashSet<String>()
+    private val trackerDomains  = HashSet<String>()
+    private val malwareDomains  = HashSet<String>()
+    private val shoppingDomains = HashSet<String>()
+    private val customDomains   = HashSet<String>()
+    private val externalDomains = HashSet<String>(1 shl 20) // ~1M buckets pour 500K entrées
+    private val whitelistedDomains = HashSet<String>()
+    private val forceBlockDomains  = HashSet<String>()
+    private val stunDomains        = HashSet<String>()
 
     private val prefs = context.getSharedPreferences("dnsphere_settings", Context.MODE_PRIVATE)
 
@@ -38,18 +65,10 @@ class BlockListManager(private val context: Context) {
     fun setWebRtcProtection(enabled: Boolean) {
         prefs.edit().putBoolean("webrtc_leak_protection", enabled).apply()
         loadStunList()
-        Log.d(TAG, "WebRTC leak protection: $enabled")
     }
 
-    // =========================================================================
-    // 📋 RÈGLES UTILISATEUR (AdGuard / Regex)
-    // Priorité : forceBlock > neverBlock > WEBRTC > USER_ALLOW > USER_BLOCK > whitelist > listes
-    // =========================================================================
     private var userRules: List<UserRule> = emptyList()
 
-    // =========================================================================
-    // 🛡️ DOMAINES CRITIQUES À NE JAMAIS BLOQUER
-    // =========================================================================
     private val neverBlockDomains = setOf(
         // WHATSAPP
         "whatsapp.net", "whatsapp.com", "www.whatsapp.com", "wa.me",
@@ -269,7 +288,7 @@ class BlockListManager(private val context: Context) {
     }
 
     // =========================================================================
-    // CHARGEMENT DES LISTES
+    // CHARGEMENT
     // =========================================================================
 
     private fun loadDefaultLists() {
@@ -285,7 +304,6 @@ class BlockListManager(private val context: Context) {
                 val items = database.whitelistDao().getAllForceBlocked()
                 forceBlockDomains.clear()
                 forceBlockDomains.addAll(items.map { it.domain })
-                Log.d(TAG, "ForceBlock chargé: ${forceBlockDomains.size} domaines")
             } catch (e: Exception) {
                 Log.e(TAG, "Erreur chargement forceBlock: ${e.message}")
             }
@@ -296,7 +314,6 @@ class BlockListManager(private val context: Context) {
         runBlocking {
             try {
                 userRules = database.userRuleDao().getEnabledRules()
-                Log.d(TAG, "UserRules chargées: ${userRules.size} règles actives")
             } catch (e: Exception) {
                 Log.e(TAG, "Erreur chargement user rules: ${e.message}")
             }
@@ -336,137 +353,108 @@ class BlockListManager(private val context: Context) {
         }
     }
 
-    /**
-     * Charge la liste STUN/TURN uniquement si la protection WebRTC est activée.
-     * Ces domaines sont des serveurs STUN/TURN publics utilisés par les navigateurs
-     * pour découvrir l'IP réelle de l'utilisateur via WebRTC.
-     *
-     * ⚠️ Note : WhatsApp, Facebook, Signal, Discord, Zoom, Meet ont leurs propres
-     * serveurs STUN/TURN déjà protégés dans neverBlockDomains — ils ne sont
-     * pas affectés par cette liste.
-     */
     fun loadStunList() {
         stunDomains.clear()
-        if (!isWebRtcProtectionEnabled) {
-            Log.d(TAG, "WebRTC protection désactivée — STUN list vide")
-            return
-        }
+        if (!isWebRtcProtectionEnabled) return
         stunDomains.addAll(listOf(
-            // Google STUN (utilisés massivement par Chrome/WebRTC)
-            "stun.l.google.com",
-            "stun1.l.google.com",
-            "stun2.l.google.com",
-            "stun3.l.google.com",
-            "stun4.l.google.com",
-            // Cloudflare STUN
-            "stun.cloudflare.com",
-            // Twilio
-            "global.stun.twilio.com",
-            // Jitsi / XMPP
-            "stun.xmpp.org",
-            "meet-jit-si-turnrelay.jitsi.net",
-            // Nextcloud Talk
-            "stun.nextcloud.com",
-            // SIP / Ekiga
-            "stun.ekiga.net",
-            "stun.ideasip.com",
-            // Divers publics
-            "stun.stunprotocol.org",
-            "stun.voip.blackberry.com",
-            "stun.freenode.net",
-            // TURN publics (relay)
-            "turn.anyfirewall.com",
-            "turn.bistri.com",
-            "numb.viagenie.ca"
+            "stun.l.google.com", "stun1.l.google.com", "stun2.l.google.com",
+            "stun3.l.google.com", "stun4.l.google.com",
+            "stun.cloudflare.com", "global.stun.twilio.com",
+            "stun.xmpp.org", "meet-jit-si-turnrelay.jitsi.net",
+            "stun.nextcloud.com", "stun.ekiga.net", "stun.ideasip.com",
+            "stun.stunprotocol.org", "stun.voip.blackberry.com",
+            "stun.freenode.net", "turn.anyfirewall.com",
+            "turn.bistri.com", "numb.viagenie.ca"
         ))
-        Log.d(TAG, "STUN/TURN list chargée: ${stunDomains.size} domaines (WebRTC protection ON)")
     }
 
     // =========================================================================
-    // VÉRIFICATION DES DOMAINES
+    // LOOKUP O(1) — remonte les parents du hostname dans le HashSet
+    //
+    // Ancien code : set.any { hostname == it || hostname.endsWith(".$it") }
+    //   → O(n) : itère tous les éléments du set
+    //
+    // Nouveau code : cherche hostname, puis "b.c" depuis "a.b.c", puis "c"
+    //   → O(nombre de points) = O(2~4) quelle que soit la taille du set
+    // =========================================================================
+    private fun matchesDomain(hostname: String, set: Set<String>): Boolean {
+        if (hostname in set) return true
+        var dot = hostname.indexOf('.')
+        while (dot != -1) {
+            val parent = hostname.substring(dot + 1)
+            if (parent in set) return true
+            dot = hostname.indexOf('.', dot + 1)
+        }
+        return false
+    }
+
+    // =========================================================================
+    // VÉRIFICATION
     // =========================================================================
 
     fun isForceBlocked(hostname: String): Boolean {
         val domain = hostname.lowercase()
-        return forceBlockDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(domain, forceBlockDomains)
     }
 
     fun isStunBlocked(hostname: String): Boolean {
         if (!isWebRtcProtectionEnabled) return false
-        val domain = hostname.lowercase()
-        return stunDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(hostname.lowercase(), stunDomains)
+    }
+
+    /**
+     * Retourne true si le hostname est un endpoint DoH de navigateur.
+     * Bloquer ces domaines empêche Chrome/Edge/Brave de bypasser le DNS VPN.
+     */
+    fun isDohBypass(hostname: String): Boolean {
+        return matchesDomain(hostname.lowercase(), DOH_BYPASS_DOMAINS)
     }
 
     fun isWhitelisted(hostname: String): Boolean {
         val domain = hostname.lowercase()
-
-        // 1. forceBlock écrase tout
         if (isForceBlocked(domain)) return false
-
-        // 2. Domaines critiques système — jamais bloqués
-        if (neverBlockDomains.any { domain == it || domain.endsWith(".$it") }) return true
-
-        // 3. Règles utilisateur — USER_ALLOW autorise, USER_BLOCK refuse la whitelist
+        if (matchesDomain(domain, neverBlockDomains)) return true
         val userResult = RulesEngine.evaluate(domain, userRules)
         if (userResult == RulesEngine.MatchResult.ALLOW) return true
         if (userResult == RulesEngine.MatchResult.BLOCK) return false
-
-        // 4. Whitelist utilisateur standard
-        return whitelistedDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(domain, whitelistedDomains)
     }
 
     fun isAd(hostname: String): Boolean {
         if (isWhitelisted(hostname)) return false
         val domain = hostname.lowercase()
-        return adDomains.any { domain == it || domain.endsWith(".$it") } ||
-                customDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(domain, adDomains) || matchesDomain(domain, customDomains)
     }
 
     fun isTracker(hostname: String): Boolean {
         if (isWhitelisted(hostname)) return false
-        val domain = hostname.lowercase()
-        return trackerDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(hostname.lowercase(), trackerDomains)
     }
 
     fun isMalware(hostname: String): Boolean {
         if (isWhitelisted(hostname)) return false
-        val domain = hostname.lowercase()
-        return malwareDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(hostname.lowercase(), malwareDomains)
     }
 
     fun isShopping(hostname: String): Boolean {
         if (isWhitelisted(hostname)) return false
-        val domain = hostname.lowercase()
-        return shoppingDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(hostname.lowercase(), shoppingDomains)
     }
 
     fun isExternalBlocked(hostname: String): Boolean {
         if (isWhitelisted(hostname)) return false
-        val domain = hostname.lowercase()
-        return externalDomains.any { domain == it || domain.endsWith(".$it") }
+        return matchesDomain(hostname.lowercase(), externalDomains)
     }
 
     fun shouldBlock(hostname: String): Boolean {
-        // 1. forceBlock — priorité absolue
         if (isForceBlocked(hostname)) return true
-
         val domain = hostname.lowercase()
-
-        // 2. neverBlock — jamais bloqué (apps critiques : WhatsApp, Signal, Zoom…)
-        if (neverBlockDomains.any { domain == it || domain.endsWith(".$it") }) return false
-
-        // 3. WebRTC STUN/TURN leak protection
+        if (matchesDomain(domain, neverBlockDomains)) return false
         if (isStunBlocked(hostname)) return true
-
-        // 4. Règles utilisateur
         val userResult = RulesEngine.evaluate(domain, userRules)
         if (userResult == RulesEngine.MatchResult.ALLOW) return false
         if (userResult == RulesEngine.MatchResult.BLOCK) return true
-
-        // 5. Whitelist standard
         if (isWhitelisted(hostname)) return false
-
-        // 6. Listes built-in
         return isAd(hostname) || isTracker(hostname) ||
                 isMalware(hostname) || isShopping(hostname) ||
                 isExternalBlocked(hostname)
@@ -474,26 +462,19 @@ class BlockListManager(private val context: Context) {
 
     fun getBlockType(hostname: String): BlockType {
         if (isForceBlocked(hostname)) return BlockType.FORCE_BLOCKED
-
         val domain = hostname.lowercase()
-
-        // WebRTC STUN/TURN
         if (isStunBlocked(hostname)) return BlockType.WEBRTC_STUN
-
-        // Règles utilisateur avant la whitelist
         val userResult = RulesEngine.evaluate(domain, userRules)
         if (userResult == RulesEngine.MatchResult.BLOCK) return BlockType.USER_BLOCKED
         if (userResult == RulesEngine.MatchResult.ALLOW) return BlockType.USER_ALLOWED
-
         if (isWhitelisted(hostname)) return BlockType.WHITELISTED
-
         return when {
-            adDomains.any       { domain == it || domain.endsWith(".$it") } -> BlockType.AD
-            trackerDomains.any  { domain == it || domain.endsWith(".$it") } -> BlockType.TRACKER
-            malwareDomains.any  { domain == it || domain.endsWith(".$it") } -> BlockType.MALWARE
-            shoppingDomains.any { domain == it || domain.endsWith(".$it") } -> BlockType.SHOPPING
-            externalDomains.any { domain == it || domain.endsWith(".$it") } -> BlockType.EXTERNAL
-            customDomains.any   { domain == it || domain.endsWith(".$it") } -> BlockType.CUSTOM
+            matchesDomain(domain, adDomains)       -> BlockType.AD
+            matchesDomain(domain, trackerDomains)  -> BlockType.TRACKER
+            matchesDomain(domain, malwareDomains)  -> BlockType.MALWARE
+            matchesDomain(domain, shoppingDomains) -> BlockType.SHOPPING
+            matchesDomain(domain, externalDomains) -> BlockType.EXTERNAL
+            matchesDomain(domain, customDomains)   -> BlockType.CUSTOM
             else -> BlockType.NONE
         }
     }
@@ -512,38 +493,30 @@ class BlockListManager(private val context: Context) {
         Log.d(TAG, "BlockListManager rafraîchi: ${getStats()}")
     }
 
-    fun getStats(): Stats {
-        return Stats(
-            builtInAds      = adDomains.size,
-            builtInTrackers = trackerDomains.size,
-            builtInMalware  = malwareDomains.size,
-            builtInShopping = shoppingDomains.size,
-            externalDomains = externalDomains.size,
-            customDomains   = customDomains.size,
-            whitelisted     = whitelistedDomains.size,
-            forceBlocked    = forceBlockDomains.size,
-            userRules       = userRules.size,
-            neverBlocked    = neverBlockDomains.size,
-            stunDomains     = stunDomains.size
-        )
-    }
+    fun getStats(): Stats = Stats(
+        builtInAds      = adDomains.size,
+        builtInTrackers = trackerDomains.size,
+        builtInMalware  = malwareDomains.size,
+        builtInShopping = shoppingDomains.size,
+        externalDomains = externalDomains.size,
+        customDomains   = customDomains.size,
+        whitelisted     = whitelistedDomains.size,
+        forceBlocked    = forceBlockDomains.size,
+        userRules       = userRules.size,
+        neverBlocked    = neverBlockDomains.size,
+        stunDomains     = stunDomains.size
+    )
 
     data class Stats(
-        val builtInAds:      Int,
-        val builtInTrackers: Int,
-        val builtInMalware:  Int,
-        val builtInShopping: Int,
-        val externalDomains: Int,
-        val customDomains:   Int,
-        val whitelisted:     Int,
-        val forceBlocked:    Int,
-        val userRules:       Int,
-        val neverBlocked:    Int,
-        val stunDomains:     Int = 0
+        val builtInAds: Int, val builtInTrackers: Int,
+        val builtInMalware: Int, val builtInShopping: Int,
+        val externalDomains: Int, val customDomains: Int,
+        val whitelisted: Int, val forceBlocked: Int,
+        val userRules: Int, val neverBlocked: Int,
+        val stunDomains: Int = 0
     ) {
         val totalBuiltIn: Int get() = builtInAds + builtInTrackers + builtInMalware + builtInShopping
         val total: Int get() = totalBuiltIn + externalDomains + customDomains
-
         override fun toString() =
             "Stats(builtIn=$totalBuiltIn, external=$externalDomains, custom=$customDomains, " +
                     "whitelist=$whitelisted, forceBlocked=$forceBlocked, userRules=$userRules, " +
@@ -552,15 +525,11 @@ class BlockListManager(private val context: Context) {
 
     enum class BlockType {
         NONE, AD, TRACKER, MALWARE, SHOPPING, EXTERNAL, CUSTOM,
-        WHITELISTED,
-        FORCE_BLOCKED,
-        USER_BLOCKED,
-        USER_ALLOWED,
-        WEBRTC_STUN   // Serveur STUN/TURN bloqué pour protection WebRTC leak
+        WHITELISTED, FORCE_BLOCKED, USER_BLOCKED, USER_ALLOWED, WEBRTC_STUN
     }
 
     // =========================================================================
-    // LISTES AD/TRACKER/MALWARE/SHOPPING
+    // LISTES BUILT-IN
     // =========================================================================
 
     private fun loadAdDomains() {
