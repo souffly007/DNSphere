@@ -479,6 +479,63 @@ class BlockListManager(private val context: Context) {
         }
     }
 
+    /**
+     * Résultat consolidé d'une classification pour le chemin critique (une requête
+     * DNS par appel). Les booléens de catégorie restent indépendants (pas de
+     * "premier qui matche gagne") pour préserver le comportement historique :
+     * un domaine présent dans plusieurs listes reste détectable même si le
+     * toggle utilisateur d'une des catégories est désactivé.
+     */
+    data class FilterResult(
+        val exempted: Boolean = false,    // whitelist/neverBlock/règle ALLOW — prioritaire sur tout le reste
+        val forced: Boolean = false,      // Force Block — prioritaire, non désactivable
+        val userBlocked: Boolean = false, // Règle utilisateur explicite (Rules Editor)
+        val stun: Boolean = false,        // WebRTC STUN/TURN
+        val isAd: Boolean = false,
+        val isTracker: Boolean = false,
+        val isMalware: Boolean = false,
+        val isShopping: Boolean = false,
+        val isExternal: Boolean = false
+    )
+
+    /**
+     * Version consolidée de la classification pour LocalVpnService (un appel par
+     * requête DNS). Le whitelist/force-block/règles utilisateur/STUN sont vérifiés
+     * UNE SEULE fois, au lieu d'être re-testés à chaque catégorie — isAd()/isTracker()/...
+     * appellent chacun isWhitelisted() individuellement, ce qui coûtait jusqu'à 6
+     * vérifications redondantes par requête pour un domaine non filtré (le cas le
+     * plus fréquent).
+     *
+     * Corrige aussi un bug : Force Block, les règles utilisateur "bloquer", et le
+     * blocage STUN par domaine n'étaient jamais réellement appliqués dans le chemin
+     * de requête réel (LocalVpnService), qui ne passait que par isWhitelisted() —
+     * lequel ne fait qu'exempter un domaine, jamais le bloquer explicitement.
+     */
+    fun classifyForFiltering(hostname: String): FilterResult {
+        val domain = hostname.lowercase()
+
+        if (matchesDomain(domain, forceBlockDomains)) return FilterResult(forced = true)
+        if (matchesDomain(domain, neverBlockDomains)) return FilterResult(exempted = true)
+
+        val userResult = RulesEngine.evaluate(domain, userRules)
+        if (userResult == RulesEngine.MatchResult.BLOCK) return FilterResult(userBlocked = true)
+        if (userResult == RulesEngine.MatchResult.ALLOW) return FilterResult(exempted = true)
+
+        if (matchesDomain(domain, whitelistedDomains)) return FilterResult(exempted = true)
+
+        if (isWebRtcProtectionEnabled && matchesDomain(domain, stunDomains)) {
+            return FilterResult(stun = true)
+        }
+
+        return FilterResult(
+            isAd       = matchesDomain(domain, adDomains) || matchesDomain(domain, customDomains),
+            isTracker  = matchesDomain(domain, trackerDomains),
+            isMalware  = matchesDomain(domain, malwareDomains),
+            isShopping = matchesDomain(domain, shoppingDomains),
+            isExternal = matchesDomain(domain, externalDomains)
+        )
+    }
+
     // =========================================================================
     // REFRESH & STATS
     // =========================================================================

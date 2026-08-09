@@ -16,11 +16,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.security.BiometricHelper
 import fr.bonobo.dnsphere.security.ProtectedAction
 import fr.bonobo.dnsphere.ui.*
+import fr.bonobo.dnsphere.utils.PowerUtils
 import fr.bonobo.dnsphere.widget.DnsphereWidget
 
 class MainActivity : AppCompatActivity() {
@@ -311,6 +313,55 @@ class MainActivity : AppCompatActivity() {
         isVpnRunning = LocalVpnService.isRunning
         updateUI(isVpnRunning)
         loadPreferences()
+        checkMiuiRestrictions()
+    }
+
+    // =========================================================================
+    // MIUI / HyperOS — détection des restrictions batterie/autostart
+    // =========================================================================
+    // Sur MIUI/HyperOS, le système peut tuer DNSphere en arrière-plan (ex: à
+    // l'ouverture de l'appareil photo) même si la protection est active, tant
+    // que l'app n'est pas dans les exceptions "Autostart" / "Sans restriction
+    // batterie". On avertit au premier lancement (onboarding) ET à chaque
+    // retour sur l'app tant que ce n'est pas réglé (détection runtime).
+    // =========================================================================
+
+    private fun checkMiuiRestrictions() {
+        if (!PowerUtils.isMiuiOrHyperOs()) return
+        if (PowerUtils.isIgnoringBatteryOptimizations(this)) return
+
+        val prefs = getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("miui_warning_dismissed", false)) return
+
+        showMiuiRestrictionDialog()
+    }
+
+    private fun showMiuiRestrictionDialog() {
+        val romName = if (PowerUtils.isHyperOs()) "HyperOS" else "MIUI"
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("⚠️ Sécuriser la protection ($romName)")
+            .setMessage(
+                "Sur $romName, le système peut arrêter DNSphere en arrière-plan " +
+                        "(par exemple à l'ouverture de l'appareil photo), même quand la " +
+                        "protection est censée être active.\n\n" +
+                        "Pour l'éviter, deux réglages sont recommandés :\n" +
+                        "1. Autoriser le démarrage automatique\n" +
+                        "2. Désactiver l'optimisation de la batterie pour DNSphere"
+            )
+            .setPositiveButton("Batterie") { _, _ ->
+                PowerUtils.requestIgnoreBatteryOptimizations(this)
+            }
+            .setNeutralButton("Autostart") { _, _ ->
+                PowerUtils.openMiuiAutostartSettings(this)
+            }
+            .setNegativeButton("Ne plus afficher") { _, _ ->
+                getSharedPreferences("dnsphere_prefs", MODE_PRIVATE).edit()
+                    .putBoolean("miui_warning_dismissed", true)
+                    .apply()
+            }
+            .setCancelable(true)
+            .show()
     }
 
     // =========================================================================

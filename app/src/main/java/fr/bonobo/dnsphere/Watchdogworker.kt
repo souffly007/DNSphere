@@ -4,7 +4,7 @@
 //
 // PhoneZen is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License.class Watchdogworker {
+// the Free Software Foundation, either version 3 of the License.
 package fr.bonobo.dnsphere
 
 import android.content.Context
@@ -58,6 +58,26 @@ class WatchdogWorker(
         fun stop(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
             Log.d(TAG, "🛑 Watchdog arrêté")
+        }
+
+        /**
+         * Déclenche une vérification/relance ponctuelle quasi immédiate, sans attendre
+         * le prochain cycle périodique (jusqu'à 15 min). Appelé par LocalVpnService
+         * lors d'un arrêt inattendu (onRevoke, tunnel mort) pour réduire au minimum
+         * la fenêtre pendant laquelle la protection reste coupée.
+         */
+        fun runOnceNow(context: Context, delaySeconds: Long = 5) {
+            val request = OneTimeWorkRequestBuilder<WatchdogWorker>()
+                .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                        .build()
+                )
+                .build()
+
+            WorkManager.getInstance(context).enqueue(request)
+            Log.d(TAG, "⚡ Relance immédiate programmée (+${delaySeconds}s)")
         }
     }
 
