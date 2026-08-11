@@ -38,6 +38,10 @@ class BlockListManager(private val context: Context) {
             // Quad9
             "dns.quad9.net",
             "dns11.quad9.net",
+            // Mullvad DNS (couvre adblock./base./extended./family./all.dns.mullvad.net)
+            "dns.mullvad.net",
+            // DNS4EU (couvre noads./child./child-noads./protective.joindns4.eu)
+            "joindns4.eu",
             // Canary domain Firefox — si bloqué, Firefox désactive son DoH intégré
             "use-application-dns.net"
         )
@@ -294,6 +298,7 @@ class BlockListManager(private val context: Context) {
     private fun loadDefaultLists() {
         loadAdDomains()
         loadTrackerDomains()
+        loadMailTrackingDomains()
         loadMalwareDomains()
         loadShoppingDomains()
     }
@@ -626,6 +631,36 @@ class BlockListManager(private val context: Context) {
             "kochava.com", "singular.net", "bluekai.com", "krxd.net",
             "demdex.net", "scorecardresearch.com", "quantserve.com",
             "fingerprintjs.com", "fpjs.io"
+        ))
+    }
+
+    /**
+     * Pixels de tracking email — inefficaces contre Gmail (proxy googleusercontent.com
+     * côté serveur Google, hors de portée du VPN local), mais actifs pour les clients
+     * mail qui chargent les images directement depuis le device : K-9 Mail, FairEmail,
+     * Outlook, Thunderbird, Aqua Mail, etc.
+     */
+    private fun loadMailTrackingDomains() {
+        trackerDomains.addAll(listOf(
+            // Mailchimp
+            "click.mailchimp.com", "list-manage.com",
+            "open.mailchimp.com", "tracking.mailchimp.com",
+            // Outils de prospection commerciale (pixel + click-tracking)
+            "t.yesware.com", "app.yesware.com",
+            "mailfoogae.appspot.com",           // Streak
+            "t.sidekickopen.com",               // HubSpot Sidekick/Sales
+            "clicks.hubspot.com",
+            "mailtrack.io",
+            "mailstat.us",                      // Boomerang
+            "tracking.cirrusinsight.com",
+            "bl-1.com",                         // Bananatag / Marigold Relay
+            // Emailing / ESP
+            "ct.sendgrid.net",
+            "pixel.mailgun.org",
+            "links.iterable.com",
+            "track.customer.io",
+            "open.convertkit-mail.com",
+            "clicks.beehiiv.com"
         ))
     }
 
