@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.AppRuleType
 import fr.bonobo.dnsphere.data.BlockLog
+import fr.bonobo.dnsphere.data.WhitelistItem
 import fr.bonobo.dnsphere.dns.DohResolver
 import fr.bonobo.dnsphere.dns.DnsResponseCache
 import fr.bonobo.dnsphere.dns.KnownResolverIps
@@ -36,9 +37,11 @@ class LocalVpnService : VpnService() {
         const val ACTION_PAUSE         = "fr.bonobo.dnsphere.PAUSE"
         const val ACTION_RESUME        = "fr.bonobo.dnsphere.RESUME"
         const val ACTION_SWITCH_DNS    = "fr.bonobo.dnsphere.SWITCH_DNS"
+        const val ACTION_QUICK_WHITELIST = "fr.bonobo.dnsphere.QUICK_WHITELIST"
 
         const val EXTRA_PAUSE_DURATION = "pause_duration_ms"
         const val EXTRA_DNS_PROVIDER   = "dns_provider"
+        const val EXTRA_WHITELIST_DOMAIN = "whitelist_domain"
 
         const val NOTIFICATION_ID       = 1
         const val NOTIFICATION_ID_ALERT = 2
@@ -73,6 +76,7 @@ class LocalVpnService : VpnService() {
     private lateinit var blockListManager: BlockListManager
     private lateinit var parentalManager: ParentalManager
     private lateinit var database: AppDatabase
+    @Volatile private var lastBlockedDomain: String? = null
     private lateinit var dohResolver: DohResolver
     private lateinit var dotResolver: DotResolver
     private lateinit var doqResolver: DoqResolver
@@ -155,6 +159,10 @@ class LocalVpnService : VpnService() {
                 Log.d("DNSphere", "📥 ACTION_SWITCH_DNS reçu: provider=$provider")
                 if (provider != null) switchDnsProvider(provider)
                 else Log.e("DNSphere", "❌ EXTRA_DNS_PROVIDER est null!")
+            }
+            ACTION_QUICK_WHITELIST -> {
+                val domain = intent.getStringExtra(EXTRA_WHITELIST_DOMAIN)
+                if (domain != null) quickWhitelist(domain)
             }
         }
         return START_STICKY
@@ -428,6 +436,7 @@ class LocalVpnService : VpnService() {
                                 Log.d("DNSphere", "🚫 [$blockType] $dnsQuery")
                                 incrementBlockCounter(blockType)
                                 logBlock(dnsQuery, blockType)
+                                if (blockType != "PARENTAL") lastBlockedDomain = dnsQuery
                                 createBlockedDnsResponse(ipPacket)?.let { outputStream.write(it) }
                             } else {
                                 val qtype = extractQType(ipPacket)
@@ -663,6 +672,20 @@ class LocalVpnService : VpnService() {
         serviceScope.launch {
             try { database.blockLogDao().insert(BlockLog(domain = hostname, type = type)) }
             catch (e: Exception) { }
+        }
+    }
+
+    private fun quickWhitelist(domain: String) {
+        serviceScope.launch {
+            try {
+                database.whitelistDao().insert(WhitelistItem(domain = domain))
+                blockListManager.loadWhitelist()
+                Log.d("DNSphere", "✅ [QUICK_WHITELIST] $domain")
+                if (lastBlockedDomain == domain) lastBlockedDomain = null
+                updateNotification()
+            } catch (e: Exception) {
+                Log.w("DNSphere", "Échec quick-whitelist pour $domain", e)
+            }
         }
     }
 
@@ -1123,7 +1146,16 @@ class LocalVpnService : VpnService() {
         else
             "$totalBlocked bloqués (${adsBlocked} pubs, ${trackersBlocked} trackers, ${malwareBlocked} malwares)\n${getCurrentDnsLabel()}"
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val whitelistIntent = lastBlockedDomain?.let { domain ->
+            PendingIntent.getService(this, 200,
+                Intent(this, LocalVpnService::class.java).apply {
+                    action = ACTION_QUICK_WHITELIST
+                    putExtra(EXTRA_WHITELIST_DOMAIN, domain)
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(shortText)
             .setSmallIcon(R.drawable.ic_shield)
@@ -1133,7 +1165,12 @@ class LocalVpnService : VpnService() {
             .setStyle(NotificationCompat.BigTextStyle().bigText(longText))
             .setOngoing(true)
             .setSilent(true)
-            .build()
+
+        if (whitelistIntent != null) {
+            builder.addAction(R.drawable.ic_whitelist, "✅ Whitelister ${lastBlockedDomain}", whitelistIntent)
+        }
+
+        return builder.build()
     }
 
     private fun updateNotification() {
