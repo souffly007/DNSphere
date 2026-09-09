@@ -15,5 +15,3 @@ Résultat : moins de pubs, moins de tracking, navigation plus rapide !
 ## License
 DNSphere is licensed under the GNU General Public License v3.0
 See LICENSE for details.
-
-"Commercial use, including distribution as part of a paid product or service, is not permitted without prior written consent of the author."
