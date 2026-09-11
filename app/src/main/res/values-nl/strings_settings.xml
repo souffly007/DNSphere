@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">Functie niet beschikbaar</string>
+    <string name="pref_category_parental_control">👨‍👧 Ouderlijk toezicht</string>
+    <string name="pref_parental_control_title">Ouderlijk toezicht</string>
+    <string name="pref_parental_control_summary">Categorieën blokkeren en gebruikstijden beperken</string>
+    <string name="pref_parental_control_enabled">🔒 Ingeschakeld</string>
+    <string name="pref_user_rules_title">Aangepaste regels</string>
+    <string name="pref_user_rules_summary">Domeinen blokkeren of toestaan (AdGuard, Regex)</string>
+    <string name="pref_backup_entry_title">Back-up &amp; Herstel</string>
+    <string name="pref_backup_entry_summary">Lijsten en instellingen exporteren of importeren</string>
+</resources>
