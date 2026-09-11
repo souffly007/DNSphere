@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">Функция недоступна</string>
+    <string name="pref_category_parental_control">👨‍👧 Родительский контроль</string>
+    <string name="pref_parental_control_title">Родительский контроль</string>
+    <string name="pref_parental_control_summary">Блокировать категории и ограничивать время использования</string>
+    <string name="pref_parental_control_enabled">🔒 Включено</string>
+    <string name="pref_user_rules_title">Пользовательские правила</string>
+    <string name="pref_user_rules_summary">Блокировать или разрешать домены (AdGuard, Regex)</string>
+    <string name="pref_backup_entry_title">Резервное копирование и восстановление</string>
+    <string name="pref_backup_entry_summary">Экспортировать или импортировать списки и настройки</string>
+</resources>
