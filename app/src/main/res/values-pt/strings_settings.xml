@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">Funcionalidade indisponível</string>
+    <string name="pref_category_parental_control">👨‍👧 Controlo parental</string>
+    <string name="pref_parental_control_title">Controlo parental</string>
+    <string name="pref_parental_control_summary">Bloquear categorias e restringir horários de utilização</string>
+    <string name="pref_parental_control_enabled">🔒 Ativado</string>
+    <string name="pref_user_rules_title">Regras personalizadas</string>
+    <string name="pref_user_rules_summary">Bloquear ou permitir domínios (AdGuard, Regex)</string>
+    <string name="pref_backup_entry_title">Cópia de segurança e restauro</string>
+    <string name="pref_backup_entry_summary">Exportar ou importar listas e definições</string>
+</resources>
