@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">Funktion nicht verfügbar</string>
+    <string name="pref_category_parental_control">👨‍👧 Kindersicherung</string>
+    <string name="pref_parental_control_title">Kindersicherung</string>
+    <string name="pref_parental_control_summary">Kategorien blockieren und Nutzungszeiten einschränken</string>
+    <string name="pref_parental_control_enabled">🔒 Aktiviert</string>
+    <string name="pref_user_rules_title">Benutzerdefinierte Regeln</string>
+    <string name="pref_user_rules_summary">Domains blockieren oder erlauben (AdGuard, Regex)</string>
+    <string name="pref_backup_entry_title">Sicherung &amp; Wiederherstellung</string>
+    <string name="pref_backup_entry_summary">Listen und Einstellungen exportieren oder importieren</string>
+</resources>
