@@ -2,169 +2,48 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- DNS sécurisé -->
-    <PreferenceCategory
-        android:title="@string/pref_category_secure_dns"
-        app:iconSpaceReserved="false">
-
-        <SwitchPreferenceCompat
-            android:key="use_doh"
-            android:title="@string/pref_use_doh_title"
-            android:summary="@string/pref_use_doh_summary"
-            android:defaultValue="false"
-            app:iconSpaceReserved="false"/>
-
-        <ListPreference
-            android:key="doh_provider"
-            android:title="@string/pref_doh_provider_title"
-            android:summary="@string/doh_provider_cloudflare"
-            android:entries="@array/doh_providers"
-            android:entryValues="@array/doh_provider_values"
-            android:defaultValue="cloudflare"
-            android:dependency="use_doh"
-            app:iconSpaceReserved="false"/>
-
-        <SwitchPreferenceCompat
-            android:key="webrtc_leak_protection"
-            android:title="🛡️ Protection WebRTC"
-            android:summary="Bloque les serveurs STUN/TURN publics pour empêcher la fuite de votre IP réelle via le navigateur"
-            android:defaultValue="false"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_secure_dns" app:iconSpaceReserved="false">
+        <SwitchPreferenceCompat android:key="use_doh" android:title="@string/pref_use_doh_title" android:summary="@string/pref_use_doh_summary" android:defaultValue="false" app:iconSpaceReserved="false"/>
+        <ListPreference android:key="doh_provider" android:title="@string/pref_doh_provider_title" android:summary="@string/doh_provider_cloudflare" android:entries="@array/doh_providers" android:entryValues="@array/doh_provider_values" android:defaultValue="cloudflare" android:dependency="use_doh" app:iconSpaceReserved="false"/>
+        <SwitchPreferenceCompat android:key="webrtc_leak_protection" android:title="@string/pref_webrtc_title" android:summary="@string/pref_webrtc_summary" android:defaultValue="false" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- Profils -->
-    <PreferenceCategory
-        android:title="@string/pref_category_profiles"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="profiles"
-            android:title="@string/profiles_title"
-            android:summary="@string/pref_profiles_summary"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_profiles" app:iconSpaceReserved="false">
+        <Preference android:key="profiles" android:title="@string/profiles_title" android:summary="@string/pref_profiles_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- Sécurité -->
-    <PreferenceCategory
-        android:title="@string/pref_category_security"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="security"
-            android:title="@string/security_title"
-            android:summary="@string/pref_security_summary"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_security" app:iconSpaceReserved="false">
+        <Preference android:key="security" android:title="@string/security_title" android:summary="@string/pref_security_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- Contrôle parental -->
-    <PreferenceCategory
-        android:title="👨‍👧 Contrôle parental"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="parental_control"
-            android:title="Contrôle parental"
-            android:summary="Bloquer des catégories et restreindre les horaires"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_parental_control" app:iconSpaceReserved="false">
+        <Preference android:key="parental_control" android:title="@string/pref_parental_control_title" android:summary="@string/pref_parental_control_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- Listes de blocage -->
-    <PreferenceCategory
-        android:title="@string/pref_category_blocklists"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="external_lists"
-            android:title="@string/pref_external_lists_title"
-            android:summary="@string/pref_external_lists_summary"
-            app:iconSpaceReserved="false"/>
-
-        <Preference
-            android:key="manage_lists"
-            android:title="@string/pref_manage_lists_title"
-            android:summary="@string/pref_manage_lists_summary"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_blocklists" app:iconSpaceReserved="false">
+        <Preference android:key="external_lists" android:title="@string/pref_external_lists_title" android:summary="@string/pref_external_lists_summary" app:iconSpaceReserved="false"/>
+        <Preference android:key="manage_lists" android:title="@string/pref_manage_lists_title" android:summary="@string/pref_manage_lists_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <Preference
-        android:key="user_rules"
-        android:title="Règles personnalisées"
-        android:summary="Bloquer ou autoriser des domaines (AdGuard, Regex)"
-        app:iconSpaceReserved="false"/>
+    <Preference android:key="user_rules" android:title="@string/pref_user_rules_title" android:summary="@string/pref_user_rules_summary" app:iconSpaceReserved="false"/>
 
-    <!-- Sauvegarde & Restauration -->
-    <PreferenceCategory
-        android:title="Données">
-
-        <Preference
-            android:key="backup"
-            android:title="Sauvegarde &amp; Restauration"
-            android:summary="Exporter ou importer vos listes et paramètres"
-            android:icon="@drawable/ic_backup"/>
-
+    <PreferenceCategory android:title="@string/pref_category_data">
+        <Preference android:key="backup" android:title="@string/pref_backup_entry_title" android:summary="@string/pref_backup_entry_summary" android:icon="@drawable/ic_backup"/>
     </PreferenceCategory>
 
-    <!-- Applications -->
-    <PreferenceCategory
-        android:title="@string/pref_category_apps"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="excluded_apps"
-            android:title="@string/pref_excluded_apps_title"
-            android:summary="@string/pref_excluded_apps_summary"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_apps" app:iconSpaceReserved="false">
+        <Preference android:key="excluded_apps" android:title="@string/pref_excluded_apps_title" android:summary="@string/pref_excluded_apps_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- Données -->
-    <PreferenceCategory
-        android:title="@string/pref_category_data"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="clear_logs"
-            android:title="@string/pref_clear_logs_title"
-            android:summary="@string/pref_clear_logs_summary"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_data" app:iconSpaceReserved="false">
+        <Preference android:key="clear_logs" android:title="@string/pref_clear_logs_title" android:summary="@string/pref_clear_logs_summary" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
-    <!-- À propos -->
-    <PreferenceCategory
-        android:title="@string/pref_category_about"
-        app:iconSpaceReserved="false">
-
-        <Preference
-            android:key="version"
-            android:title="@string/pref_version_title"
-            android:summary="..."
-            android:selectable="false"/>
-
-        <Preference
-            android:key="developer"
-            android:title="@string/pref_developer_title"
-            android:summary="@string/pref_developer_summary"
-            app:iconSpaceReserved="false"/>
-
-        <Preference
-            android:key="github"
-            android:title="@string/pref_github_title"
-            android:summary="@string/pref_github_summary"
-            app:iconSpaceReserved="false"/>
-
-        <Preference
-            android:key="license"
-            android:title="@string/pref_license_title"
-            android:summary="GPL-3.0-or-later"
-            android:selectable="false"
-            app:iconSpaceReserved="false"/>
-
+    <PreferenceCategory android:title="@string/pref_category_about" app:iconSpaceReserved="false">
+        <Preference android:key="version" android:title="@string/pref_version_title" android:summary="..." android:selectable="false"/>
+        <Preference android:key="developer" android:title="@string/pref_developer_title" android:summary="@string/pref_developer_summary" app:iconSpaceReserved="false"/>
+        <Preference android:key="github" android:title="@string/pref_github_title" android:summary="@string/pref_github_summary" app:iconSpaceReserved="false"/>
+        <Preference android:key="license" android:title="@string/pref_license_title" android:summary="GPL-3.0-or-later" android:selectable="false" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
