@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">الميزة غير متاحة</string>
+    <string name="pref_category_parental_control">👨‍👧 الرقابة الأبوية</string>
+    <string name="pref_parental_control_title">الرقابة الأبوية</string>
+    <string name="pref_parental_control_summary">حظر الفئات وتقييد أوقات الاستخدام</string>
+    <string name="pref_parental_control_enabled">🔒 مفعّل</string>
+    <string name="pref_user_rules_title">قواعد مخصصة</string>
+    <string name="pref_user_rules_summary">حظر النطاقات أو السماح بها (AdGuard، Regex)</string>
+    <string name="pref_backup_entry_title">النسخ الاحتياطي والاستعادة</string>
+    <string name="pref_backup_entry_summary">تصدير أو استيراد القوائم والإعدادات</string>
+</resources>
