@@ -13,10 +13,12 @@
     <color name="red">#F44336</color>
     <color name="orange">#FF9800</color>
     <color name="blue">#2196F3</color>
+    <color name="accent_blue">#2196F3</color>
 
     <!-- Couleurs de texte -->
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
+    <color name="text_secondary_dark">#B0B3C0</color>
     <color name="gray">#9E9E9E</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
@@ -26,5 +28,8 @@
     <color name="surface">#FFFFFF</color>
     <color name="divider">#E0E0E0</color>
     <color name="card_background">#FFFFFF</color>
+
+    <!-- Interface sombre moderne -->
+    <color name="card_stroke">#2A3550</color>
 
 </resources>
