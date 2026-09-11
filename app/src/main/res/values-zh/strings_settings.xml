@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">功能不可用</string>
+    <string name="pref_category_parental_control">👨‍👧 家长控制</string>
+    <string name="pref_parental_control_title">家长控制</string>
+    <string name="pref_parental_control_summary">屏蔽类别并限制使用时间</string>
+    <string name="pref_parental_control_enabled">🔒 已启用</string>
+    <string name="pref_user_rules_title">自定义规则</string>
+    <string name="pref_user_rules_summary">屏蔽或允许域名（AdGuard、正则表达式）</string>
+    <string name="pref_backup_entry_title">备份与恢复</string>
+    <string name="pref_backup_entry_summary">导出或导入列表和设置</string>
+</resources>
