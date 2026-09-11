@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_unavailable">この機能は利用できません</string>
+    <string name="pref_category_parental_control">👨‍👧 ペアレンタルコントロール</string>
+    <string name="pref_parental_control_title">ペアレンタルコントロール</string>
+    <string name="pref_parental_control_summary">カテゴリをブロックし、利用時間を制限します</string>
+    <string name="pref_parental_control_enabled">🔒 有効</string>
+    <string name="pref_user_rules_title">カスタムルール</string>
+    <string name="pref_user_rules_summary">ドメインをブロックまたは許可（AdGuard、正規表現）</string>
+    <string name="pref_backup_entry_title">バックアップと復元</string>
+    <string name="pref_backup_entry_summary">リストと設定をエクスポートまたはインポート</string>
+</resources>
