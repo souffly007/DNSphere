@@ -4,10 +4,9 @@ import java.util.*
 
 class StatsRepository(private val blockLogDao: BlockLogDao) {
 
-    // 1. Fonction de nettoyage (à appeler pour remettre à zéro ce qui a plus de 7 jours)
+    // 1. Fonction de nettoyage selon la politique commune de rétention.
     suspend fun clearOldStats() {
-        val fourDaysAgo = System.currentTimeMillis() - (4 * 24 * 60 * 60 * 1000L)
-        blockLogDao.deleteOldLogs(fourDaysAgo)
+        blockLogDao.deleteOldLogs(LogRetentionPolicy.cutoff(System.currentTimeMillis()))
     }
 
     suspend fun getStats(period: StatsPeriod): StatsData {

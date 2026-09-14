@@ -3,9 +3,12 @@ package fr.bonobo.dnsphere.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -16,6 +19,7 @@ import fr.bonobo.dnsphere.LocalVpnService
 import fr.bonobo.dnsphere.R
 import fr.bonobo.dnsphere.BuildConfig
 import fr.bonobo.dnsphere.data.AppDatabase
+import fr.bonobo.dnsphere.data.LogRetentionPolicy
 import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity() {
@@ -50,6 +54,82 @@ class SettingsActivity : AppCompatActivity() {
 
         private lateinit var database: AppDatabase
         private lateinit var blockListManager: BlockListManager
+
+        /**
+         * DNSphere UI V2.5
+         *
+         * Gestion des marges de l'écran Paramètres.
+         *
+         * - La première section ne passe plus sous la barre "Paramètres".
+         * - La dernière préférence (Licence) reste au-dessus de la
+         *   barre de navigation Android.
+         * - Les insets système sont pris en compte automatiquement.
+         *
+         * IMPORTANT : ne pas supprimer ce bloc lors des modifications
+         * de la liste DNS dans preferences.xml / arrays.xml.
+         */
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+
+            val recyclerView = listView ?: return
+
+            recyclerView.clipToPadding = false
+
+            val density = resources.displayMetrics.density
+
+            fun dp(value: Int): Int =
+                (value * density + 0.5f).toInt()
+
+            // Marge de base voulue par le thème DNSphere.
+            // 88dp en haut laisse suffisamment d'espace sous la toolbar.
+            val baseTop = dp(88)
+
+            // 32dp de confort en plus de la barre de navigation.
+            val baseBottom = dp(32)
+
+            ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { v, insets ->
+
+                val systemBars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                )
+
+                /*
+                 * Haut :
+                 * On conserve une vraie marge visuelle sous la toolbar,
+                 * tout en tenant compte du status bar si Android applique
+                 * l'edge-to-edge.
+                 */
+                val topPadding = maxOf(
+                    baseTop,
+                    systemBars.top + dp(56)
+                )
+
+                /*
+                 * Bas :
+                 * On ajoute systématiquement la hauteur réelle de la
+                 * navigation Android + 32dp de respiration.
+                 *
+                 * Cela empêche Licence / GPL-3.0-or-later de passer
+                 * sous la barre de navigation.
+                 */
+                val bottomPadding = maxOf(
+                    baseBottom,
+                    systemBars.bottom + baseBottom
+                )
+
+                v.setPadding(
+                    v.paddingLeft,
+                    topPadding,
+                    v.paddingRight,
+                    bottomPadding
+                )
+
+                insets
+            }
+
+            // Applique immédiatement les insets si Android les a déjà calculés.
+            ViewCompat.requestApplyInsets(recyclerView)
+        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             preferenceManager.sharedPreferencesName = "vpn_prefs"
@@ -187,6 +267,51 @@ class SettingsActivity : AppCompatActivity() {
 
             // ==================== DONNÉES ====================
 
+            findPreference<ListPreference>("stats_retention_days")?.apply {
+                summary = getRetentionSummary(value)
+
+                setOnPreferenceChangeListener { pref, newValue ->
+                    val days = LogRetentionPolicy.normalizeDays((newValue as String).toLong())
+                    (pref as ListPreference).summary = getRetentionSummary(days.toString())
+                    true
+                }
+            }
+
+            findPreference<Preference>("cleanup_old_logs")?.setOnPreferenceClickListener {
+                val retentionDays = getSelectedRetentionDays()
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Nettoyer les anciens journaux")
+                    .setMessage("Supprimer les journaux datant de plus de $retentionDays jours ?")
+                    .setPositiveButton("Nettoyer") { _, _ ->
+                        lifecycleScope.launch {
+                            try {
+                                val cutoff = LogRetentionPolicy.cutoff(
+                                    System.currentTimeMillis(),
+                                    retentionDays
+                                )
+                                val dao = database.blockLogDao()
+                                val count = dao.countOldLogs(cutoff)
+                                dao.deleteOldLogs(cutoff)
+                                Toast.makeText(
+                                    requireContext(),
+                                    if (count == 0) "Aucun ancien journal à supprimer"
+                                    else "$count journal(aux) supprimé(s)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Impossible de nettoyer les journaux",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                    .setNegativeButton(R.string.dialog_cancel, null)
+                    .show()
+                true
+            }
+
             findPreference<Preference>("clear_logs")?.setOnPreferenceClickListener {
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.clear_logs_title)
@@ -242,9 +367,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         /**
-        ** Lit uniquement pinEnabled depuis la DB via coroutine — sans instancier
-        * ParentalManager (qui chargeait 500K domaines sur la main thread → ANR).
-        */
+         * Lit uniquement pinEnabled depuis la DB via coroutine — sans instancier
+         * ParentalManager (qui chargeait 500K domaines sur la main thread → ANR).
+         */
         private fun updateParentalSummary() {
             lifecycleScope.launch {
                 try {
@@ -273,6 +398,17 @@ class SettingsActivity : AppCompatActivity() {
                 "google"              -> getString(R.string.doh_provider_google)
                 "quad9"               -> getString(R.string.doh_provider_quad9)
                 "adguard"             -> getString(R.string.doh_provider_adguard)
+                "mullvad"             -> getString(R.string.doh_provider_mullvad)
+                "mullvad-adblock"     -> getString(R.string.doh_provider_mullvad_adblock)
+                "mullvad-base"        -> getString(R.string.doh_provider_mullvad_base)
+                "mullvad-extended"    -> getString(R.string.doh_provider_mullvad_extended)
+                "mullvad-family"      -> getString(R.string.doh_provider_mullvad_family)
+                "mullvad-all"         -> getString(R.string.doh_provider_mullvad_all)
+                "dns4eu-protective"   -> getString(R.string.doh_provider_dns4eu_protective)
+                "dns4eu-child"        -> getString(R.string.doh_provider_dns4eu_child)
+                "dns4eu-noads"        -> getString(R.string.doh_provider_dns4eu_noads)
+                "dns4eu-child-noads"  -> getString(R.string.doh_provider_dns4eu_child_noads)
+                "dns4eu-unfiltered"   -> getString(R.string.doh_provider_dns4eu_unfiltered)
                 "rethink"             -> getString(R.string.doh_provider_rethink)
                 "rethink-light"       -> getString(R.string.doh_provider_rethink_light)
                 "rethink-recommended" -> getString(R.string.doh_provider_rethink_recommended)
@@ -285,6 +421,22 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<ListPreference>("doh_provider")?.let { pref ->
                 pref.summary = getProviderDisplayName(pref.value ?: "cloudflare")
             }
+        }
+
+        private fun getSelectedRetentionDays(): Long {
+            val value = findPreference<ListPreference>("stats_retention_days")?.value
+                ?: LogRetentionPolicy.DEFAULT_RETENTION_DAYS.toString()
+            return LogRetentionPolicy.normalizeDays(value.toLongOrNull()
+                ?: LogRetentionPolicy.DEFAULT_RETENTION_DAYS.toLong())
+        }
+
+        private fun getRetentionSummary(value: String): String {
+            return "Conserver les journaux détaillés pendant ${getSelectedRetentionDaysForSummary(value)} jours"
+        }
+
+        private fun getSelectedRetentionDaysForSummary(value: String): Long {
+            return LogRetentionPolicy.normalizeDays(value.toLongOrNull()
+                ?: LogRetentionPolicy.DEFAULT_RETENTION_DAYS.toLong())
         }
 
         override fun onResume() {

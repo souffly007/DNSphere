@@ -76,20 +76,25 @@ data class ProfileSchedule(
     /** Vérifie si l'heure actuelle est dans ce créneau */
     fun isActiveNow(): Boolean {
         if (!enabled) return false
-        val cal     = java.util.Calendar.getInstance()
-        val dayOk   = isActiveOnDay(cal.get(java.util.Calendar.DAY_OF_WEEK))
-        if (!dayOk) return false
-
+        val cal = java.util.Calendar.getInstance()
         val nowMin  = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
         val startMin = startHour * 60 + startMinute
         val endMin   = endHour   * 60 + endMinute
 
         return if (startMin <= endMin) {
             // Créneau normal : ex 08:00 → 18:00
-            nowMin in startMin..endMin
+            isActiveOnDay(cal.get(java.util.Calendar.DAY_OF_WEEK)) && nowMin in startMin..endMin
         } else {
             // Créneau qui passe minuit : ex 22:00 → 06:00
-            nowMin >= startMin || nowMin <= endMin
+            val currentDayIsActive = isActiveOnDay(cal.get(java.util.Calendar.DAY_OF_WEEK))
+            if (currentDayIsActive && nowMin >= startMin) {
+                true
+            } else {
+                val previousDay = (cal.clone() as java.util.Calendar).apply {
+                    add(java.util.Calendar.DAY_OF_YEAR, -1)
+                }
+                isActiveOnDay(previousDay.get(java.util.Calendar.DAY_OF_WEEK)) && nowMin <= endMin
+            }
         }
     }
 

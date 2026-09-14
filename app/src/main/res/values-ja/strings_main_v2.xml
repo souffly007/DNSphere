@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">DNS 保護</string>
+    <string name="main_disabled_upper">無効</string>
+    <string name="main_dns_standard">標準 DNS</string>
+    <string name="main_active_dns_server">使用中の DNS サーバー</string>
+    <string name="main_today_upper">今日</string>
+    <string name="main_ads_blocked">広告をブロック</string>
+    <string name="main_trackers_blocked">トラッカーをブロック</string>
+    <string name="main_total_blocked">合計：%1$d 件ブロック</string>
+    <string name="main_other_blocked">その他：%1$d</string>
+    <string name="main_protection_section">保護</string>
+    <string name="main_block_ads_title">広告をブロック</string>
+    <string name="main_block_ads_summary">広告コンテンツを減らす</string>
+    <string name="main_block_trackers_title">トラッカーをブロック</string>
+    <string name="main_block_trackers_summary">オンライン追跡を制限</string>
+    <string name="main_block_malware_title">マルウェアをブロック</string>
+    <string name="main_block_malware_summary">危険なドメインから保護</string>
+    <string name="main_quick_access">クイックアクセス</string>
+    <string name="main_activity">📊  アクティビティ</string>
+    <string name="main_allowed">✓  許可済み</string>
+    <string name="main_apps">📱  アプリ</string>
+    <string name="main_settings">⚙  設定</string>
+    <string name="main_source_github">ソースコード · GitHub</string>
+    <string name="main_total_blocked_zero">合計：0 件ブロック</string>
+    <string name="main_other_blocked_zero">その他：0</string>
+</resources>

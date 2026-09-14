@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">DNS-BESCHERMING</string>
+    <string name="main_disabled_upper">UITGESCHAKELD</string>
+    <string name="main_dns_standard">Standaard-DNS</string>
+    <string name="main_active_dns_server">Actieve DNS-server</string>
+    <string name="main_today_upper">VANDAAG</string>
+    <string name="main_ads_blocked">Geblokkeerde advertenties</string>
+    <string name="main_trackers_blocked">Geblokkeerde trackers</string>
+    <string name="main_total_blocked">Totaal: %1$d geblokkeerd</string>
+    <string name="main_other_blocked">Overig: %1$d</string>
+    <string name="main_protection_section">BESCHERMING</string>
+    <string name="main_block_ads_title">Advertenties blokkeren</string>
+    <string name="main_block_ads_summary">Advertentie-inhoud verminderen</string>
+    <string name="main_block_trackers_title">Trackers blokkeren</string>
+    <string name="main_block_trackers_summary">Online tracking beperken</string>
+    <string name="main_block_malware_title">Malware blokkeren</string>
+    <string name="main_block_malware_summary">Bescherming tegen gevaarlijke domeinen</string>
+    <string name="main_quick_access">SNELLE TOEGANG</string>
+    <string name="main_activity">📊  Activiteit</string>
+    <string name="main_allowed">✓  Toegestaan</string>
+    <string name="main_apps">📱  Apps</string>
+    <string name="main_settings">⚙  Instellingen</string>
+    <string name="main_source_github">Broncode · GitHub</string>
+    <string name="main_total_blocked_zero">Totaal: 0 geblokkeerd</string>
+    <string name="main_other_blocked_zero">Overig: 0</string>
+</resources>

@@ -46,6 +46,8 @@ android {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
@@ -64,6 +66,7 @@ dependencies {
     // Cronet — moteur QUIC pour DoQ + DoH3
     implementation("com.google.android.gms:play-services-cronet:18.0.1")
     implementation("org.chromium.net:cronet-api:119.6045.31")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Preferences
     implementation("androidx.preference:preference-ktx:1.2.1")

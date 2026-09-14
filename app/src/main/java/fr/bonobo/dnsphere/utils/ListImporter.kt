@@ -62,6 +62,10 @@ class ListImporter(private val context: Context) {
             try {
                 Log.d(TAG, "Importing from URL: $url")
 
+                if (!SecureUrlValidator.isHttpsUrl(url)) {
+                    return@withContext ImportResult.Error("L'URL doit utiliser HTTPS")
+                }
+
                 val connection = URL(url).openConnection() as HttpURLConnection
                 connection.connectTimeout = 30000
                 connection.readTimeout = 30000

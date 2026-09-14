@@ -28,6 +28,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import fr.bonobo.dnsphere.LocalVpnService
+import fr.bonobo.dnsphere.ProfileSchedulerWorker
 import fr.bonobo.dnsphere.R
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.Profile
@@ -119,6 +120,7 @@ class ProfilesActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
             updateVpnService(profile)
+            ProfileSchedulerWorker.ensureProfileProtection(this@ProfilesActivity, profile)
         }
     }
 

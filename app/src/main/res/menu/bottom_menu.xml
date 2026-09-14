@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_dashboard"
+        android:icon="@drawable/ic_shield"
+        android:title="Dashboard" />
+
+    <item
+        android:id="@+id/menu_filter"
+        android:icon="@drawable/ic_filter"
+        android:title="Filtrage" />
+
+    <item
+        android:id="@+id/menu_whitelist"
+        android:icon="@drawable/ic_whitelist"
+        android:title="Whitelist" />
+
+    <item
+        android:id="@+id/menu_more"
+        android:icon="@drawable/ic_more"
+        android:title="Plus" />
+
+</menu>

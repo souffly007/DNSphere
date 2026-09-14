@@ -84,10 +84,16 @@ class ListUpdateWorker(
             // Uniquement si au moins une liste a été téléchargée avec succès.
             // ─────────────────────────────────────────────────────────────────
             if (success > 0) {
-                applicationContext.sendBroadcast(
-                    Intent(LocalVpnService.ACTION_UPDATE_CONFIG)
-                )
-                Log.d(TAG, "📡 Broadcast UPDATE_CONFIG envoyé — VPN rechargé")
+                // L'action est explicite : un broadcast implicite ne réveille
+                // pas le service et les domaines téléchargés resteraient en
+                // attente jusqu'au prochain redémarrage du VPN.
+                if (LocalVpnService.isRunning) {
+                    applicationContext.startService(
+                        Intent(applicationContext, LocalVpnService::class.java)
+                            .setAction(LocalVpnService.ACTION_UPDATE_CONFIG)
+                    )
+                    Log.d(TAG, "📡 VPN rechargé après mise à jour des listes")
+                }
             }
 
             if (failed > success) Result.retry() else Result.success()

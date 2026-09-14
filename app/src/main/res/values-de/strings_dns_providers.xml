@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mullvad DNS -->
+    <string name="doh_provider_mullvad">Mullvad DNS</string>
+    <string name="doh_provider_mullvad_adblock">Mullvad – Werbeblocker</string>
+    <string name="doh_provider_mullvad_base">Mullvad – Basisschutz</string>
+    <string name="doh_provider_mullvad_extended">Mullvad – Erweiterter Schutz</string>
+    <string name="doh_provider_mullvad_family">Mullvad – Familie</string>
+    <string name="doh_provider_mullvad_all">Mullvad – Vollständiger Schutz</string>
+
+    <!-- DNS4EU / JoinDNS4 -->
+    <string name="doh_provider_dns4eu_protective">DNS4EU – Schutz</string>
+    <string name="doh_provider_dns4eu_child">DNS4EU – Kinder</string>
+    <string name="doh_provider_dns4eu_noads">DNS4EU – Ohne Werbung</string>
+    <string name="doh_provider_dns4eu_child_noads">DNS4EU – Kinder + ohne Werbung</string>
+    <string name="doh_provider_dns4eu_unfiltered">DNS4EU – Ungefiltert</string>
+</resources>

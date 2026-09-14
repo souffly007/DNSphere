@@ -27,6 +27,17 @@ class ParentalManager(private val context: Context) {
             "bongacams.com", "stripchat.com", "streamate.com"
         )
 
+        // Secours intégré pour le profil Enfants. Les listes externes
+        // complètent cette base dès qu'elles sont téléchargées.
+        val GAMBLING_DOMAINS = setOf(
+            "bet365.com", "betclic.com", "winamax.fr", "unibet.fr",
+            "pmu.fr", "parionssport.fdj.fr", "fdj.fr", "netbet.fr",
+            "bwin.fr", "vbet.fr", "zebet.fr", "circus.be",
+            "pokerstars.fr", "partypoker.fr", "888poker.fr",
+            "casinozer.com", "casinobarriere.com", "joa.fr",
+            "leovegas.com"
+        )
+
         val GAMING_DOMAINS = setOf(
             "steampowered.com", "store.steampowered.com",
             "epicgames.com", "fortnite.com",
@@ -131,20 +142,31 @@ class ParentalManager(private val context: Context) {
     // VÉRIFICATION
     // =========================================================================
 
-    fun shouldBlockNow(hostname: String): Boolean {
-        if (!config.pinEnabled) return false
+    fun shouldBlockNow(
+        hostname: String,
+        profileBlockAdult: Boolean = false,
+        profileBlockGambling: Boolean = false,
+        profileBlockSocial: Boolean = false
+    ): Boolean {
+        val profileProtectionEnabled = profileBlockAdult || profileBlockGambling || profileBlockSocial
+        if (!config.pinEnabled && !profileProtectionEnabled) return false
 
-        if (config.scheduleEnabled && !isCurrentlyAllowed()) {
+        if (config.pinEnabled && config.scheduleEnabled && !isCurrentlyAllowed()) {
             Log.d(TAG, "⏰ Bloqué hors plage horaire: $hostname")
             return true
         }
 
         val domain = hostname.lowercase()
-        return isBlockedByCategory(domain)
+        return isBlockedByCategory(domain, profileBlockAdult, profileBlockGambling, profileBlockSocial)
     }
 
-    private fun isBlockedByCategory(domain: String): Boolean {
-        if (config.blockAdult) {
+    private fun isBlockedByCategory(
+        domain: String,
+        profileBlockAdult: Boolean,
+        profileBlockGambling: Boolean,
+        profileBlockSocial: Boolean
+    ): Boolean {
+        if (config.blockAdult || profileBlockAdult) {
             if (matchesDomainFast(domain, ADULT_DOMAINS)) {
                 Log.d(TAG, "🔞 Bloqué statique (adulte): $domain"); return true
             }
@@ -152,10 +174,13 @@ class ParentalManager(private val context: Context) {
                 Log.d(TAG, "🔞 Bloqué liste externe (adulte): $domain"); return true
             }
         }
+        if (profileBlockGambling && matchesDomainFast(domain, GAMBLING_DOMAINS)) {
+            Log.d(TAG, "🎲 Bloqué intégré (jeux d'argent): $domain"); return true
+        }
         if (config.blockGaming && matchesDomainFast(domain, GAMING_DOMAINS)) {
             Log.d(TAG, "🎮 Bloqué (jeux): $domain"); return true
         }
-        if (config.blockSocialMedia && matchesDomainFast(domain, SOCIAL_DOMAINS)) {
+        if ((config.blockSocialMedia || profileBlockSocial) && matchesDomainFast(domain, SOCIAL_DOMAINS)) {
             Log.d(TAG, "📱 Bloqué (réseaux sociaux): $domain"); return true
         }
         if (config.blockStreaming && matchesDomainFast(domain, STREAMING_DOMAINS)) {

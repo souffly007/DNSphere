@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">DNS 保护</string>
+    <string name="main_disabled_upper">已停用</string>
+    <string name="main_dns_standard">标准 DNS</string>
+    <string name="main_active_dns_server">当前 DNS 服务器</string>
+    <string name="main_today_upper">今天</string>
+    <string name="main_ads_blocked">已拦截广告</string>
+    <string name="main_trackers_blocked">已拦截跟踪器</string>
+    <string name="main_total_blocked">总计：已拦截 %1$d</string>
+    <string name="main_other_blocked">其他：%1$d</string>
+    <string name="main_protection_section">保护</string>
+    <string name="main_block_ads_title">拦截广告</string>
+    <string name="main_block_ads_summary">减少广告内容</string>
+    <string name="main_block_trackers_title">拦截跟踪器</string>
+    <string name="main_block_trackers_summary">限制在线跟踪</string>
+    <string name="main_block_malware_title">拦截恶意软件</string>
+    <string name="main_block_malware_summary">防护危险域名</string>
+    <string name="main_quick_access">快速访问</string>
+    <string name="main_activity">📊  活动</string>
+    <string name="main_allowed">✓  已允许</string>
+    <string name="main_apps">📱  应用</string>
+    <string name="main_settings">⚙  设置</string>
+    <string name="main_source_github">源代码 · GitHub</string>
+    <string name="main_total_blocked_zero">总计：已拦截 0</string>
+    <string name="main_other_blocked_zero">其他：0</string>
+</resources>

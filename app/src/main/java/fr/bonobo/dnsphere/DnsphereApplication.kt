@@ -12,6 +12,11 @@ class DnsphereApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+
+        // Le planificateur est initialisé dès le lancement du processus afin
+        // que les créneaux restent actifs même si l'utilisateur n'ouvre pas
+        // directement l'écran des profils.
+        ProfileSchedulerWorker.start(this)
     }
 
     companion object {

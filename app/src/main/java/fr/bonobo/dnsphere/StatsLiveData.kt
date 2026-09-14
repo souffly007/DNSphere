@@ -9,6 +9,7 @@ data class VpnStats(
     val trackersBlocked: Int = 0,
     val malwareBlocked: Int = 0,
     val shoppingBlocked: Int = 0,
+    val otherBlocked: Int = 0,
     val isPaused: Boolean = false,
     val displayLabel: String = "" // <--- LE TIROIR POUR TA PHRASE
 )

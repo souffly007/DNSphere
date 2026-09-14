@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">DNS PROTECTION</string>
+    <string name="main_disabled_upper">DISABLED</string>
+    <string name="main_dns_standard">Standard DNS</string>
+    <string name="main_active_dns_server">Active DNS server</string>
+    <string name="main_today_upper">TODAY</string>
+    <string name="main_ads_blocked">Ads blocked</string>
+    <string name="main_trackers_blocked">Trackers blocked</string>
+    <string name="main_total_blocked">Total: %1$d blocked</string>
+    <string name="main_other_blocked">Other: %1$d</string>
+    <string name="main_protection_section">PROTECTION</string>
+    <string name="main_block_ads_title">Block ads</string>
+    <string name="main_block_ads_summary">Reduce advertising content</string>
+    <string name="main_block_trackers_title">Block trackers</string>
+    <string name="main_block_trackers_summary">Limit online tracking</string>
+    <string name="main_block_malware_title">Block malware</string>
+    <string name="main_block_malware_summary">Protection against dangerous domains</string>
+    <string name="main_quick_access">QUICK ACCESS</string>
+    <string name="main_activity">📊  Activity</string>
+    <string name="main_allowed">✓  Allowed</string>
+    <string name="main_apps">📱  Apps</string>
+    <string name="main_settings">⚙  Settings</string>
+    <string name="main_source_github">Source code · GitHub</string>
+    <string name="main_total_blocked_zero">Total: 0 blocked</string>
+    <string name="main_other_blocked_zero">Other: 0</string>
+</resources>

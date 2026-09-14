@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">PROTECTION DNS</string>
+    <string name="main_disabled_upper">DÉSACTIVÉ</string>
+    <string name="main_dns_standard">DNS Standard</string>
+    <string name="main_active_dns_server">Serveur DNS actif</string>
+    <string name="main_today_upper">AUJOURD\'HUI</string>
+    <string name="main_ads_blocked">Publicités bloquées</string>
+    <string name="main_trackers_blocked">Trackers bloqués</string>
+    <string name="main_total_blocked">Total : %1$d bloqués</string>
+    <string name="main_other_blocked">Autres : %1$d</string>
+    <string name="main_protection_section">PROTECTION</string>
+    <string name="main_block_ads_title">Bloquer les publicités</string>
+    <string name="main_block_ads_summary">Réduire les contenus publicitaires</string>
+    <string name="main_block_trackers_title">Bloquer les trackers</string>
+    <string name="main_block_trackers_summary">Limiter le pistage en ligne</string>
+    <string name="main_block_malware_title">Bloquer les malwares</string>
+    <string name="main_block_malware_summary">Protection contre les domaines dangereux</string>
+    <string name="main_quick_access">ACCÈS RAPIDE</string>
+    <string name="main_activity">📊  Activité</string>
+    <string name="main_allowed">✓  Autorisés</string>
+    <string name="main_apps">📱  Applications</string>
+    <string name="main_settings">⚙  Paramètres</string>
+    <string name="main_source_github">Code source · GitHub</string>
+    <string name="main_total_blocked_zero">Total : 0 bloqués</string>
+    <string name="main_other_blocked_zero">Autres : 0</string>
+</resources>

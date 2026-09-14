@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">ЗАЩИТА DNS</string>
+    <string name="main_disabled_upper">ОТКЛЮЧЕНА</string>
+    <string name="main_dns_standard">Стандартный DNS</string>
+    <string name="main_active_dns_server">Активный DNS-сервер</string>
+    <string name="main_today_upper">СЕГОДНЯ</string>
+    <string name="main_ads_blocked">Реклама заблокирована</string>
+    <string name="main_trackers_blocked">Трекеры заблокированы</string>
+    <string name="main_total_blocked">Всего заблокировано: %1$d</string>
+    <string name="main_other_blocked">Другое: %1$d</string>
+    <string name="main_protection_section">ЗАЩИТА</string>
+    <string name="main_block_ads_title">Блокировать рекламу</string>
+    <string name="main_block_ads_summary">Сократить рекламный контент</string>
+    <string name="main_block_trackers_title">Блокировать трекеры</string>
+    <string name="main_block_trackers_summary">Ограничить онлайн-отслеживание</string>
+    <string name="main_block_malware_title">Блокировать вредоносные сайты</string>
+    <string name="main_block_malware_summary">Защита от опасных доменов</string>
+    <string name="main_quick_access">БЫСТРЫЙ ДОСТУП</string>
+    <string name="main_activity">📊  Активность</string>
+    <string name="main_allowed">✓  Разрешено</string>
+    <string name="main_apps">📱  Приложения</string>
+    <string name="main_settings">⚙  Настройки</string>
+    <string name="main_source_github">Исходный код · GitHub</string>
+    <string name="main_total_blocked_zero">Всего заблокировано: 0</string>
+    <string name="main_other_blocked_zero">Другое: 0</string>
+</resources>

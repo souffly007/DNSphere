@@ -1,18 +1,14 @@
 package fr.bonobo.dnsphere
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Intent
 import android.net.VpnService
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.AppRuleType
 import fr.bonobo.dnsphere.data.BlockLog
+import fr.bonobo.dnsphere.data.DnsProviderCatalog
 import fr.bonobo.dnsphere.data.WhitelistItem
 import fr.bonobo.dnsphere.dns.DohResolver
 import fr.bonobo.dnsphere.dns.DnsResponseCache
@@ -20,7 +16,6 @@ import fr.bonobo.dnsphere.dns.KnownResolverIps
 import fr.bonobo.dnsphere.network.Doh3Resolver
 import fr.bonobo.dnsphere.network.DoqResolver
 import fr.bonobo.dnsphere.network.DotResolver
-import fr.bonobo.dnsphere.utils.PowerUtils
 import kotlinx.coroutines.*
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -47,8 +42,33 @@ class LocalVpnService : VpnService() {
         const val NOTIFICATION_ID_ALERT = 2
         const val CHANNEL_ID            = "vpn_channel"
         const val CHANNEL_ID_ALERT      = "vpn_alert_channel"
-        const val DNS_SERVER_1          = "1.1.1.1"
-        const val DNS_SERVER_2          = "8.8.8.8"
+
+        // ✅ CORRECTION #1: Map intelligent au lieu de constantes en dur
+        // ⚠️ IMPORTANT: Mullvad & DNS4EU ne supportent QUE DoH/DoT — pas UDP/53!
+        val DNS_SERVERS_FALLBACK = mapOf(
+            "standard"            to listOf("1.1.1.1", "8.8.8.8"),                    // Cloudflare + Google
+            "cloudflare"          to listOf("1.1.1.1", "1.0.0.1"),                    // Cloudflare
+            "google"              to listOf("8.8.8.8", "8.8.4.4"),                    // Google
+            "quad9"               to listOf("9.9.9.9", "149.112.112.112"),            // QUAD9
+            "adguard"             to listOf("94.140.14.14", "94.140.15.15"),          // AdGuard
+
+            // 🔴 Mullvad: UDP/53 n'est PAS supporté! Ces entrées restent vides.
+            // Mullvad ne fonctionne QUE en DoH/DoT (voir forwardDnsQueryWithDoH)
+            "mullvad"             to emptyList(),                                      // DoH uniquement
+            "mullvad-adblock"     to emptyList(),                                      // DoH uniquement
+            "mullvad-base"        to emptyList(),                                      // DoH uniquement
+            "mullvad-extended"    to emptyList(),                                      // DoH uniquement
+            "mullvad-family"      to emptyList(),                                      // DoH uniquement
+            "mullvad-all"         to emptyList(),                                      // DoH uniquement
+
+            // 🔴 DNS4EU: UDP/53 n'est PAS supporté! Ces entrées restent vides.
+            // DNS4EU ne fonctionne QUE en DoH/DoT (voir forwardDnsQueryWithDoH)
+            "dns4eu-protective"   to emptyList(),                                      // DoH uniquement
+            "dns4eu-child"        to emptyList(),                                      // DoH uniquement
+            "dns4eu-noads"        to emptyList(),                                      // DoH uniquement
+            "dns4eu-child-noads"  to emptyList(),                                      // DoH uniquement
+            "dns4eu-unfiltered"   to emptyList(),                                      // DoH uniquement
+        )
 
         // Nombre d'échecs de lecture consécutifs avant de considérer le tunnel comme mort
         // (cas où le fd est fermé/invalide sans passer par onRevoke ni ACTION_STOP)
@@ -65,6 +85,9 @@ class LocalVpnService : VpnService() {
     private var blockTrackers = true
     private var blockMalware  = true
     private var blockShopping = true
+    private var profileBlockAdult = false
+    private var profileBlockGambling = false
+    private var profileBlockSocial = false
 
     // Config DNS
     private var useDoH  = false
@@ -82,21 +105,21 @@ class LocalVpnService : VpnService() {
     private lateinit var doqResolver: DoqResolver
     private lateinit var doh3Resolver: Doh3Resolver
     private lateinit var appFilterManager: AppFilterManager
+    private lateinit var filteringCoordinator: FilteringCoordinator
+    private lateinit var filterEngine: FilterEngine
+    private lateinit var notificationController: NotificationController
 
     private var pauseJob: Job? = null
+    @Volatile private var rebuildingVpn = false
+    private var dnsRequestJob: Job? = null
 
-    // Compteurs
-    private var adsBlocked      = 0
-    private var trackersBlocked = 0
-    private var malwareBlocked  = 0
-    private var shoppingBlocked = 0
+    private lateinit var statsController: StatsController
+    private val dnsPacketProcessor = DnsPacketProcessor()
+    private val dnsResponseBuilder = DnsResponseBuilder(dnsPacketProcessor)
+    private lateinit var resolverManager: ResolverManager
+    private lateinit var vpnTunnelManager: VpnTunnelManager
 
-    private val dnsProviders = listOf(
-        "standard", "cloudflare", "quad9", "google", "adguard",
-        "rethink-light", "rethink-recommended", "rethink-max",
-        "cloudflare-doq", "adguard-doq",
-        "cloudflare-doh3", "adguard-doh3"
-    )
+    private val dnsProviders = DnsProviderCatalog.ids
 
     // Cache DNS respectant le TTL réel des réponses (voir DnsResponseCache).
     private val dnsCache = DnsResponseCache()
@@ -110,14 +133,53 @@ class LocalVpnService : VpnService() {
         blockListManager = BlockListManager(this)
         parentalManager  = ParentalManager(this)
         database         = AppDatabase.getInstance(this)
+        vpnTunnelManager = VpnTunnelManager(this, database)
+        statsController  = StatsController(
+            database = database,
+            scope = serviceScope,
+            isRunning = { isRunning },
+            isPaused = { isPaused },
+            onStatsPublished = { updateNotification() }
+        )
         dohResolver      = DohResolver.getInstance(this)
         dotResolver      = DotResolver()
         doqResolver      = DoqResolver(this)
         doh3Resolver     = Doh3Resolver(this)
+        resolverManager  = ResolverManager(
+            packets = dnsPacketProcessor,
+            responses = dnsResponseBuilder,
+            doh = dohResolver,
+            dot = dotResolver,
+            doq = doqResolver,
+            doh3 = doh3Resolver,
+            udpFallback = { packet -> forwardDnsQuery(packet) }
+        )
         appFilterManager = AppFilterManager(this)
+        filteringCoordinator = FilteringCoordinator(appFilterManager, parentalManager)
+        filterEngine     = FilterEngine(blockListManager, parentalManager)
+
+        notificationController = NotificationController(
+            context = this,
+            isPaused = { isPaused },
+            counters = {
+                val values = statsController.snapshot()
+                NotificationController.BlockCounters(
+                    ads = values.ads,
+                    trackers = values.trackers,
+                    malware = values.malware,
+                    shopping = values.shopping,
+                    other = values.other
+                )
+            },
+            currentDnsLabel = { getCurrentDnsLabel() },
+            shortDnsLabel = { getShortDnsLabel() },
+            nextDnsProvider = { getNextDnsProvider() },
+            nextDnsProviderIndex = { dnsProviders.indexOf(getNextDnsProvider()) },
+            lastBlockedDomain = { lastBlockedDomain }
+        )
 
         loadSavedDnsConfig()
-        createNotificationChannel()
+        notificationController.createNotificationChannel()
 
         serviceScope.launch { appFilterManager.loadRules() }
 
@@ -173,6 +235,9 @@ class LocalVpnService : VpnService() {
         blockTrackers = intent.getBooleanExtra("block_trackers", true)
         blockMalware  = intent.getBooleanExtra("block_malware",  true)
         blockShopping = intent.getBooleanExtra("block_shopping", true)
+        profileBlockAdult = intent.getBooleanExtra("block_adult", false)
+        profileBlockGambling = intent.getBooleanExtra("block_gambling", false)
+        profileBlockSocial = intent.getBooleanExtra("block_social", false)
         useDoH        = intent.getBooleanExtra("use_doh",        false)
         useDot        = intent.getBooleanExtra("use_dot",        false)
         useDoQ        = intent.getBooleanExtra("use_doq",        false)
@@ -216,6 +281,19 @@ class LocalVpnService : VpnService() {
             "quad9"      -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("quad9") }
             "google"     -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("google") }
             "adguard"    -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("adguard") }
+            // Mullvad DNS
+            "mullvad"            -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad") }
+            "mullvad-adblock"    -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad-adblock") }
+            "mullvad-base"       -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad-base") }
+            "mullvad-extended"   -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad-extended") }
+            "mullvad-family"     -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad-family") }
+            "mullvad-all"        -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("mullvad-all") }
+            // DNS4EU
+            "dns4eu-protective"  -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("dns4eu-protective") }
+            "dns4eu-child"       -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("dns4eu-child") }
+            "dns4eu-noads"       -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("dns4eu-noads") }
+            "dns4eu-child-noads" -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("dns4eu-child-noads") }
+            "dns4eu-unfiltered"  -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("dns4eu-unfiltered") }
             // RethinkDNS — 3 niveaux de protection (léger/recommandé/max, cf. rethinkdns.com/configure)
             "rethink-light"       -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("rethink-light") }
             "rethink-recommended" -> { useDoH = true; useDot = false; useDoQ = false; useDoH3 = false; dohResolver.enabled = true; dohResolver.setProvider("rethink-recommended") }
@@ -247,7 +325,8 @@ class LocalVpnService : VpnService() {
         useDot  -> "dot"
         useDoQ  -> "${doqResolver.getServerName().lowercase()}-doq"
         useDoH3 -> "${doh3Resolver.getProviderName().lowercase()}-doh3"
-        useDoH  -> dohResolver.getProviderName().lowercase()
+        useDoH  -> getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
+            .getString("current_dns_provider", "cloudflare") ?: "cloudflare"
         else    -> "standard"
     }
 
@@ -274,8 +353,12 @@ class LocalVpnService : VpnService() {
         useDoH3 -> when (doh3Resolver.getProviderName().lowercase()) {
             "cloudflare" -> "H3-CF"; "adguard" -> "H3-AG"; "google" -> "H3-Ggl"; else -> "H3"
         }
-        useDoH  -> when (dohResolver.getProviderName().lowercase()) {
+        useDoH  -> when (getCurrentDnsProvider()) {
             "cloudflare" -> "CF"; "quad9" -> "Q9"; "google" -> "Ggl"; "adguard" -> "AG"
+            "mullvad" -> "MV"; "mullvad-adblock" -> "MV-A"; "mullvad-base" -> "MV-B"
+            "mullvad-extended" -> "MV-E"; "mullvad-family" -> "MV-F"; "mullvad-all" -> "MV+"
+            "dns4eu-protective" -> "EU"; "dns4eu-child" -> "EU-C"; "dns4eu-noads" -> "EU-A"
+            "dns4eu-child-noads" -> "EU-CA"; "dns4eu-unfiltered" -> "EU-U"
             else -> when {
                 // RethinkDNS : code couleur repris de rethinkdns.com/configure
                 dohResolver.getProviderName().contains("légère")     -> "RT 🟢"
@@ -295,6 +378,7 @@ class LocalVpnService : VpnService() {
     private fun pauseVpn(durationMs: Long) {
         if (!isRunning) return
         isPaused = true
+        rebuildVpnInterface(includeResolverRoutes = false)
         updateNotification()
         cancelPause()
         pauseJob = serviceScope.launch { delay(durationMs); resumeVpn() }
@@ -303,6 +387,7 @@ class LocalVpnService : VpnService() {
     private fun resumeVpn() {
         if (!isRunning) return
         isPaused = false
+        rebuildVpnInterface(includeResolverRoutes = true)
         cancelPause()
         updateNotification()
     }
@@ -319,50 +404,39 @@ class LocalVpnService : VpnService() {
         startForeground(NOTIFICATION_ID, createNotification())
 
         try {
-            val excludedApps = runBlocking {
-                try { database.excludedAppDao().getAllPackageNames() }
-                catch (e: Exception) { emptyList() }
-            }
-
-            val builder = Builder()
-                .setSession("DNSphere Protection")
-                .addAddress("10.0.0.2", 32)
-                .addDnsServer(DNS_SERVER_1)
-                .addDnsServer(DNS_SERVER_2)
-                .setMtu(1500)
-                .setBlocking(false)
-
-            // Toutes les IPs de résolveurs publics connus sont routées dans le tunnel,
-            // pour pouvoir intercepter (et rejeter explicitement) les tentatives de
-            // DoH/DoT/DoQ en dur qui contournent le DNS système — voir
-            // isKnownResolverBypass() et KnownResolverIps.
-            KnownResolverIps.ALL.forEach { ip ->
-                try { builder.addRoute(ip, 32) }
-                catch (e: Exception) { Log.w("DNSphere", "Route impossible pour $ip") }
-            }
-
-            try { builder.addDisallowedApplication(packageName) }
-            catch (e: Exception) { Log.w("DNSphere", "Cannot exclude own package") }
-
-            excludedApps.forEach { pkg ->
-                try { builder.addDisallowedApplication(pkg) }
-                catch (e: Exception) { Log.w("DNSphere", "Cannot exclude $pkg") }
-            }
-
-            vpnInterface = builder.establish()
-
+            vpnInterface = vpnTunnelManager.establish(includeResolverRoutes = true)
             if (vpnInterface != null) {
                 isRunning = true
-                serviceScope.launch { handleDnsRequests() }
-                serviceScope.launch { sendStatsUpdates() }
-            } else {
-                stopVpn()
-            }
+                startDnsRequestLoop()
+                statsController.startUpdates()
+            } else stopVpn()
 
         } catch (e: Exception) {
             Log.e("DNSphere", "Erreur démarrage VPN", e)
             stopVpn()
         }
+    }
+
+    private fun rebuildVpnInterface(includeResolverRoutes: Boolean) {
+        rebuildingVpn = true
+        dnsRequestJob?.cancel()
+        try { vpnInterface?.close() } catch (_: Exception) { }
+        vpnInterface = null
+
+        vpnInterface = vpnTunnelManager.establish(includeResolverRoutes)
+        val established = vpnInterface != null
+        rebuildingVpn = false
+        if (established) {
+            startDnsRequestLoop()
+        } else {
+            Log.e("DNSphere", "Impossible de reconstruire le tunnel VPN")
+            stopVpn()
+        }
+    }
+
+    private fun startDnsRequestLoop() {
+        dnsRequestJob?.cancel()
+        dnsRequestJob = serviceScope.launch { handleDnsRequests() }
     }
 
     // =========================================================================
@@ -383,63 +457,72 @@ class LocalVpnService : VpnService() {
                 if (length > 0) {
                     val ipPacket = packet.copyOf(length)
 
-                    if (isDnsPacket(ipPacket)) {
-                        val dnsQuery = extractDnsQuery(ipPacket)
+                    if (dnsPacketProcessor.isDnsPacket(ipPacket)) {
+                        val dnsQuery = dnsPacketProcessor.extractDnsQuery(ipPacket)
 
                         if (dnsQuery != null) {
 
                             // En pause → forward direct
                             if (isPaused) {
-                                forwardDnsQuery(ipPacket)?.let { outputStream.write(it) }
+                                // La pause désactive le filtrage, mais conserve le
+                                // transport DNS choisi par l'utilisateur. L'ancien
+                                // code forçait l'UDP/53 et cassait Mullvad/DNS4EU
+                                // ainsi que les configurations DoH/DoT/DoQ/DoH3.
+                                forwardDnsQueryWithoutFiltering(ipPacket)
+                                    ?.let { outputStream.write(it) }
                                 delay(1); continue
                             }
 
-                            // ── Filtrage par application ──────────────────────
-                            val appRule = appFilterManager.getRuleForPacket(ipPacket)
-
-                            when (appRule?.rule) {
-
-                                AppRuleType.BLOCK_ALL -> {
-                                    Log.d("DNSphere", "🚫 [APP:${appRule.appName}] $dnsQuery")
-                                    incrementBlockCounter("AD")
-                                    logBlock(dnsQuery, "APP_BLOCK")
-                                    createBlockedDnsResponse(ipPacket)?.let { outputStream.write(it) }
+                            when (val decision = filteringCoordinator.evaluate(
+                                ipPacket,
+                                dnsQuery,
+                                profileBlockAdult
+                            )) {
+                                is FilteringCoordinator.Decision.BlockForApp -> {
+                                    Log.d("DNSphere", "🚫 [APP:${decision.appName}] $dnsQuery")
+                                    statsController.incrementBlockCounter("AD")
+                                    statsController.logBlock(dnsQuery, "APP_BLOCK")
+                                    dnsResponseBuilder.createBlockedResponse(ipPacket)?.let { outputStream.write(it) }
                                     delay(1); continue
                                 }
-
-                                AppRuleType.ALLOW_ALL -> {
-                                    Log.d("DNSphere", "✅ [APP:${appRule.appName}] bypass $dnsQuery")
+                                is FilteringCoordinator.Decision.AllowForApp -> {
+                                    Log.d("DNSphere", "✅ [APP:${decision.appName}] bypass $dnsQuery")
                                     forwardDnsQuery(ipPacket)?.let { outputStream.write(it) }
                                     delay(1); continue
                                 }
-
-                                else -> { /* DEFAULT ou null → filtrage standard */ }
-                            }
-                            // ─────────────────────────────────────────────────
-
-                            // SafeSearch enforcement (profil Enfants)
-                            if (parentalManager.getConfig().pinEnabled &&
-                                parentalManager.getConfig().blockAdult) {
-                                val safeIp = SafeSearchEnforcer.getSafeIp(dnsQuery)
-                                if (safeIp != null) {
+                                is FilteringCoordinator.Decision.SafeSearchRedirect -> {
                                     Log.d("DNSphere", "🔍 SafeSearch: $dnsQuery")
-                                    createSafeSearchDnsResponse(ipPacket, safeIp)
+                                    dnsResponseBuilder.createSafeSearchResponse(ipPacket, decision.ip)
                                         ?.let { outputStream.write(it) }
                                     delay(1); continue
                                 }
+                                is FilteringCoordinator.Decision.StandardBlock -> Unit
+                                FilteringCoordinator.Decision.StandardFiltering -> Unit
                             }
 
                             // Filtrage DNS standard
-                            val blockType = getBlockType(dnsQuery)
+                            val standardDecision = filteringCoordinator.evaluateStandard(
+                                hostname = dnsQuery,
+                                blockAds = blockAds,
+                                blockTrackers = blockTrackers,
+                                blockMalware = blockMalware,
+                                blockShopping = blockShopping,
+                                profileBlockAdult = profileBlockAdult,
+                                profileBlockGambling = profileBlockGambling,
+                                profileBlockSocial = profileBlockSocial,
+                                filterEngine = filterEngine
+                            )
+                            val blockType = (standardDecision as? FilteringCoordinator.Decision.StandardBlock)
+                                ?.reason?.code
 
                             if (blockType != null) {
                                 Log.d("DNSphere", "🚫 [$blockType] $dnsQuery")
-                                incrementBlockCounter(blockType)
-                                logBlock(dnsQuery, blockType)
+                                statsController.incrementBlockCounter(blockType)
+                                statsController.logBlock(dnsQuery, blockType)
                                 if (blockType != "PARENTAL") lastBlockedDomain = dnsQuery
-                                createBlockedDnsResponse(ipPacket)?.let { outputStream.write(it) }
+                                dnsResponseBuilder.createBlockedResponse(ipPacket)?.let { outputStream.write(it) }
                             } else {
-                                val qtype = extractQType(ipPacket)
+                                val qtype = dnsPacketProcessor.extractQType(ipPacket)
                                 val cached = dnsCache.get(dnsQuery, qtype)
 
                                 if (cached != null) {
@@ -448,16 +531,12 @@ class LocalVpnService : VpnService() {
                                     // précédente — il faut le réécrire avec celui de la requête actuelle,
                                     // sinon l'appelant rejettera la réponse (ID ne correspond pas).
                                     Log.d("DNSphere", "⚡ [CACHE] $dnsQuery (${dnsCache.stats()})")
-                                    val rewritten = rewriteTransactionId(cached, ipPacket)
-                                    outputStream.write(buildResponsePacket(ipPacket, rewritten))
+                                    val rewritten = dnsPacketProcessor.rewriteTransactionId(cached, ipPacket)
+                                    outputStream.write(dnsResponseBuilder.buildResponsePacket(ipPacket, rewritten))
                                 } else {
-                                    val response = when {
-                                        useDot  -> forwardDnsQueryWithDoT(ipPacket)
-                                        useDoQ  -> forwardDnsQueryWithDoQ(ipPacket)
-                                        useDoH3 -> forwardDnsQueryWithDoH3(ipPacket)
-                                        useDoH  -> forwardDnsQueryWithDoH(ipPacket)
-                                        else    -> forwardDnsQuery(ipPacket)
-                                    }
+                                val response = resolverManager.resolve(
+                                    ipPacket, useDot, useDoQ, useDoH3, useDoH
+                                )
                                     response?.let {
                                         outputStream.write(it)
                                         cacheResponseIfPossible(dnsQuery, qtype, it)
@@ -471,7 +550,7 @@ class LocalVpnService : VpnService() {
                 }
                 delay(1)
             } catch (e: Exception) {
-                if (isRunning) {
+                if (isRunning && !rebuildingVpn) {
                     consecutiveErrors++
                     Log.e("DNSphere", "Erreur paquet ($consecutiveErrors/$MAX_CONSECUTIVE_ERRORS)", e)
 
@@ -493,80 +572,75 @@ class LocalVpnService : VpnService() {
     // RESOLVERS
     // =========================================================================
 
-    private suspend fun forwardDnsQueryWithDoT(p: ByteArray) = try {
-        dotResolver.resolve(extractDnsPayload(p))?.let { buildResponsePacket(p, it) } ?: forwardDnsQuery(p)
-    } catch (e: Exception) { forwardDnsQuery(p) }
-
-    private suspend fun forwardDnsQueryWithDoQ(p: ByteArray) = try {
-        doqResolver.resolve(extractDnsPayload(p))?.let { buildResponsePacket(p, it) } ?: forwardDnsQuery(p)
-    } catch (e: Exception) { forwardDnsQuery(p) }
-
-    private suspend fun forwardDnsQueryWithDoH3(p: ByteArray) = try {
-        doh3Resolver.resolve(extractDnsPayload(p))?.let { buildResponsePacket(p, it) } ?: forwardDnsQuery(p)
-    } catch (e: Exception) { forwardDnsQuery(p) }
-
-    private suspend fun forwardDnsQueryWithDoH(p: ByteArray) = try {
-        dohResolver.resolve(extractDnsPayload(p))?.let { buildResponsePacket(p, it) } ?: forwardDnsQuery(p)
-    } catch (e: Exception) { forwardDnsQuery(p) }
-
-    private fun forwardDnsQuery(originalPacket: ByteArray): ByteArray? {
-        return try {
-            val dnsQuery = extractDnsPayload(originalPacket)
-            val socket   = DatagramSocket()
-            protect(socket)
-            socket.soTimeout = 5000
-            val dnsServer = InetAddress.getByName(DNS_SERVER_1)
-            socket.send(DatagramPacket(dnsQuery, dnsQuery.size, dnsServer, 53))
-            val responseBuffer = ByteArray(512)
-            val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
-            socket.receive(responsePacket)
-            socket.close()
-            buildResponsePacket(originalPacket, responseBuffer.copyOf(responsePacket.length))
-        } catch (e: Exception) { null }
+    /**
+     * Résout une requête sans appliquer de blocage, en conservant le protocole
+     * DNS actif. Utilisé uniquement pendant la pause de la protection.
+     */
+    private suspend fun forwardDnsQueryWithoutFiltering(packet: ByteArray): ByteArray? {
+        return resolverManager.resolve(packet, useDot, useDoQ, useDoH3, useDoH)
     }
 
-    private fun extractDnsPayload(ipPacket: ByteArray): ByteArray {
-        val ipHeaderLength = (ipPacket[0].toInt() and 0x0F) * 4
-        return ipPacket.copyOfRange(ipHeaderLength + 8, ipPacket.size)
+    // ✅ CORRECTION #2: forwardDnsQuery() — NE PAS utiliser pour Mullvad/DNS4EU!
+    private fun forwardDnsQuery(originalPacket: ByteArray): ByteArray? {
+        return try {
+            val dnsQuery = dnsPacketProcessor.extractDnsPayload(originalPacket)
+            val currentProvider = getCurrentDnsProvider()
+            val dnsServers = DNS_SERVERS_FALLBACK[currentProvider] ?: DNS_SERVERS_FALLBACK["standard"]!!
+
+            // 🚫 Mullvad/DNS4EU ne supportent PAS UDP/53 — listes vides intentionnellement
+            if (dnsServers.isEmpty()) {
+                Log.w("DNSphere", "⚠️ $currentProvider ne supporte pas UDP/53 — DoH obligatoire!")
+                Log.w("DNSphere", "❌ Pas de fallback UDP possible pour $currentProvider")
+                return null // Force le DoH à être utilisé, et échoue si DoH échoue aussi
+            }
+
+            val socket = DatagramSocket()
+            protect(socket)
+            socket.soTimeout = 5000
+
+            Log.d("DNSphere", "📤 Forward DNS ($currentProvider): essai ${dnsServers[0]}")
+
+            // Essayer chaque serveur DNS, fallback sur le suivant si erreur
+            var lastException: Exception? = null
+            for (dnsServerAddr in dnsServers) {
+                try {
+                    val dnsServer = InetAddress.getByName(dnsServerAddr)
+                    socket.send(DatagramPacket(dnsQuery, dnsQuery.size, dnsServer, 53))
+                    val responseBuffer = ByteArray(512)
+                    val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
+                    socket.receive(responsePacket)
+                    socket.close()
+                    Log.d("DNSphere", "✅ Réponse DNS reçue de $dnsServerAddr")
+                    return dnsResponseBuilder.buildResponsePacket(originalPacket, responseBuffer.copyOf(responsePacket.length))
+                } catch (e: Exception) {
+                    lastException = e
+                    Log.w("DNSphere", "⚠️ DNS $dnsServerAddr échoué ($currentProvider), essai suivant...")
+                    continue
+                }
+            }
+
+            // Tous les serveurs ont échoué
+            socket.close()
+            Log.e("DNSphere", "❌ Tous les serveurs DNS ont échoué pour $currentProvider", lastException)
+            null
+        } catch (e: Exception) {
+            Log.e("DNSphere", "❌ Erreur fatale forwardDnsQuery", e)
+            null
+        }
     }
 
     // =========================================================================
     // CACHE DNS — respecte le TTL réel des réponses (voir DnsResponseCache)
     // =========================================================================
 
-    /** Lit le QTYPE (A=1, AAAA=28, etc.) de la question — nécessaire pour la clé de cache. */
-    private fun extractQType(packet: ByteArray): Int {
-        return try {
-            val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-            var position = ipHeaderLength + 8 + 12
-            while (position < packet.size) {
-                val len = packet[position].toInt() and 0xFF
-                if (len == 0) { position++; break }
-                position += 1 + len
-            }
-            if (position + 1 >= packet.size) return 1 // par défaut : A
-            ((packet[position].toInt() and 0xFF) shl 8) or (packet[position + 1].toInt() and 0xFF)
-        } catch (e: Exception) { 1 }
-    }
-
     /**
      * Une réponse mise en cache porte l'ID de transaction de la requête qui l'a
      * obtenue à l'origine — il faut le remplacer par celui de la requête actuelle,
      * sinon le client rejette la réponse (ID ne correspond pas à sa requête).
      */
-    private fun rewriteTransactionId(cachedPayload: ByteArray, queryPacket: ByteArray): ByteArray {
-        val queryPayload = extractDnsPayload(queryPacket)
-        val rewritten = cachedPayload.copyOf()
-        if (rewritten.size >= 2 && queryPayload.size >= 2) {
-            rewritten[0] = queryPayload[0]
-            rewritten[1] = queryPayload[1]
-        }
-        return rewritten
-    }
-
     private fun cacheResponseIfPossible(domain: String, qtype: Int, responseIpPacket: ByteArray) {
         try {
-            val dnsPayload = extractDnsPayload(responseIpPacket)
+            val dnsPayload = dnsPacketProcessor.extractDnsPayload(responseIpPacket)
             val ttl = extractMinTtl(dnsPayload) ?: return
             dnsCache.put(domain, qtype, dnsPayload, ttl)
         } catch (e: Exception) {
@@ -630,51 +704,6 @@ class LocalVpnService : VpnService() {
         } catch (e: Exception) { null }
     }
 
-    // =========================================================================
-    // BLOCAGE
-    // =========================================================================
-
-    private fun getBlockType(hostname: String): String? {
-        val result = blockListManager.classifyForFiltering(hostname)
-        if (result.exempted) return null
-
-        if (blockListManager.isDohBypass(hostname)) return "DOH_BYPASS"
-        // SafeSearch : moteurs sans SafeSearch DNS bloqués entièrement en mode parental
-        if (parentalManager.getConfig().pinEnabled &&
-            SafeSearchEnforcer.isBlockedSearchEngine(hostname)) return "PARENTAL"
-        if (parentalManager.shouldBlockNow(hostname)) return "PARENTAL"
-
-        return when {
-            result.forced                      -> "FORCE_BLOCKED"
-            result.userBlocked                 -> "FORCE_BLOCKED"
-            result.stun                        -> "WEBRTC_STUN"
-            blockAds      && result.isAd       -> "AD"
-            blockTrackers && result.isTracker  -> "TRACKER"
-            blockMalware  && result.isMalware  -> "MALWARE"
-            blockShopping && result.isShopping -> "SHOPPING"
-            result.isExternal                  -> "EXTERNAL"
-            else -> null
-        }
-    }
-
-    private fun incrementBlockCounter(blockType: String) {
-        when (blockType) {
-            "AD"                               -> adsBlocked++
-            "TRACKER"                          -> trackersBlocked++
-            "MALWARE"                          -> malwareBlocked++
-            "SHOPPING", "EXTERNAL", "PARENTAL", "DOH_BYPASS",
-            "FORCE_BLOCKED", "WEBRTC_STUN",
-            "APP_BLOCK"                        -> shoppingBlocked++
-        }
-    }
-
-    private fun logBlock(hostname: String, type: String) {
-        serviceScope.launch {
-            try { database.blockLogDao().insert(BlockLog(domain = hostname, type = type)) }
-            catch (e: Exception) { }
-        }
-    }
-
     private fun quickWhitelist(domain: String) {
         serviceScope.launch {
             try {
@@ -692,16 +721,6 @@ class LocalVpnService : VpnService() {
     // =========================================================================
     // PAQUETS IP / DNS
     // =========================================================================
-
-    private fun isDnsPacket(packet: ByteArray): Boolean {
-        if (packet.size < 28) return false
-        if ((packet[0].toInt() shr 4) and 0x0F != 4) return false
-        if (packet[9].toInt() and 0xFF != 17) return false
-        val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-        val destPort = ((packet[ipHeaderLength + 2].toInt() and 0xFF) shl 8) or
-                (packet[ipHeaderLength + 3].toInt() and 0xFF)
-        return destPort == 53
-    }
 
     // =========================================================================
     // CONTOURNEMENT DoH/DoT/DoQ PAR IP EN DUR
@@ -749,15 +768,15 @@ class LocalVpnService : VpnService() {
         val protocol = packet[9].toInt() and 0xFF
         val destIp   = getDestIp(packet)
 
-        incrementBlockCounter("DOH_BYPASS")
-        logBlock("$destIp (IP en dur)", "DOH_BYPASS_IP")
+        statsController.incrementBlockCounter("DOH_BYPASS")
+        statsController.logBlock("$destIp (IP en dur)", "DOH_BYPASS_IP")
 
         if (protocol == 6) {
             // TCP (DoH sur HTTPS, DoT) : on répond un RST explicite pour que
             // l'app échoue vite et retombe idéalement sur le DNS système,
             // plutôt qu'un timeout silencieux de plusieurs secondes.
             Log.d("DNSphere", "🚫 [DOH_BYPASS] TCP → $destIp (RST envoyé)")
-            buildTcpRstPacket(packet)?.let { outputStream.write(it) }
+            dnsResponseBuilder.buildTcpRstPacket(packet)?.let { outputStream.write(it) }
         } else {
             // UDP (DoQ/DoH3 en QUIC) : pas de mécanisme de rejet actif fiable
             // en UDP sans complexité disproportionnée (ICMP port-unreachable) —
@@ -766,248 +785,16 @@ class LocalVpnService : VpnService() {
         }
     }
 
-    private fun buildTcpRstPacket(originalPacket: ByteArray): ByteArray? {
-        return try {
-            val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-            if (originalPacket.size < ipHeaderLength + 20) return null
-
-            val tcpHeaderLength = 20 // pas d'options dans notre réponse
-            val totalLength     = ipHeaderLength + tcpHeaderLength
-            val responsePacket  = ByteArray(totalLength)
-
-            System.arraycopy(originalPacket, 0, responsePacket, 0, ipHeaderLength)
-            responsePacket[0] = 0x45 // IPv4, IHL=5 (20 octets, pas d'options)
-            responsePacket[8] = 64   // TTL
-            responsePacket[9] = 6    // protocole TCP
-
-            // Inversion IP source/destination
-            System.arraycopy(originalPacket, 12, responsePacket, 16, 4)
-            System.arraycopy(originalPacket, 16, responsePacket, 12, 4)
-
-            responsePacket[2] = ((totalLength shr 8) and 0xFF).toByte()
-            responsePacket[3] = (totalLength and 0xFF).toByte()
-
-            // Ports inversés
-            val origSrcPort = ((originalPacket[ipHeaderLength].toInt() and 0xFF) shl 8) or
-                    (originalPacket[ipHeaderLength + 1].toInt() and 0xFF)
-            val origDstPort = ((originalPacket[ipHeaderLength + 2].toInt() and 0xFF) shl 8) or
-                    (originalPacket[ipHeaderLength + 3].toInt() and 0xFF)
-
-            responsePacket[ipHeaderLength]     = ((origDstPort shr 8) and 0xFF).toByte()
-            responsePacket[ipHeaderLength + 1] = (origDstPort and 0xFF).toByte()
-            responsePacket[ipHeaderLength + 2] = ((origSrcPort shr 8) and 0xFF).toByte()
-            responsePacket[ipHeaderLength + 3] = (origSrcPort and 0xFF).toByte()
-
-            // Numéros de séquence : RFC 793 §3.4 — un RST en réponse à un
-            // segment avec ACK reprend ce numéro d'ACK comme SEQ ; sinon SEQ=0.
-            val origDataOffset = (originalPacket[ipHeaderLength + 12].toInt() shr 4) and 0x0F
-            val origFlags      = originalPacket[ipHeaderLength + 13].toInt() and 0xFF
-            val ackFlagSet     = (origFlags and 0x10) != 0
-            val synOrFin       = (origFlags and 0x03) != 0 // SYN ou FIN consomment 1 octet de séquence
-            val origSeqNum     = readInt32(originalPacket, ipHeaderLength + 4)
-            val origAckNum     = if (ackFlagSet) readInt32(originalPacket, ipHeaderLength + 8) else 0
-            val origPayloadLen = maxOf(0, originalPacket.size - ipHeaderLength - origDataOffset * 4)
-
-            val rstSeq = if (ackFlagSet) origAckNum else 0
-            val rstAck = origSeqNum + origPayloadLen + (if (synOrFin) 1 else 0)
-
-            writeInt32(responsePacket, ipHeaderLength + 4, rstSeq)
-            writeInt32(responsePacket, ipHeaderLength + 8, rstAck)
-
-            responsePacket[ipHeaderLength + 12] = 0x50.toByte() // data offset = 5, pas d'options
-            responsePacket[ipHeaderLength + 13] = if (ackFlagSet) 0x14 else 0x04 // RST+ACK ou RST seul
-            responsePacket[ipHeaderLength + 14] = 0 // window = 0
-            responsePacket[ipHeaderLength + 15] = 0
-            responsePacket[ipHeaderLength + 18] = 0 // urgent pointer
-            responsePacket[ipHeaderLength + 19] = 0
-
-            updateTcpChecksum(responsePacket, ipHeaderLength)
-            updateIpChecksum(responsePacket)
-            responsePacket
-        } catch (e: Exception) {
-            Log.w("DNSphere", "Impossible de construire le RST TCP", e)
-            null
-        }
-    }
-
-    private fun readInt32(data: ByteArray, offset: Int): Int =
-        ((data[offset].toInt() and 0xFF) shl 24) or
-                ((data[offset + 1].toInt() and 0xFF) shl 16) or
-                ((data[offset + 2].toInt() and 0xFF) shl 8) or
-                (data[offset + 3].toInt() and 0xFF)
-
-    private fun writeInt32(data: ByteArray, offset: Int, value: Int) {
-        data[offset]     = ((value shr 24) and 0xFF).toByte()
-        data[offset + 1] = ((value shr 16) and 0xFF).toByte()
-        data[offset + 2] = ((value shr 8) and 0xFF).toByte()
-        data[offset + 3] = (value and 0xFF).toByte()
-    }
-
-    /** Checksum TCP (RFC 793) : en-tête TCP + pseudo-en-tête IP (obligatoire, contrairement à l'UDP). */
-    private fun updateTcpChecksum(packet: ByteArray, ipHeaderLength: Int) {
-        val tcpLength = packet.size - ipHeaderLength
-        packet[ipHeaderLength + 16] = 0
-        packet[ipHeaderLength + 17] = 0
-
-        var sum = 0L
-        // Pseudo-en-tête : IP source, IP destination, zéro, protocole, longueur TCP
-        for (i in 0 until 4 step 2) {
-            sum += ((packet[12 + i].toInt() and 0xFF) shl 8) or (packet[12 + i + 1].toInt() and 0xFF)
-        }
-        for (i in 0 until 4 step 2) {
-            sum += ((packet[16 + i].toInt() and 0xFF) shl 8) or (packet[16 + i + 1].toInt() and 0xFF)
-        }
-        sum += 6 // protocole TCP
-        sum += tcpLength
-
-        var i = ipHeaderLength
-        while (i < packet.size - 1) {
-            sum += ((packet[i].toInt() and 0xFF) shl 8) or (packet[i + 1].toInt() and 0xFF)
-            i += 2
-        }
-        if (i < packet.size) sum += (packet[i].toInt() and 0xFF) shl 8
-
-        while (sum shr 16 != 0L) sum = (sum and 0xFFFF) + (sum shr 16)
-        val checksum = sum.toInt().inv() and 0xFFFF
-        packet[ipHeaderLength + 16] = ((checksum shr 8) and 0xFF).toByte()
-        packet[ipHeaderLength + 17] = (checksum and 0xFF).toByte()
-    }
-
-    private fun extractDnsQuery(packet: ByteArray): String? {
-        return try {
-            val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-            var position       = ipHeaderLength + 8 + 12
-            val parts          = mutableListOf<String>()
-            while (position < packet.size) {
-                val len = packet[position].toInt() and 0xFF
-                if (len == 0) break
-                position++
-                if (position + len > packet.size) break
-                parts.add(String(packet, position, len, Charsets.UTF_8))
-                position += len
-            }
-            if (parts.isNotEmpty()) parts.joinToString(".").lowercase() else null
-        } catch (e: Exception) { null }
-    }
-
-    /**
-     * Crée une réponse DNS avec une IP SafeSearch spécifique.
-     * Retourne une réponse A record valide au lieu de NXDOMAIN.
-     *
-     * Structure de la réponse DNS :
-     * - Header (12 bytes) : copié depuis la query, flags modifiés
-     * - Question : copiée depuis la query
-     * - Answer : pointeur vers la question + type A + IP SafeSearch
-     */
-    private fun createSafeSearchDnsResponse(originalPacket: ByteArray, safeIp: ByteArray): ByteArray? {
-        return try {
-            val dnsQuery = extractDnsPayload(originalPacket)
-            if (dnsQuery.size < 12) return null
-
-            // Section Answer : pointeur vers QNAME (0xC00C = offset 12)
-            val answerSection = byteArrayOf(
-                0xC0.toByte(), 0x0C.toByte(), // Name: pointer to question (offset 12)
-                0x00, 0x01,                    // Type: A
-                0x00, 0x01,                    // Class: IN
-                0x00, 0x00, 0x00, 0x78,        // TTL: 120 secondes
-                0x00, 0x04,                    // RDLENGTH: 4 octets
-                safeIp[0], safeIp[1], safeIp[2], safeIp[3]
-            )
-
-            // Construire la réponse = query + answer
-            val dnsResponse = ByteArray(dnsQuery.size + answerSection.size)
-            System.arraycopy(dnsQuery,      0, dnsResponse, 0,             dnsQuery.size)
-            System.arraycopy(answerSection, 0, dnsResponse, dnsQuery.size, answerSection.size)
-
-            // Flags : QR=1 (réponse), RD=1, RA=1, RCODE=0 (no error)
-            dnsResponse[2] = 0x81.toByte()
-            dnsResponse[3] = 0x80.toByte()
-            // ANCOUNT = 1
-            dnsResponse[6] = 0x00
-            dnsResponse[7] = 0x01
-
-            buildResponsePacket(originalPacket, dnsResponse)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun createBlockedDnsResponse(originalPacket: ByteArray): ByteArray? {
-        return try {
-            val dnsResponse = extractDnsPayload(originalPacket).copyOf()
-            dnsResponse[2]  = (dnsResponse[2].toInt() or 0x80).toByte()
-            dnsResponse[3]  = (dnsResponse[3].toInt() or 0x03).toByte()
-            buildResponsePacket(originalPacket, dnsResponse)
-        } catch (e: Exception) { null }
-    }
-
-    private fun buildResponsePacket(originalPacket: ByteArray, dnsResponse: ByteArray): ByteArray {
-        val ipHeaderLength = (originalPacket[0].toInt() and 0x0F) * 4
-        val totalLength    = ipHeaderLength + 8 + dnsResponse.size
-        val responsePacket = ByteArray(totalLength)
-
-        System.arraycopy(originalPacket, 0,  responsePacket, 0,  ipHeaderLength)
-        System.arraycopy(originalPacket, 12, responsePacket, 16, 4)
-        System.arraycopy(originalPacket, 16, responsePacket, 12, 4)
-
-        responsePacket[2] = ((totalLength shr 8) and 0xFF).toByte()
-        responsePacket[3] = (totalLength and 0xFF).toByte()
-
-        val srcPort = ((originalPacket[ipHeaderLength].toInt() and 0xFF) shl 8) or
-                (originalPacket[ipHeaderLength + 1].toInt() and 0xFF)
-        val dstPort = ((originalPacket[ipHeaderLength + 2].toInt() and 0xFF) shl 8) or
-                (originalPacket[ipHeaderLength + 3].toInt() and 0xFF)
-
-        responsePacket[ipHeaderLength]     = ((dstPort shr 8) and 0xFF).toByte()
-        responsePacket[ipHeaderLength + 1] = (dstPort and 0xFF).toByte()
-        responsePacket[ipHeaderLength + 2] = ((srcPort shr 8) and 0xFF).toByte()
-        responsePacket[ipHeaderLength + 3] = (srcPort and 0xFF).toByte()
-
-        val udpLength = 8 + dnsResponse.size
-        responsePacket[ipHeaderLength + 4] = ((udpLength shr 8) and 0xFF).toByte()
-        responsePacket[ipHeaderLength + 5] = (udpLength and 0xFF).toByte()
-        responsePacket[ipHeaderLength + 6] = 0
-        responsePacket[ipHeaderLength + 7] = 0
-
-        System.arraycopy(dnsResponse, 0, responsePacket, ipHeaderLength + 8, dnsResponse.size)
-        updateIpChecksum(responsePacket)
-        return responsePacket
-    }
-
-    private fun updateIpChecksum(packet: ByteArray) {
-        val ipHeaderLength = (packet[0].toInt() and 0x0F) * 4
-        packet[10] = 0; packet[11] = 0
-        var sum = 0
-        for (i in 0 until ipHeaderLength step 2) {
-            sum += ((packet[i].toInt() and 0xFF) shl 8) or (packet[i + 1].toInt() and 0xFF)
-        }
-        while (sum shr 16 != 0) sum = (sum and 0xFFFF) + (sum shr 16)
-        val checksum = sum.inv() and 0xFFFF
-        packet[10] = ((checksum shr 8) and 0xFF).toByte()
-        packet[11] = (checksum and 0xFF).toByte()
-    }
-
     // =========================================================================
     // STATS + NOTIFICATIONS
     // =========================================================================
 
-    private suspend fun sendStatsUpdates() {
-        while (isRunning) {
-            StatsLiveData.updateStats(VpnStats(
-                adsBlocked      = adsBlocked,
-                trackersBlocked = trackersBlocked,
-                malwareBlocked  = malwareBlocked,
-                shoppingBlocked = shoppingBlocked,
-                isPaused        = isPaused
-            ))
-            updateNotification()
-            delay(2000)
-        }
-    }
-
     private fun stopVpn() {
         isRunning = false; isPaused = false
         cancelPause()
+        rebuildingVpn = false
+        dnsRequestJob?.cancel()
+        dnsRequestJob = null
         serviceScope.cancel()
         try { vpnInterface?.close() } catch (e: Exception) { }
         vpnInterface = null
@@ -1022,24 +809,7 @@ class LocalVpnService : VpnService() {
     // =========================================================================
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(NotificationManager::class.java)
-
-            val channel = NotificationChannel(CHANNEL_ID, "DNSphere Protection", NotificationManager.IMPORTANCE_LOW).apply {
-                description = "Protection DNS active"; setShowBadge(false)
-            }
-            manager.createNotificationChannel(channel)
-
-            // Canal séparé, visible et sonore : pour prévenir l'utilisateur d'un arrêt
-            // inattendu de la protection (contrairement au canal principal qui est silencieux).
-            val alertChannel = NotificationChannel(
-                CHANNEL_ID_ALERT, "Alertes DNSphere", NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Prévient si la protection s'arrête de façon inattendue"
-                enableVibration(true)
-            }
-            manager.createNotificationChannel(alertChannel)
-        }
+        notificationController.createNotificationChannel()
     }
 
     /**
@@ -1048,34 +818,7 @@ class LocalVpnService : VpnService() {
      * ACTION_STOP — uniquement par onRevoke() ou par des échecs de lecture répétés.
      */
     private fun notifyProtectionInterrupted() {
-        try {
-            val mainIntent = PendingIntent.getActivity(this, 3,
-                Intent(this, MainActivity::class.java),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-            val likelyMiuiCause = PowerUtils.isMiuiOrHyperOs() &&
-                    !PowerUtils.isIgnoringBatteryOptimizations(this)
-
-            val contentText = if (likelyMiuiCause)
-                "Le système (MIUI/HyperOS) a probablement arrêté la protection. Appuyez pour régler l'autostart et la batterie."
-            else
-                "Le filtrage DNS s'est arrêté de façon inattendue. Relance en cours…"
-
-            val notification = NotificationCompat.Builder(this, CHANNEL_ID_ALERT)
-                .setContentTitle("⚠️ Protection DNSphere interrompue")
-                .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic_shield)
-                .setContentIntent(mainIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
-                .setAutoCancel(true)
-                .build()
-
-            getSystemService(NotificationManager::class.java)
-                .notify(NOTIFICATION_ID_ALERT, notification)
-        } catch (e: Exception) {
-            Log.e("DNSphere", "Impossible d'afficher l'alerte d'interruption", e)
-        }
+        notificationController.notifyProtectionInterrupted()
     }
 
     /**
@@ -1111,72 +854,11 @@ class LocalVpnService : VpnService() {
     }
 
     private fun createNotification(): Notification {
-        val mainIntent = PendingIntent.getActivity(this, 0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-        val pauseResumeIntent = if (isPaused) {
-            PendingIntent.getService(this, 1,
-                Intent(this, LocalVpnService::class.java).apply { action = ACTION_RESUME },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        } else {
-            PendingIntent.getService(this, 2,
-                Intent(this, LocalVpnService::class.java).apply {
-                    action = ACTION_PAUSE
-                    putExtra(EXTRA_PAUSE_DURATION, 5 * 60 * 1000L)
-                },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        }
-
-        val nextProvider    = getNextDnsProvider()
-        val switchDnsIntent = PendingIntent.getService(
-            this, 100 + dnsProviders.indexOf(nextProvider),
-            Intent(this, LocalVpnService::class.java).apply {
-                action = ACTION_SWITCH_DNS
-                putExtra(EXTRA_DNS_PROVIDER, nextProvider)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-
-        val totalBlocked  = adsBlocked + trackersBlocked + malwareBlocked + shoppingBlocked
-        val shortDnsLabel = getShortDnsLabel()
-        val title         = if (isPaused) "⏸️ DNSphere en pause" else "🛡️ DNSphere actif"
-        val shortText     = if (isPaused) "Protection suspendue" else "$totalBlocked bloqués | ${getCurrentDnsLabel()}"
-        val longText      = if (isPaused)
-            "Protection suspendue temporairement\nAppuyez sur Reprendre pour réactiver"
-        else
-            "$totalBlocked bloqués (${adsBlocked} pubs, ${trackersBlocked} trackers, ${malwareBlocked} malwares)\n${getCurrentDnsLabel()}"
-
-        val whitelistIntent = lastBlockedDomain?.let { domain ->
-            PendingIntent.getService(this, 200,
-                Intent(this, LocalVpnService::class.java).apply {
-                    action = ACTION_QUICK_WHITELIST
-                    putExtra(EXTRA_WHITELIST_DOMAIN, domain)
-                },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        }
-
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(shortText)
-            .setSmallIcon(R.drawable.ic_shield)
-            .setContentIntent(mainIntent)
-            .addAction(R.drawable.ic_pause, if (isPaused) "▶️ Reprendre" else "⏸️ Pause", pauseResumeIntent)
-            .addAction(R.drawable.ic_shield, "DNS: $shortDnsLabel →", switchDnsIntent)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(longText))
-            .setOngoing(true)
-            .setSilent(true)
-
-        if (whitelistIntent != null) {
-            builder.addAction(R.drawable.ic_whitelist, "✅ Whitelister ${lastBlockedDomain}", whitelistIntent)
-        }
-
-        return builder.build()
+        return notificationController.createNotification()
     }
 
     private fun updateNotification() {
-        try {
-            getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, createNotification())
-        } catch (e: Exception) { }
+        notificationController.updateNotification()
     }
 
     override fun onDestroy() {

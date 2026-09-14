@@ -1,29 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- DoH Provider display names -->
     <string-array name="doh_providers">
         <item>@string/doh_provider_cloudflare</item>
         <item>@string/doh_provider_google</item>
         <item>@string/doh_provider_quad9</item>
         <item>@string/doh_provider_adguard</item>
+        <item>@string/doh_provider_mullvad</item>
+        <item>@string/doh_provider_mullvad_adblock</item>
+        <item>@string/doh_provider_mullvad_base</item>
+        <item>@string/doh_provider_mullvad_extended</item>
+        <item>@string/doh_provider_mullvad_family</item>
+        <item>@string/doh_provider_mullvad_all</item>
+        <item>@string/doh_provider_dns4eu_protective</item>
+        <item>@string/doh_provider_dns4eu_child</item>
+        <item>@string/doh_provider_dns4eu_noads</item>
+        <item>@string/doh_provider_dns4eu_child_noads</item>
+        <item>@string/doh_provider_dns4eu_unfiltered</item>
         <item>@string/doh_provider_rethink</item>
         <item>@string/doh_provider_rethink_light</item>
         <item>@string/doh_provider_rethink_recommended</item>
         <item>@string/doh_provider_rethink_max</item>
     </string-array>
-
-    <!-- DoH Provider values (ne pas traduire) -->
     <string-array name="doh_provider_values">
         <item>cloudflare</item>
         <item>google</item>
         <item>quad9</item>
         <item>adguard</item>
+        <item>mullvad</item>
+        <item>mullvad-adblock</item>
+        <item>mullvad-base</item>
+        <item>mullvad-extended</item>
+        <item>mullvad-family</item>
+        <item>mullvad-all</item>
+        <item>dns4eu-protective</item>
+        <item>dns4eu-child</item>
+        <item>dns4eu-noads</item>
+        <item>dns4eu-child-noads</item>
+        <item>dns4eu-unfiltered</item>
         <item>rethink</item>
         <item>rethink-light</item>
         <item>rethink-recommended</item>
         <item>rethink-max</item>
     </string-array>
-
     <string-array name="rule_types">
         <item>AdGuard / uBlock</item>
         <item>Regex</item>

@@ -122,6 +122,9 @@ interface BlockLogDao {
     suspend fun getStatsByTypeAllTime(): List<TypeCount>
 
     // CORRECTION ICI : "block_logs" au lieu de "block_log"
+    @Query("SELECT COUNT(*) FROM block_logs WHERE timestamp < :threshold")
+    suspend fun countOldLogs(threshold: Long): Int
+
     @Query("DELETE FROM block_logs WHERE timestamp < :threshold")
     suspend fun deleteOldLogs(threshold: Long)
 }

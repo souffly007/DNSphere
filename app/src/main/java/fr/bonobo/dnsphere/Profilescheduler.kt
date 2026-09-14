@@ -14,14 +14,19 @@ import androidx.work.*
 import fr.bonobo.dnsphere.data.AppDatabase
 import fr.bonobo.dnsphere.data.Profile
 import fr.bonobo.dnsphere.data.ProfileSchedule
+import fr.bonobo.dnsphere.data.ProfileScheduleCalculator
+import fr.bonobo.dnsphere.lists.ListUpdateWorker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 /**
  * Moteur de planification des profils.
- * Vérifie toutes les minutes quel profil doit être actif selon les créneaux définis.
- * Utilise WorkManager pour survivre aux redémarrages.
+ * Déclenche une vérification au prochain début/fin de créneau.
+ * Un worker périodique de 15 minutes reste conservé comme filet de sécurité.
  */
 class ProfileSchedulerWorker(
     private val context: Context,
@@ -31,6 +36,22 @@ class ProfileSchedulerWorker(
     companion object {
         private const val TAG       = "ProfileScheduler"
         private const val WORK_NAME = "dnsphere_profile_scheduler"
+        private const val NEXT_WORK_NAME = "dnsphere_profile_scheduler_next_boundary"
+
+        /** Prépare les listes parentales automatiquement pour les profils concernés. */
+        suspend fun ensureProfileProtection(context: Context, profile: Profile) {
+            if (!profile.blockAdult && !profile.blockGambling) return
+
+            withContext(Dispatchers.IO) {
+                try {
+                    ParentalManager(context).installParentalDefaultLists()
+                    ListUpdateWorker.runNow(context)
+                    Log.d(TAG, "🛡️ Listes parentales préparées pour ${profile.name}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Impossible de préparer les listes parentales", e)
+                }
+            }
+        }
 
         fun start(context: Context) {
             val request = PeriodicWorkRequestBuilder<ProfileSchedulerWorker>(15, TimeUnit.MINUTES)
@@ -46,11 +67,18 @@ class ProfileSchedulerWorker(
                 ExistingPeriodicWorkPolicy.KEEP,
                 request
             )
+
+            // Évaluation immédiate : elle applique le créneau courant et
+            // programme ensuite la prochaine frontière avec un délai précis.
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                evaluateNow(context)
+            }
             Log.d(TAG, "✅ ProfileScheduler démarré")
         }
 
         fun stop(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME)
+            WorkManager.getInstance(context).cancelUniqueWork(NEXT_WORK_NAME)
             Log.d(TAG, "🛑 ProfileScheduler arrêté")
         }
 
@@ -66,6 +94,7 @@ class ProfileSchedulerWorker(
 
                     if (schedules.isEmpty()) {
                         Log.d(TAG, "ℹ️ Aucune planification active")
+                        scheduleNextBoundary(context, schedules)
                         return@withContext
                     }
 
@@ -77,6 +106,7 @@ class ProfileSchedulerWorker(
 
                     if (activeSchedule == null) {
                         Log.d(TAG, "ℹ️ Aucun créneau actif en ce moment")
+                        scheduleNextBoundary(context, schedules)
                         return@withContext
                     }
 
@@ -84,6 +114,7 @@ class ProfileSchedulerWorker(
                     val currentActive = database.profileDao().getActiveProfileSync()
                     if (currentActive?.id == activeSchedule.profileId) {
                         Log.d(TAG, "✅ Profil déjà correct: ${currentActive.name}")
+                        scheduleNextBoundary(context, schedules)
                         return@withContext
                     }
 
@@ -92,13 +123,41 @@ class ProfileSchedulerWorker(
                     if (targetProfile != null) {
                         database.profileDao().setActiveProfile(targetProfile.id)
                         applyProfileToVpn(context, targetProfile)
+                        ensureProfileProtection(context, targetProfile)
                         Log.d(TAG, "🔄 Profil basculé → ${targetProfile.name} (créneau: ${activeSchedule.getTimeLabel()})")
                     }
+
+                    scheduleNextBoundary(context, schedules)
 
                 } catch (e: Exception) {
                     Log.e(TAG, "❌ Erreur évaluation planification: ${e.message}")
                 }
             }
+        }
+
+        private suspend fun scheduleNextBoundary(
+            context: Context,
+            schedules: List<ProfileSchedule>
+        ) {
+            val workManager = WorkManager.getInstance(context)
+            val nextAt = ProfileScheduleCalculator.findNextBoundary(schedules)
+
+            if (nextAt == null) {
+                workManager.cancelUniqueWork(NEXT_WORK_NAME)
+                return
+            }
+
+            val delay = (nextAt - System.currentTimeMillis()).coerceAtLeast(0L)
+            val request = OneTimeWorkRequestBuilder<ProfileSchedulerWorker>()
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .build()
+
+            workManager.enqueueUniqueWork(
+                NEXT_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
+            Log.d(TAG, "⏰ Prochaine frontière planifiée dans ${delay / 1000}s")
         }
 
         private fun applyProfileToVpn(context: Context, profile: Profile) {
@@ -129,29 +188,8 @@ class ProfileSchedulerWorker(
 
     override fun doWork(): Result {
         Log.d(TAG, "⏰ Vérification planification profils...")
-        val database = AppDatabase.getInstance(context)
-
         return try {
-            val schedules = runBlocking { database.profileScheduleDao().getAllEnabled() }
-
-            if (schedules.isEmpty()) return Result.success()
-
-            val activeSchedule = schedules
-                .filter { it.isActiveNow() }
-                .maxByOrNull { it.startHour * 60 + it.startMinute }
-                ?: return Result.success()
-
-            val currentActive = runBlocking { database.profileDao().getActiveProfileSync() }
-            if (currentActive?.id == activeSchedule.profileId) return Result.success()
-
-            val targetProfile = runBlocking {
-                database.profileDao().getProfileById(activeSchedule.profileId)
-            } ?: return Result.success()
-
-            runBlocking { database.profileDao().setActiveProfile(targetProfile.id) }
-            applyProfileToVpn(context, targetProfile)
-
-            Log.d(TAG, "✅ Profil basculé → ${targetProfile.name}")
+            runBlocking { evaluateNow(context) }
             Result.success()
 
         } catch (e: Exception) {

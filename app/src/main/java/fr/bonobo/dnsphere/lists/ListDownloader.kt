@@ -3,6 +3,7 @@ package fr.bonobo.dnsphere.lists
 import android.content.Context
 import android.util.Log
 import fr.bonobo.dnsphere.data.*
+import fr.bonobo.dnsphere.utils.SecureUrlValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -85,6 +86,10 @@ class ListDownloader(private val context: Context) {
      * Télécharge le contenu d'une URL
      */
     private fun downloadContent(urlString: String): String {
+        if (!SecureUrlValidator.isHttpsUrl(urlString)) {
+            throw IllegalArgumentException("Les listes doivent utiliser une URL HTTPS")
+        }
+
         val url = URL(urlString)
         val connection = url.openConnection() as HttpURLConnection
 

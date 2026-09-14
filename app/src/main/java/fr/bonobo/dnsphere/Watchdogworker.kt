@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
 import fr.bonobo.dnsphere.data.AppDatabase
+import fr.bonobo.dnsphere.data.LogRetentionPolicy
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
@@ -84,24 +85,34 @@ class WatchdogWorker(
     override fun doWork(): Result {
         Log.d(TAG, "🔍 Vérification VPN...")
 
-        val prefs      = context.getSharedPreferences("dnsphere_prefs", Context.MODE_PRIVATE)
+        // Les paramètres de l'écran SettingsActivity sont stockés dans vpn_prefs.
+        val prefs      = context.getSharedPreferences("vpn_prefs", Context.MODE_PRIVATE)
         val userWantsVpn = prefs.getBoolean("vpn_should_be_running", false)
 
-        // Purge des stats de plus de 4 jours
+        // Purge quotidienne des journaux détaillés selon la politique commune.
         try {
             val lastPurge = prefs.getLong("last_stats_purge", 0L)
             val now       = System.currentTimeMillis()
             if (now - lastPurge > 24 * 60 * 60 * 1000L) {
-                val fourDaysAgo = now - (4 * 24 * 60 * 60 * 1000L)
+                val retentionDays = LogRetentionPolicy.normalizeDays(
+                    prefs.getLong(
+                        "stats_retention_days",
+                        LogRetentionPolicy.DEFAULT_RETENTION_DAYS
+                    )
+                )
+                val cutoff = LogRetentionPolicy.cutoff(now, retentionDays)
 
                 // Obtenir le DAO depuis la base de données Room
-                runBlocking {
+                val deleted = runBlocking {
                     val database = AppDatabase.getInstance(context)
-                    database.blockLogDao().deleteOldLogs(fourDaysAgo)
+                    val dao = database.blockLogDao()
+                    val count = dao.countOldLogs(cutoff)
+                    dao.deleteOldLogs(cutoff)
+                    count
                 }
 
                 prefs.edit().putLong("last_stats_purge", now).apply()
-                Log.d(TAG, "🗑️ Stats purgées — logs > 4 jours supprimés")
+                Log.d(TAG, "🗑️ $deleted logs purgés — rétention: $retentionDays jours")
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erreur lors de la purge des stats: ${e.message}", e)

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_protection_dns">حماية DNS</string>
+    <string name="main_disabled_upper">معطّلة</string>
+    <string name="main_dns_standard">DNS قياسي</string>
+    <string name="main_active_dns_server">خادم DNS النشط</string>
+    <string name="main_today_upper">اليوم</string>
+    <string name="main_ads_blocked">الإعلانات المحظورة</string>
+    <string name="main_trackers_blocked">أدوات التتبع المحظورة</string>
+    <string name="main_total_blocked">الإجمالي: %1$d محظور</string>
+    <string name="main_other_blocked">أخرى: %1$d</string>
+    <string name="main_protection_section">الحماية</string>
+    <string name="main_block_ads_title">حظر الإعلانات</string>
+    <string name="main_block_ads_summary">تقليل المحتوى الإعلاني</string>
+    <string name="main_block_trackers_title">حظر أدوات التتبع</string>
+    <string name="main_block_trackers_summary">الحد من التتبع عبر الإنترنت</string>
+    <string name="main_block_malware_title">حظر البرمجيات الخبيثة</string>
+    <string name="main_block_malware_summary">الحماية من النطاقات الخطرة</string>
+    <string name="main_quick_access">وصول سريع</string>
+    <string name="main_activity">📊  النشاط</string>
+    <string name="main_allowed">✓  المسموح</string>
+    <string name="main_apps">📱  التطبيقات</string>
+    <string name="main_settings">⚙  الإعدادات</string>
+    <string name="main_source_github">الكود المصدري · GitHub</string>
+    <string name="main_total_blocked_zero">الإجمالي: 0 محظور</string>
+    <string name="main_other_blocked_zero">أخرى: 0</string>
+</resources>

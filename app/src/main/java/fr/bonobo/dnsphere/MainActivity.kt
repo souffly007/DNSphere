@@ -3,6 +3,7 @@ package fr.bonobo.dnsphere
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -19,6 +20,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.switchmaterial.SwitchMaterial
 import fr.bonobo.dnsphere.data.AppDatabase
+import fr.bonobo.dnsphere.data.DnsProviderCatalog
 import fr.bonobo.dnsphere.security.BiometricHelper
 import fr.bonobo.dnsphere.security.ProtectedAction
 import fr.bonobo.dnsphere.ui.*
@@ -35,8 +37,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var btnToggle: MaterialButton
     private lateinit var tvStatus: TextView
+    private lateinit var tvCurrentDns: TextView
     private lateinit var tvAdsBlocked: TextView
     private lateinit var tvTrackersBlocked: TextView
+    private lateinit var tvTotalBlocked: TextView
+    private lateinit var tvOtherBlocked: TextView
     private lateinit var tvCreatedBy: TextView
     private lateinit var switchAds: SwitchMaterial
     private lateinit var switchTrackers: SwitchMaterial
@@ -55,7 +60,8 @@ class MainActivity : AppCompatActivity() {
     private val statsObserver = Observer<VpnStats> { stats ->
         tvAdsBlocked.text      = stats.adsBlocked.toString()
         tvTrackersBlocked.text = stats.trackersBlocked.toString()
-        saveStatsForWidget(stats.adsBlocked, stats.trackersBlocked)
+        updateTotalStats(stats)
+        saveStatsForWidget(stats)
         Log.d("MainActivity", "📊 Stats reçues: Pubs=${stats.adsBlocked}, Trackers=${stats.trackersBlocked}")
     }
 
@@ -82,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         loadPreferences()
         loadCurrentStats()
+        updateCurrentDnsLabel()
 
         // observeForever : reçoit les updates quel que soit l'état du lifecycle
         StatsLiveData.vpnStats.observeForever(statsObserver)
@@ -101,8 +108,11 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         btnToggle         = findViewById(R.id.btnToggle)
         tvStatus          = findViewById(R.id.tvStatus)
+        tvCurrentDns      = findViewById(R.id.tvCurrentDns)
         tvAdsBlocked      = findViewById(R.id.tvAdsBlocked)
         tvTrackersBlocked = findViewById(R.id.tvTrackersBlocked)
+        tvTotalBlocked    = findViewById(R.id.tvTotalBlocked)
+        tvOtherBlocked    = findViewById(R.id.tvOtherBlocked)
         tvCreatedBy       = findViewById(R.id.tvCreatedBy)
         switchAds         = findViewById(R.id.switchAds)
         switchTrackers    = findViewById(R.id.switchTrackers)
@@ -248,12 +258,12 @@ class MainActivity : AppCompatActivity() {
         isVpnRunning = running
         if (running) {
             btnToggle.text = getString(R.string.status_on)
-            btnToggle.setBackgroundColor(getColor(R.color.green))
+            btnToggle.backgroundTintList = ColorStateList.valueOf(getColor(R.color.green))
             tvStatus.text = getString(R.string.protection_enabled)
             tvStatus.setTextColor(getColor(R.color.green))
         } else {
             btnToggle.text = getString(R.string.status_off)
-            btnToggle.setBackgroundColor(getColor(R.color.red))
+            btnToggle.backgroundTintList = ColorStateList.valueOf(getColor(R.color.red))
             tvStatus.text = getString(R.string.protection_disabled)
             tvStatus.setTextColor(getColor(R.color.gray))
         }
@@ -291,19 +301,55 @@ class MainActivity : AppCompatActivity() {
         switchMalware.isChecked  = prefs.getBoolean("block_malware",  true)
     }
 
+    private fun updateCurrentDnsLabel() {
+        val prefs = getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
+        val provider = prefs.getString("current_dns_provider", "standard") ?: "standard"
+        tvCurrentDns.text = getDnsDisplayName(provider)
+    }
+
+    private fun getDnsDisplayName(provider: String): String =
+        if (provider.equals("off", ignoreCase = true)) {
+            DnsProviderCatalog.labelFor("standard")
+        } else {
+            DnsProviderCatalog.labelFor(provider)
+        }
+
     private fun loadCurrentStats() {
         val prefs           = getSharedPreferences("dnsphere_stats", MODE_PRIVATE)
         val adsBlocked      = prefs.getInt("ads_blocked", 0)
         val trackersBlocked = prefs.getInt("trackers_blocked", 0)
+        val malwareBlocked  = prefs.getInt("malware_blocked", 0)
+        val shoppingBlocked = prefs.getInt("shopping_blocked", 0)
+        val otherBlocked    = prefs.getInt("other_blocked", 0)
         tvAdsBlocked.text      = adsBlocked.toString()
         tvTrackersBlocked.text = trackersBlocked.toString()
+        updateTotalStats(
+            VpnStats(
+                adsBlocked = adsBlocked,
+                trackersBlocked = trackersBlocked,
+                malwareBlocked = malwareBlocked,
+                shoppingBlocked = shoppingBlocked,
+                otherBlocked = otherBlocked
+            )
+        )
         Log.d("MainActivity", "📊 Stats chargées: Pubs=$adsBlocked, Trackers=$trackersBlocked")
     }
 
-    private fun saveStatsForWidget(ads: Int, trackers: Int) {
+    private fun updateTotalStats(stats: VpnStats) {
+        val total = stats.adsBlocked + stats.trackersBlocked + stats.malwareBlocked +
+                stats.shoppingBlocked + stats.otherBlocked
+        val other = stats.malwareBlocked + stats.shoppingBlocked + stats.otherBlocked
+        tvTotalBlocked.text = getString(R.string.main_total_blocked, total)
+        tvOtherBlocked.text = getString(R.string.main_other_blocked, other)
+    }
+
+    private fun saveStatsForWidget(stats: VpnStats) {
         getSharedPreferences("dnsphere_stats", MODE_PRIVATE).edit()
-            .putInt("ads_blocked", ads)
-            .putInt("trackers_blocked", trackers)
+            .putInt("ads_blocked", stats.adsBlocked)
+            .putInt("trackers_blocked", stats.trackersBlocked)
+            .putInt("malware_blocked", stats.malwareBlocked)
+            .putInt("shopping_blocked", stats.shoppingBlocked)
+            .putInt("other_blocked", stats.otherBlocked)
             .apply()
     }
 
@@ -313,6 +359,7 @@ class MainActivity : AppCompatActivity() {
         isVpnRunning = LocalVpnService.isRunning
         updateUI(isVpnRunning)
         loadPreferences()
+        updateCurrentDnsLabel()
         checkMiuiRestrictions()
     }
 

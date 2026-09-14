@@ -179,7 +179,7 @@ class ProfileScheduleActivity : AppCompatActivity() {
     private fun toggleSchedule(schedule: ProfileSchedule, enabled: Boolean) {
         lifecycleScope.launch {
             database.profileScheduleDao().setEnabled(schedule.id, enabled)
-            if (enabled) ProfileSchedulerWorker.evaluateNow(this@ProfileScheduleActivity)
+            ProfileSchedulerWorker.evaluateNow(this@ProfileScheduleActivity)
         }
     }
 
@@ -190,6 +190,7 @@ class ProfileScheduleActivity : AppCompatActivity() {
             .setPositiveButton("Supprimer") { _, _ ->
                 lifecycleScope.launch {
                     database.profileScheduleDao().delete(schedule)
+                    ProfileSchedulerWorker.evaluateNow(this@ProfileScheduleActivity)
                 }
             }
             .setNegativeButton("Annuler", null)

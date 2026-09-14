@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Trois points (plus d'options) -->
+    <!-- Point 1 (gauche) à x=6, y=12, rayon=2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,10 a2,2 0 0,1 4,0 a2,2 0 0,1 -4,0" />
+
+    <!-- Point 2 (centre) à x=12, y=12, rayon=2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,10 a2,2 0 0,1 4,0 a2,2 0 0,1 -4,0" />
+
+    <!-- Point 3 (droite) à x=18, y=12, rayon=2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18,10 a2,2 0 0,1 4,0 a2,2 0 0,1 -4,0" />
+
+</vector>

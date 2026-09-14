@@ -243,7 +243,7 @@ object KnownHostsLists {
         ),
         KnownList(
             name            = "StevenBlack – Porn only",
-            url             = "http://sbc.io/hosts/alternates/fakenews-gambling-porn/hosts",
+            url             = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts",
             description     = "Extension StevenBlack dédiée contenu pornographique.",
             category        = ListCategory.PARENTAL,
             format          = ListFormat.HOSTS,
