@@ -5,6 +5,8 @@
     <PreferenceCategory android:title="@string/pref_category_secure_dns" app:iconSpaceReserved="false">
         <SwitchPreferenceCompat android:key="use_doh" android:title="@string/pref_use_doh_title" android:summary="@string/pref_use_doh_summary" android:defaultValue="false" app:iconSpaceReserved="false"/>
         <ListPreference android:key="doh_provider" android:title="@string/pref_doh_provider_title" android:summary="@string/doh_provider_cloudflare" android:entries="@array/doh_providers" android:entryValues="@array/doh_provider_values" android:defaultValue="cloudflare" android:dependency="use_doh" app:iconSpaceReserved="false"/>
+        <SwitchPreferenceCompat android:key="dns_query_protection" android:title="@string/pref_query_protection_title" android:summary="@string/pref_query_protection_summary" android:defaultValue="true" app:iconSpaceReserved="false"/>
+        <SwitchPreferenceCompat android:key="dns_strict_mode" android:title="@string/pref_strict_dns_title" android:summary="@string/pref_strict_dns_summary" android:defaultValue="false" app:iconSpaceReserved="false"/>
         <SwitchPreferenceCompat android:key="webrtc_leak_protection" android:title="@string/pref_webrtc_title" android:summary="@string/pref_webrtc_summary" android:defaultValue="false" app:iconSpaceReserved="false"/>
     </PreferenceCategory>
 

@@ -12,6 +12,7 @@ class DnsphereApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        fr.bonobo.dnsphere.data.ProviderPreferencesMigration.migrate(this)
 
         // Le planificateur est initialisé dès le lancement du processus afin
         // que les créneaux restent actifs même si l'utilisateur n'ouvre pas

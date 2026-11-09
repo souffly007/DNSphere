@@ -16,7 +16,7 @@ class QuickDNSSelectorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val labels = DnsProviderCatalog.providers.map { it.label }.toTypedArray()
+        val labels = DnsProviderCatalog.providers.map { if (it.description.isEmpty()) it.label else "${it.label}\n${it.description}" }.toTypedArray()
         val providers = DnsProviderCatalog.ids
 
         // Créer et afficher le dialog

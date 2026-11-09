@@ -7,7 +7,8 @@ package fr.bonobo.dnsphere.data
  */
 data class DnsProviderInfo(
     val id: String,
-    val label: String
+    val label: String,
+    val description: String = ""
 )
 
 object DnsProviderCatalog {
@@ -15,7 +16,9 @@ object DnsProviderCatalog {
     val providers: List<DnsProviderInfo> = listOf(
         DnsProviderInfo("standard", "🌐 DNS Standard"),
         DnsProviderInfo("cloudflare", "🔵 Cloudflare (DoH)"),
-        DnsProviderInfo("quad9", "🟦 Quad9 (DoH)"),
+        DnsProviderInfo("hagezi-security", "HaGeZi Sécurité", "Phishing, sites malveillants, arnaques"),
+        DnsProviderInfo("hagezi-full", "HaGeZi Protection complète", "Anti-pubs, traqueurs"),
+        DnsProviderInfo("quad9", "Quad9 (Hors France)"),
         DnsProviderInfo("google", "🔴 Google (DoH)"),
         DnsProviderInfo("adguard", "🛡️ AdGuard (DoH)"),
 
@@ -36,8 +39,8 @@ object DnsProviderCatalog {
         DnsProviderInfo("rethink-recommended", "🟡 RethinkDNS · Recommandé"),
         DnsProviderInfo("rethink-max", "🔴 RethinkDNS · Maximum"),
 
-        DnsProviderInfo("cloudflare-doq", "🔵 Cloudflare (DoQ)"),
-        DnsProviderInfo("adguard-doq", "🛡️ AdGuard (DoQ)"),
+        DnsProviderInfo("cloudflare-doq", "🔵 Cloudflare (DoH/QUIC auto)"),
+        DnsProviderInfo("adguard-doq", "🛡️ AdGuard (DoH/QUIC auto)"),
         DnsProviderInfo("cloudflare-doh3", "🔵 Cloudflare (DoH3)"),
         DnsProviderInfo("adguard-doh3", "🛡️ AdGuard (DoH3)"),
         DnsProviderInfo("google-doh3", "🔴 Google (DoH3)")

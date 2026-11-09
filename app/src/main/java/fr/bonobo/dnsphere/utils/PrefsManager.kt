@@ -12,7 +12,7 @@ class PrefsManager(context: Context) {
     companion object {
         // DNS Settings
         const val KEY_DNS_MODE    = "dns_mode"     // "standard", "doh", "dot", "doq"
-        const val KEY_DNS_SERVER  = "dns_server"   // "cloudflare", "google", "quad9", "adguard", "nextdns", "custom"
+        const val KEY_DNS_SERVER  = "dns_server"   // "cloudflare", "google", "hagezi-security", "hagezi-full", "quad9", "adguard", "nextdns", "custom"
         const val KEY_CUSTOM_DNS  = "custom_dns"
         const val KEY_USE_DOQ     = "use_doq"
         const val KEY_DOQ_SERVER  = "doq_server"   // "cloudflare", "adguard", "nextdns"

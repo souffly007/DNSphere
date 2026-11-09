@@ -78,6 +78,14 @@ class DnsResponseBuilder(private val packets: DnsPacketProcessor) {
         buildResponsePacket(originalPacket, dnsResponse)
     } catch (_: Exception) { null }
 
+    /** Réponse SERVFAIL (RA=1, RCODE=2) : l'appelant échoue vite au lieu d'attendre un timeout. */
+    fun createServFailResponse(originalPacket: ByteArray): ByteArray? = try {
+        val dnsResponse = packets.extractDnsPayload(originalPacket).copyOf()
+        dnsResponse[2] = (dnsResponse[2].toInt() or 0x80).toByte()
+        dnsResponse[3] = ((dnsResponse[3].toInt() and 0x70) or 0x80 or 0x02).toByte()
+        buildResponsePacket(originalPacket, dnsResponse)
+    } catch (_: Exception) { null }
+
     fun createSafeSearchResponse(originalPacket: ByteArray, safeIp: ByteArray): ByteArray? = try {
         val dnsQuery = packets.extractDnsPayload(originalPacket)
         if (dnsQuery.size < 12 || safeIp.size < 4) {

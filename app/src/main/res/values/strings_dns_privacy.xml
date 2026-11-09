@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Mode strict (aucun repli en clair)</string>
+    <string name="pref_strict_dns_summary">Si le DNS chiffré échoue, la requête échoue au lieu d’être envoyée sans chiffrement. Peut bloquer la navigation sur un réseau qui filtre DoH/DoT.</string>
+    <string name="pref_query_protection_title">Protection renforcée des requêtes</string>
+    <string name="pref_query_protection_summary">Masque la longueur des noms demandés (padding EDNS) et empêche l’envoi de votre sous-réseau (ECS).</string>
+</resources>

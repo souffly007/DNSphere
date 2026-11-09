@@ -13,8 +13,8 @@ android {
         applicationId = "fr.bonobo.dnsphere"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.5e"
+        versionCode = 2
+        versionName = "1.5g"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

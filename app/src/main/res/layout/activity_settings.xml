@@ -132,10 +132,10 @@
                             android:textColor="@color/gray"/>
 
                         <RadioButton
-                            android:id="@+id/rbQuad9"
+                            android:id="@+id/rbHageziSecurity"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Quad9 (9.9.9.9)"
+                            android:text="HaGeZi Sécurité"
                             android:textColor="@color/gray"/>
 
                         <RadioButton

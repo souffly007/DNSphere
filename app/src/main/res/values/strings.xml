@@ -3,7 +3,7 @@
 
     <!-- ==================== APP INFO ==================== -->
     <string name="app_name">DNSphere</string>
-    <string name="app_version">1.4</string>
+    <string name="app_version">1.5g</string>
     <string name="widget_description">Contrôle rapide de DNSphere</string>
 
     <!-- Infos développeur -->
@@ -83,7 +83,8 @@
 
     <string name="doh_provider_cloudflare">Cloudflare (recommandé)</string>
     <string name="doh_provider_google">Google</string>
-    <string name="doh_provider_quad9">Quad9 (sécurité)</string>
+    <string name="doh_provider_hagezi_security">HaGeZi Sécurité</string>
+    <string name="doh_provider_hagezi_full">HaGeZi Protection complète</string>
     <string name="doh_provider_adguard">AdGuard (anti-pub)</string>
 
     <!-- ==================== DOH PROVIDERS - RETHINKDNS ==================== -->
@@ -139,7 +140,7 @@
 
     <!-- ==================== PREFERENCES - ABOUT ==================== -->
     <string name="pref_version_title">Version</string>
-    <string name="pref_version_summary">DNSphere v1.5</string>
+    <string name="pref_version_summary">DNSphere v1.5g</string>
     <string name="pref_developer_title">👨‍💻 Créé par</string>
     <string name="pref_developer_summary">souffly007</string>
     <string name="pref_github_title">🔗 Code source (GitHub)</string>

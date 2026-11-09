@@ -1,0 +1,110 @@
+[
+  {
+    "endpoint": "ctif.hagezi.org",
+    "domain": "example.com",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 61
+  },
+  {
+    "endpoint": "ctif.hagezi.org",
+    "domain": "example.com",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 85
+  },
+  {
+    "endpoint": "ctif.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  },
+  {
+    "endpoint": "ctif.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  },
+  {
+    "endpoint": "root.hagezi.org",
+    "domain": "example.com",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 61
+  },
+  {
+    "endpoint": "root.hagezi.org",
+    "domain": "example.com",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 85
+  },
+  {
+    "endpoint": "root.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  },
+  {
+    "endpoint": "root.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  },
+  {
+    "endpoint": "wurzn.hagezi.org",
+    "domain": "example.com",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 61
+  },
+  {
+    "endpoint": "wurzn.hagezi.org",
+    "domain": "example.com",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 0,
+    "answers": 2,
+    "bytes": 85
+  },
+  {
+    "endpoint": "wurzn.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 1,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  },
+  {
+    "endpoint": "wurzn.hagezi.org",
+    "domain": "use-application-dns.net",
+    "qtype": 28,
+    "ok": true,
+    "rcode": 3,
+    "answers": 0,
+    "bytes": 41
+  }
+]

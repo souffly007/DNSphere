@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">الوضع الصارم (بدون الرجوع إلى النص الصريح)</string>
+    <string name="pref_strict_dns_summary">إذا فشل DNS المشفّر، يفشل الطلب بدلاً من إرساله دون تشفير. قد يعطّل التصفح على الشبكات التي تحجب DoH/DoT.</string>
+    <string name="pref_query_protection_title">حماية معزّزة للطلبات</string>
+    <string name="pref_query_protection_summary">يخفي طول الأسماء المطلوبة (حشو EDNS) ويمنع إرسال شبكتك الفرعية (ECS).</string>
+</resources>

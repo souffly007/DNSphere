@@ -10,14 +10,13 @@ import javax.net.ssl.HttpsURLConnection
 
 /**
  * DNS over HTTPS (DoH) Resolver
- * Supporte Cloudflare, Google, Quad9
+ * Supporte Cloudflare, Google
  */
 class DohResolver {
 
     companion object {
         const val CLOUDFLARE_DOH = "https://cloudflare-dns.com/dns-query"
         const val GOOGLE_DOH = "https://dns.google/dns-query"
-        const val QUAD9_DOH = "https://dns.quad9.net:5053/dns-query"
 
         private const val TAG = "DohResolver"
     }
@@ -28,7 +27,6 @@ class DohResolver {
         dohServer = when (server) {
             "cloudflare" -> CLOUDFLARE_DOH
             "google" -> GOOGLE_DOH
-            "quad9" -> QUAD9_DOH
             else -> server
         }
     }

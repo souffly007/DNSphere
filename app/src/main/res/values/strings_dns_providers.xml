@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="doh_provider_hagezi_security_entry" translatable="false">HaGeZi Sécurité — Phishing, sites malveillants, arnaques</string>
+    <string name="doh_provider_hagezi_full_entry" translatable="false">HaGeZi Protection complète — Anti-pubs, traqueurs</string>
+    <string name="doh_provider_quad9" translatable="false">Quad9 (Hors France)</string>
     <!-- Mullvad DNS -->
     <string name="doh_provider_mullvad">Mullvad DNS</string>
     <string name="doh_provider_mullvad_adblock">Mullvad – Blocage des publicités</string>

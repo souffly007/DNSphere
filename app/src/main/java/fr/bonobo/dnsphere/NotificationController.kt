@@ -63,7 +63,7 @@ class NotificationController(
         }
     }
 
-    fun notifyProtectionInterrupted() {
+    fun notifyProtectionInterrupted(permissionRevoked: Boolean = false) {
         try {
             val mainIntent = PendingIntent.getActivity(
                 context,
@@ -75,7 +75,9 @@ class NotificationController(
             val likelyMiuiCause = PowerUtils.isMiuiOrHyperOs() &&
                 !PowerUtils.isIgnoringBatteryOptimizations(context)
 
-            val contentText = if (likelyMiuiCause) {
+            val contentText = if (permissionRevoked) {
+                "L'autorisation VPN a été retirée. Ouvrez DNSphere pour réactiver la protection."
+            } else if (likelyMiuiCause) {
                 "Le système (MIUI/HyperOS) a probablement arrêté la protection. Appuyez pour régler l'autostart et la batterie."
             } else {
                 "Le filtrage DNS s'est arrêté de façon inattendue. Relance en cours…"
@@ -145,7 +147,13 @@ class NotificationController(
         val totalBlocked = values.ads + values.trackers + values.malware +
             values.shopping + values.other
         val paused = isPaused()
-        val title = if (paused) "⏸️ DNSphere en pause" else "🛡️ DNSphere actif"
+        val title = when {
+            paused -> "⏸️ DNSphere en pause"
+            currentDnsLabel().contains("Repli DNS standard") -> "⚠️ DNSphere : DNS non chiffré"
+            currentDnsLabel().contains("indisponible") -> "⚠️ DNSphere : DNS indisponible"
+            currentDnsLabel().contains("En attente") -> "DNSphere : vérification DNS en attente"
+            else -> "🛡️ DNSphere actif"
+        }
         val shortText = if (paused) {
             "Protection suspendue"
         } else {

@@ -164,7 +164,11 @@ class SettingsActivity : AppCompatActivity() {
 
                     Toast.makeText(
                         requireContext(),
-                        getString(R.string.dns_changed, getProviderDisplayName(provider)),
+                        getString(R.string.dns_changed, when (provider) {
+                            "hagezi-security" -> getString(R.string.doh_provider_hagezi_security)
+                            "hagezi-full" -> getString(R.string.doh_provider_hagezi_full)
+                            else -> getProviderDisplayName(provider)
+                        }),
                         Toast.LENGTH_SHORT
                     ).show()
 
@@ -396,6 +400,8 @@ class SettingsActivity : AppCompatActivity() {
             return when (provider) {
                 "cloudflare"          -> getString(R.string.doh_provider_cloudflare)
                 "google"              -> getString(R.string.doh_provider_google)
+                "hagezi-security"     -> getString(R.string.doh_provider_hagezi_security_entry)
+                "hagezi-full"         -> getString(R.string.doh_provider_hagezi_full_entry)
                 "quad9"               -> getString(R.string.doh_provider_quad9)
                 "adguard"             -> getString(R.string.doh_provider_adguard)
                 "mullvad"             -> getString(R.string.doh_provider_mullvad)

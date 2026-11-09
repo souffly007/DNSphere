@@ -3,6 +3,8 @@
     <string-array name="doh_providers">
         <item>@string/doh_provider_cloudflare</item>
         <item>@string/doh_provider_google</item>
+        <item>@string/doh_provider_hagezi_security_entry</item>
+        <item>@string/doh_provider_hagezi_full_entry</item>
         <item>@string/doh_provider_quad9</item>
         <item>@string/doh_provider_adguard</item>
         <item>@string/doh_provider_mullvad</item>
@@ -24,6 +26,8 @@
     <string-array name="doh_provider_values">
         <item>cloudflare</item>
         <item>google</item>
+        <item>hagezi-security</item>
+        <item>hagezi-full</item>
         <item>quad9</item>
         <item>adguard</item>
         <item>mullvad</item>

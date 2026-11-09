@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Strict mode (no plaintext fallback)</string>
+    <string name="pref_strict_dns_summary">If encrypted DNS fails, the query fails instead of being sent unencrypted. May break browsing on networks that filter DoH/DoT.</string>
+    <string name="pref_query_protection_title">Enhanced query protection</string>
+    <string name="pref_query_protection_summary">Hides the length of requested names (EDNS padding) and stops your subnet from being forwarded (ECS).</string>
+</resources>

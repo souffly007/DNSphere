@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Strikte modus (geen terugval naar platte tekst)</string>
+    <string name="pref_strict_dns_summary">Als versleutelde DNS mislukt, mislukt de aanvraag in plaats van onversleuteld te worden verzonden. Kan surfen blokkeren op netwerken die DoH/DoT filteren.</string>
+    <string name="pref_query_protection_title">Verbeterde aanvraagbescherming</string>
+    <string name="pref_query_protection_summary">Verbergt de lengte van opgevraagde namen (EDNS-padding) en voorkomt dat je subnet wordt doorgegeven (ECS).</string>
+</resources>

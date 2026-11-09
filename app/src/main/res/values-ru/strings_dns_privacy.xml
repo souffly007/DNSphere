@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Строгий режим (без отката на открытый DNS)</string>
+    <string name="pref_strict_dns_summary">Если зашифрованный DNS не работает, запрос завершается ошибкой, а не отправляется без шифрования. Может нарушить работу в сетях, фильтрующих DoH/DoT.</string>
+    <string name="pref_query_protection_title">Усиленная защита запросов</string>
+    <string name="pref_query_protection_summary">Скрывает длину запрашиваемых имён (EDNS padding) и не передаёт вашу подсеть (ECS).</string>
+</resources>

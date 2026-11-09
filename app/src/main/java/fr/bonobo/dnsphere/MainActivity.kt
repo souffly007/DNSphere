@@ -78,6 +78,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val migration = getSharedPreferences("provider_migration", MODE_PRIVATE)
+        if (migration.getBoolean("notice_pending", false)) {
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setMessage(if (migration.getInt("replaced_references", 0) > 1)
+                    "Vos choix Quad9 enregistrés ont été remplacés par HaGeZi Sécurité."
+                    else "Votre profil Quad9 a été remplacé par HaGeZi Sécurité.")
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    migration.edit().putBoolean("notice_pending", false).commit()
+                }.setCancelable(false).show()
+        }
 
         supportActionBar?.hide()
 
@@ -304,7 +314,10 @@ class MainActivity : AppCompatActivity() {
     private fun updateCurrentDnsLabel() {
         val prefs = getSharedPreferences("dnsphere_prefs", MODE_PRIVATE)
         val provider = prefs.getString("current_dns_provider", "standard") ?: "standard"
-        tvCurrentDns.text = getDnsDisplayName(provider)
+        val label = getDnsDisplayName(provider)
+        tvCurrentDns.text = if (isVpnRunning && provider.startsWith("hagezi-"))
+            "$label — ${fr.bonobo.dnsphere.dns.DohResolver.getInstance(this).transportStatus}"
+        else label
     }
 
     private fun getDnsDisplayName(provider: String): String =

@@ -17,24 +17,20 @@ import org.chromium.net.CronetEngine
 import org.chromium.net.CronetException
 import org.chromium.net.UrlRequest
 import org.chromium.net.UrlResponseInfo
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import fr.bonobo.dnsphere.network.ByteArrayUploadProvider
 
 /**
- * DNS over QUIC (DoQ) Resolver — port 853
- * Utilise Cronet comme moteur QUIC.
- * Fallback automatique vers UDP en cas d'échec.
+ * Transport DoH sur Cronet : HTTP/3 est tenté quand le réseau le permet.
+ * Cronet ne fournit pas ici de flux DoQ natif sur le port 853.
  */
 class DoqResolver(private val context: Context) {
 
     companion object {
         const val CLOUDFLARE_DOQ = "cloudflare-dns.com"
-        const val ADGUARD_DOQ    = "dns.adguard.com"
+        const val ADGUARD_DOQ    = "dns.adguard-dns.com"
         const val NEXTDNS_DOQ    = "dns.nextdns.io"
         const val DOQ_PORT       = 853
         private const val TAG    = "DoqResolver"
@@ -72,20 +68,20 @@ class DoqResolver(private val context: Context) {
     }
 
     /**
-     * Résout une requête DNS via DoQ (QUIC port 853).
-     * DoQ = DNS wire format encapsulé dans un stream QUIC.
-     * On passe par DoH avec Cronet (HTTP/3) comme transport QUIC —
-     * Cloudflare/AdGuard exposent les deux sur le même endpoint.
+     * Résout une requête DNS via DoH avec Cronet (HTTP/3 si disponible).
      *
-     * Fallback automatique vers UDP si échec.
+     * Le repli est décidé par ResolverManager selon le fournisseur et le mode strict.
      */
     suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
         return withContext(Dispatchers.IO) {
             try {
                 resolveViaQuic(dnsQuery)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
-                Log.w(TAG, "DoQ échoué (${e.message}), fallback UDP")
-                resolveViaUdpFallback(dnsQuery)
+                // ResolverManager applique la politique de repli du fournisseur choisi.
+                Log.w(TAG, "Transport QUIC échoué: ${e.message}")
+                null
             }
         }
     }
@@ -168,26 +164,6 @@ class DoqResolver(private val context: Context) {
 
             continuation.invokeOnCancellation { request.cancel() }
             request.start()
-        }
-    }
-
-    /**
-     * Fallback UDP classique si QUIC indisponible
-     */
-    private fun resolveViaUdpFallback(dnsQuery: ByteArray): ByteArray? {
-        return try {
-            val socket = DatagramSocket()
-            socket.soTimeout = 5000
-            val server = InetAddress.getByName("1.1.1.1")
-            socket.send(DatagramPacket(dnsQuery, dnsQuery.size, server, 53))
-            val buf = ByteArray(512)
-            val response = DatagramPacket(buf, buf.size)
-            socket.receive(response)
-            socket.close()
-            buf.copyOf(response.length)
-        } catch (e: Exception) {
-            Log.e(TAG, "Fallback UDP aussi échoué: ${e.message}")
-            null
         }
     }
 

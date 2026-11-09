@@ -389,7 +389,7 @@ class BackupManager(private val context: Context) {
             if (obj.has("block_shopping")) putBoolean("block_shopping", obj.getBoolean("block_shopping"))
             if (obj.has("use_doh"))        putBoolean("use_doh",        obj.getBoolean("use_doh"))
             if (obj.has("use_dot"))        putBoolean("use_dot",        obj.getBoolean("use_dot"))
-            if (obj.has("doh_provider"))   putString("doh_provider",    obj.getString("doh_provider"))
+            if (obj.has("doh_provider"))   putString("doh_provider",    fr.bonobo.dnsphere.data.ProviderMigration.normalize(obj.getString("doh_provider")))
             apply()
         }
     }

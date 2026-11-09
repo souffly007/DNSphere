@@ -40,8 +40,7 @@ class Doh3Resolver(private val context: Context) {
         val PROVIDERS = mapOf(
             "cloudflare" to "https://cloudflare-dns.com/dns-query",
             "google"     to "https://dns.google/dns-query",
-            "quad9"      to "https://dns.quad9.net/dns-query",
-            "adguard"    to "https://dns.adguard.com/dns-query"
+            "adguard"    to "https://dns.adguard-dns.com/dns-query"
         )
     }
 
@@ -60,8 +59,7 @@ class Doh3Resolver(private val context: Context) {
             // sans attendre la négociation Alt-Svc du premier échange
             .addQuicHint("cloudflare-dns.com", 443, 443)
             .addQuicHint("dns.google",          443, 443)
-            .addQuicHint("dns.quad9.net",        443, 443)
-            .addQuicHint("dns.adguard.com",      443, 443)
+            .addQuicHint("dns.adguard-dns.com",  443, 443)
             .build()
     }
 
@@ -79,7 +77,6 @@ class Doh3Resolver(private val context: Context) {
     fun getProviderName(): String = when (currentProviderName) {
         "cloudflare" -> "Cloudflare"
         "google"     -> "Google"
-        "quad9"      -> "Quad9"
         "adguard"    -> "AdGuard"
         else         -> currentProviderName.replaceFirstChar { it.uppercase() }
     }
@@ -92,7 +89,9 @@ class Doh3Resolver(private val context: Context) {
     suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
         return withContext(Dispatchers.IO) {
             try {
-                resolveViaHttp3(dnsQuery)
+                resolveViaHttp3(dnsQuery) ?: resolveViaHttpsFallback(dnsQuery)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.w(TAG, "DoH3 échec (${e.message}), fallback DoH classique")
                 resolveViaHttpsFallback(dnsQuery)

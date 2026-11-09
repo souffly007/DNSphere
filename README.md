@@ -9,7 +9,7 @@ DNSphere est une application Android de protection DNS locale. Elle utilise un V
 - protection de toutes les applications, pas uniquement du navigateur ;
 - fonctionnement local, sans compte et sans serveur DNSphere ;
 - prise en charge des transports DNS standard, DoH, DoT, DoQ et DoH3 ;
-- fournisseurs DNS configurables, dont Cloudflare, Quad9, Google, AdGuard, Mullvad et DNS4EU ;
+- fournisseurs DNS configurables, dont Cloudflare, HaGeZi, Google, AdGuard, Mullvad et DNS4EU ;
 - blocage des publicités, trackers, malwares et catégories configurables ;
 - profils et horaires automatiques, y compris les créneaux de nuit ;
 - contrôle parental et SafeSearch ;

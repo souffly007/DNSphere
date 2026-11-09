@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">严格模式（不回退到明文）</string>
+    <string name="pref_strict_dns_summary">加密 DNS 失败时，查询将直接失败，而不是以未加密方式发送。在过滤 DoH/DoT 的网络上可能无法上网。</string>
+    <string name="pref_query_protection_title">增强的查询保护</string>
+    <string name="pref_query_protection_summary">隐藏所请求域名的长度（EDNS 填充），并阻止转发您的子网（ECS）。</string>
+</resources>

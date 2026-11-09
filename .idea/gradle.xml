@@ -8,8 +8,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="/run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/DNSphere" />
+            <option value="/run/media/Snoopy63/634B898E7B8D73D8/AndroidStudioProjects/DNSphere/app" />
           </set>
         </option>
       </GradleProjectSettings>

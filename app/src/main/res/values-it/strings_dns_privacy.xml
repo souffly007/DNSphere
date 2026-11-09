@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Modalità rigorosa (nessun ripiego in chiaro)</string>
+    <string name="pref_strict_dns_summary">Se il DNS cifrato non funziona, la richiesta fallisce invece di essere inviata senza cifratura. Può bloccare la navigazione su reti che filtrano DoH/DoT.</string>
+    <string name="pref_query_protection_title">Protezione avanzata delle richieste</string>
+    <string name="pref_query_protection_summary">Nasconde la lunghezza dei nomi richiesti (padding EDNS) e impedisce l’invio della tua sottorete (ECS).</string>
+</resources>

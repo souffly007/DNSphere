@@ -26,15 +26,21 @@ class DohResolver private constructor(context: Context) {
         data class DohProvider(
             val urlString: String,
             val hostname: String,      // SNI TLS et en-tête Host
-            val ipAddress: String?     // IP de bootstrap (null = DNS système)
+            val ipAddress: String?,    // IP littérale de bootstrap
+            val ipv6Address: String? = null,
+            val fallback: DohProvider? = null,
+            val secondaryIpAddress: String? = null
         )
 
         val PROVIDERS = mapOf(
             // ── Resolvers standards ────────────────────────────────────────
-            "cloudflare"          to DohProvider("https://cloudflare-dns.com/dns-query", "cloudflare-dns.com", "1.1.1.1"),
-            "google"              to DohProvider("https://dns.google/dns-query", "dns.google", "8.8.8.8"),
-            "quad9"               to DohProvider("https://dns.quad9.net/dns-query", "dns.quad9.net", "9.9.9.9"),
-            "adguard"             to DohProvider("https://dns.adguard.com/dns-query", "dns.adguard.com", "94.140.14.14"),
+            "cloudflare"          to DohProvider("https://cloudflare-dns.com/dns-query", "cloudflare-dns.com", "1.1.1.1", secondaryIpAddress = "1.0.0.1"),
+            "google"              to DohProvider("https://dns.google/dns-query", "dns.google", "8.8.8.8", secondaryIpAddress = "8.8.4.4"),
+            "hagezi-security" to DohProvider("https://ctif.hagezi.org/dns-query", "ctif.hagezi.org", "162.55.58.40", "2a01:4f8:1c19:6c19::1"),
+            "hagezi-full" to DohProvider("https://root.hagezi.org/dns-query", "root.hagezi.org", "188.34.161.210", "2a01:4f8:c17:1c66::1",
+                DohProvider("https://wurzn.hagezi.org/dns-query", "wurzn.hagezi.org", "159.69.155.94", "2a01:4f8:1c1c:d363::1")),
+            "quad9"               to DohProvider("https://dns.quad9.net/dns-query", "dns.quad9.net", "9.9.9.9", secondaryIpAddress = "149.112.112.112"),
+            "adguard"             to DohProvider("https://dns.adguard-dns.com/dns-query", "dns.adguard-dns.com", "94.140.14.14", secondaryIpAddress = "94.140.15.15"),
 
             // ── Mullvad DNS ────────────────────────────────────────────────
             "mullvad"             to DohProvider("https://dns.mullvad.net/dns-query", "dns.mullvad.net", "194.242.2.2"),
@@ -69,25 +75,36 @@ class DohResolver private constructor(context: Context) {
     }
 
     var enabled = true
+    private val privacy = PrivacyPrefs(context)
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private var currentProviderName: String = DEFAULT_PROVIDER
-    private var currentProvider: DohProvider = PROVIDERS[DEFAULT_PROVIDER]!!
+    @Volatile private var currentProviderName: String = DEFAULT_PROVIDER
+    @Volatile private var currentProvider: DohProvider = PROVIDERS[DEFAULT_PROVIDER]!!
 
     // ✅ Client OkHttp configuré pour HTTP/2 + ALPN nativement
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_2, Protocol.HTTP_1_1))
         .connectTimeout(5, TimeUnit.SECONDS)
         .readTimeout(5, TimeUnit.SECONDS)
+        .callTimeout(7, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
+        .followRedirects(false)
+        .followSslRedirects(false)
         .dns(object : Dns {
             override fun lookup(hostname: String): List<InetAddress> {
                 // Si une IP de bootstrap est configurée pour le provider courant, on l'utilise directement
-                val provider = currentProvider
+                val provider = PROVIDERS.values.asSequence()
+                    .flatMap { sequenceOf(it, it.fallback).filterNotNull() }
+                    .firstOrNull { it.hostname.equals(hostname, ignoreCase = true) }
+                    ?: currentProvider
                 if (provider.ipAddress != null && hostname.equals(provider.hostname, ignoreCase = true)) {
                     Log.d(TAG, "🎯 Bootstrap DNS OK: $hostname -> ${provider.ipAddress}")
-                    return listOf(InetAddress.getByName(provider.ipAddress))
+                    return listOfNotNull(provider.ipAddress, provider.secondaryIpAddress, provider.ipv6Address)
+                        .map { InetAddress.getByName(it) }
                 }
-                // Sinon, fallback sur la résolution système normale
-                return Dns.SYSTEM.lookup(hostname)
+                // Sinon (Rethink, URL personnalisée) : bootstrap en DoH vers une IP littérale,
+                // pour ne pas envoyer le nom du résolveur en clair via le DNS système.
+                // Le repli système n'est autorisé qu'en dehors du mode strict.
+                return DohBootstrap.lookup(hostname, allowSystemFallback = !privacy.strictMode)
             }
         })
         .build()
@@ -97,7 +114,7 @@ class DohResolver private constructor(context: Context) {
     }
 
     private fun loadCurrentConfig() {
-        val savedProvider = prefs.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER
+        val savedProvider = fr.bonobo.dnsphere.data.ProviderMigration.normalize(prefs.getString(KEY_PROVIDER, DEFAULT_PROVIDER) ?: DEFAULT_PROVIDER)
         currentProviderName = savedProvider
         currentProvider = PROVIDERS[savedProvider] ?: PROVIDERS[DEFAULT_PROVIDER]!!
         Log.d(TAG, "⚙️ Config chargée: $currentProviderName (IP: ${currentProvider.ipAddress ?: "DNS system"})")
@@ -109,11 +126,14 @@ class DohResolver private constructor(context: Context) {
     }
 
     fun setProvider(provider: String) {
-        val normalizedProvider = provider.lowercase().trim()
+        val normalizedProvider = fr.bonobo.dnsphere.data.ProviderMigration.normalize(provider)
         when {
             PROVIDERS.containsKey(normalizedProvider) -> {
                 currentProviderName = normalizedProvider
                 currentProvider = PROVIDERS[normalizedProvider]!!
+                retryAfterMs = 0L
+                primaryRetryAfterMs = 0L
+                status("En attente d’une réponse DNS")
                 saveCurrentConfig()
                 Log.d(TAG, "🔄 Provider changé: $normalizedProvider → ${currentProvider.urlString}")
             }
@@ -122,6 +142,9 @@ class DohResolver private constructor(context: Context) {
                 val host = url.toHttpUrlOrNull()?.host ?: ""
                 currentProviderName = url
                 currentProvider = DohProvider(url, host, null)
+                retryAfterMs = 0L
+                primaryRetryAfterMs = 0L
+                status("En attente d’une réponse DNS")
                 saveCurrentConfig()
                 Log.d(TAG, "🔄 Provider URL directe: $url")
             }
@@ -135,7 +158,9 @@ class DohResolver private constructor(context: Context) {
         return when (currentProviderName) {
             "cloudflare"          -> "Cloudflare"
             "google"              -> "Google"
-            "quad9"               -> "Quad9"
+            "hagezi-security"     -> "HaGeZi Sécurité"
+            "hagezi-full"         -> "HaGeZi Protection complète"
+            "quad9"               -> "Quad9 (Hors France)"
             "adguard"             -> "AdGuard"
 
             "mullvad"             -> "Mullvad"
@@ -164,46 +189,82 @@ class DohResolver private constructor(context: Context) {
 
     fun isRethinkDns(): Boolean = currentProvider.urlString.contains("rethinkdns.com")
 
-    suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
-        if (!enabled) {
-            Log.d(TAG, "⏭️ DoH désactivé")
-            return null
+    @Volatile private var retryAfterMs = 0L
+    @Volatile private var primaryRetryAfterMs = 0L
+    @Volatile var transportStatus: String = "En attente d’une réponse DNS"
+        private set
+    var onTransportStatusChanged: (() -> Unit)? = null
+
+    fun requiresEncryptedTransport(): Boolean = currentProviderName.startsWith("hagezi-") || currentProviderName == "quad9"
+
+    private fun status(value: String) {
+        if (transportStatus != value) {
+            transportStatus = value
+            onTransportStatusChanged?.invoke()
         }
+    }
 
+    fun noteStandardFallback() {
+        status("Repli DNS standard actif (non chiffré)")
+    }
+
+    suspend fun resolve(dnsQuery: ByteArray): ByteArray? {
+        if (!enabled) return null
         return withContext(Dispatchers.IO) {
-            try {
-                val provider = currentProvider
-                Log.d(TAG, "🌐 Requête DoH vers ${getProviderName()} (${provider.hostname})")
-
-                val base64Query = Base64.encodeToString(
-                    dnsQuery,
-                    Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
-                )
-
-                val requestUrl = "${provider.urlString}?dns=$base64Query"
-
-                // ✅ Construction de la requête avec l'URL originale (OkHttp gère l'IP via son instance Dns)
-                val request = Request.Builder()
-                    .url(requestUrl)
-                    .header("Accept", "application/dns-message")
-                    .get()
-                    .build()
-
-                okHttpClient.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        val bytes = response.body?.bytes()
-                        if (bytes != null) {
-                            Log.d(TAG, "✅ Réponse DoH OK de ${getProviderName()} (${bytes.size} bytes)")
-                            return@withContext bytes
+            // Snapshot: a provider change must never redirect an in-flight query to another policy.
+            val provider = currentProvider
+            if (System.currentTimeMillis() < retryAfterMs && currentProvider === provider) {
+                return@withContext null
+            }
+            for (endpoint in listOfNotNull(provider, provider.fallback)) {
+                if (endpoint === provider && provider.fallback != null &&
+                    System.currentTimeMillis() < primaryRetryAfterMs) continue
+                try {
+                    val encoded = Base64.encodeToString(dnsQuery,
+                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
+                    val request = Request.Builder().url("${endpoint.urlString}?dns=$encoded")
+                        .header("Accept", "application/dns-message").get().build()
+                    okHttpClient.newCall(request).execute().use { response ->
+                        val body = response.body
+                        if (response.isSuccessful &&
+                            body?.contentType()?.let { it.type == "application" && it.subtype == "dns-message" } == true &&
+                            body.contentLength() <= 65535) {
+                            val bytes = body.byteStream().readBytesLimited()
+                            if (DohResponsePolicy.isUsable(dnsQuery, bytes)) {
+                                if (currentProvider === provider) {
+                                    retryAfterMs = 0L
+                                    if (endpoint === provider) primaryRetryAfterMs = 0L
+                                    status("Connecté : ${endpoint.hostname}")
+                                }
+                                return@withContext bytes
+                            }
                         }
                     }
-                    Log.w(TAG, "❌ Réponse DoH error: ${response.code} pour ${getProviderName()}")
-                    null
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // Transport/service failure only. Never record the queried name or payload.
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "❌ Échec DoH (${getProviderName()}): ${e.message}", e)
-                null
+                if (endpoint === provider && provider.fallback != null && currentProvider === provider) {
+                    primaryRetryAfterMs = System.currentTimeMillis() + 30_000L
+                }
             }
+            if (currentProvider === provider) {
+                retryAfterMs = System.currentTimeMillis() + 1_000L
+                status("DNS indisponible — nouvelle tentative en cours")
+            }
+            null
+        }
+    }
+
+    private fun java.io.InputStream.readBytesLimited(): ByteArray {
+        val out = java.io.ByteArrayOutputStream()
+        val buffer = ByteArray(4096)
+        while (true) {
+            val n = read(buffer)
+            if (n < 0) return out.toByteArray()
+            if (out.size() + n > 65535) throw java.io.IOException("DNS response too large")
+            out.write(buffer, 0, n)
         }
     }
 

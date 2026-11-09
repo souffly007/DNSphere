@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">厳格モード（平文へのフォールバックなし）</string>
+    <string name="pref_strict_dns_summary">暗号化DNSが失敗した場合、暗号化せずに送信する代わりにクエリを失敗させます。DoH/DoTを遮断するネットワークでは閲覧できなくなる場合があります。</string>
+    <string name="pref_query_protection_title">クエリ保護の強化</string>
+    <string name="pref_query_protection_summary">要求されたドメイン名の長さ（EDNSパディング）を隠し、サブネット情報（ECS）の転送を防ぎます。</string>
+</resources>

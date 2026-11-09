@@ -9,6 +9,7 @@ package fr.bonobo.dnsphere
 
 import android.content.Context
 import android.content.Intent
+import android.net.VpnService
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.work.*
@@ -85,9 +86,9 @@ class WatchdogWorker(
     override fun doWork(): Result {
         Log.d(TAG, "🔍 Vérification VPN...")
 
-        // Les paramètres de l'écran SettingsActivity sont stockés dans vpn_prefs.
         val prefs      = context.getSharedPreferences("vpn_prefs", Context.MODE_PRIVATE)
-        val userWantsVpn = prefs.getBoolean("vpn_should_be_running", false)
+        val userWantsVpn = context.getSharedPreferences("dnsphere_prefs", Context.MODE_PRIVATE)
+            .getBoolean("vpn_should_be_running", false)
 
         // Purge quotidienne des journaux détaillés selon la politique commune.
         try {
@@ -126,6 +127,11 @@ class WatchdogWorker(
 
         if (LocalVpnService.isRunning) {
             Log.d(TAG, "✅ VPN actif, rien à faire")
+            return Result.success()
+        }
+
+        if (VpnService.prepare(context) != null) {
+            Log.w(TAG, "Autorisation VPN absente : ouverture de l'app nécessaire")
             return Result.success()
         }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_strict_dns_title">Strikter Modus (kein Klartext-Fallback)</string>
+    <string name="pref_strict_dns_summary">Wenn verschlüsseltes DNS fehlschlägt, schlägt die Anfrage fehl, statt unverschlüsselt gesendet zu werden. Kann das Surfen in Netzwerken blockieren, die DoH/DoT filtern.</string>
+    <string name="pref_query_protection_title">Erweiterter Anfrageschutz</string>
+    <string name="pref_query_protection_summary">Verbirgt die Länge der angefragten Namen (EDNS-Padding) und verhindert die Weitergabe Ihres Subnetzes (ECS).</string>
+</resources>
